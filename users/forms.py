@@ -27,3 +27,23 @@ class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['image']
+
+
+# class DataRetrieval(forms.Form):
+#     name = forms.CharField()
+#     url = forms.URLField()
+#     comment = forms.CharField(widget=forms.Textarea)
+#     fields = ['Query Data']
+
+class SimpleForm(forms.Form):
+     enterUrl = forms.CharField(max_length=100)
+
+
+     class Meta:
+         model = forms
+         fields = ['query']
+    #lastname = forms.CharField(max_length=100)
+
+
+class QueryForm(forms.Form):
+    query = forms.CharField(max_length=100)
