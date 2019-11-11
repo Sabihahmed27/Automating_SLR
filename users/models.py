@@ -4,9 +4,16 @@ from PIL import Image
 # Create your models here.
 
 
+class Document(models.Model):
+    description = models.CharField(max_length=255, blank=True)
+    document = models.FileField(upload_to='documents/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     image = models.ImageField(default= 'default.jpg', upload_to='profile_pics')
+    #enter = models.TextField()
 
 
     def __str__(self):
