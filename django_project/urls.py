@@ -27,7 +27,7 @@ urlpatterns = [
     path('register/', user_views.register, name='register'),
     path('data/', user_views.data, name='data'),
     path('model_form_upload/', user_views.model_form_upload,name = 'model_form_upload'),
-    path('query/', user_views.query, name='query'),
+    path('query/<str:data>', user_views.query, name='query'),
     path('scholar/', user_views.scholarly_data, name='scholar'),
     path('profile/', user_views.profile, name='profile'),
     path('login/', auth_views.LoginView.as_view(template_name='users/login.html'), name='login'),

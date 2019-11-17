@@ -8,6 +8,7 @@ from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm, SimpleFo
 import requests,json
 from django.http import JsonResponse
 import urllib
+from crossref.restful import Works
 import scholarly
 from django.core import serializers
 from urllib.parse import urlencode, quote_plus,quote
@@ -66,6 +67,12 @@ def data(request):
             response = requests.get(edited_search_coreAPI(query, parameter_values_list))
             # response = requests.get(edited_search_coreAPI(form.enterUrl, parameter_values_list))
             content = response.json()
+            works = Works()
+            w1 = works.query(container_title='zika', author='johannes', publisher_name='Wiley-Blackwell')
+            for item in w1:
+                print(item['title'])
+
+
             print(content)
 
             print(type(content))
@@ -77,7 +84,7 @@ def data(request):
 
             messages.success(request, f'Your Url has been generated')
 
-            #return redirect(request,'users/query.html',{'content' : content})
+            #return redirect("/query/",data= [content])
             return render(request,'users/query.html', {'content': [content]})
             #return render(json.dumps(content,sort_keys=True, indent=4),'users/query.html', content_type="application/json"))
             #return (HttpResponse(json.dumps(content,sort_keys=True, indent=4), content_type="application/json"))
@@ -142,8 +149,8 @@ def model_form_upload(request):
 
 
 
-def query(request):
-    return render(request,'profile')
+def query(request,data):
+    return render(request,'users/query.html',{data:data})
 
 
 def scholarly_data(request):
@@ -199,7 +206,7 @@ def scholarly_data(request):
             messages.success(request, f'Your Url has been generated')
             #return render_to_response(request, {"day_list": ['sunday', 'monday', 'tuesday']})
             # return redirect(request,'users/query.html',{'content' : content})
-            return render(request, 'users/scholar.html', {'content': [search_query]})
+            return render(request, 'users/scholar.html', {'content': [auth_name,auth_id,em_author]})
             #return render(request, 'users/query.html',{"content" : content})
             #return render(json.dumps(search_query,sort_keys=True, indent=4),'users/query.html', content_type="application/json")
             #query_serialized = serializers.serialize('json', search_query)
