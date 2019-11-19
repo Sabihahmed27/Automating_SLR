@@ -84,8 +84,8 @@ def data(request):
 
             messages.success(request, f'Your Url has been generated')
 
-            #return redirect("/query/",data= [content])
-            return render(request,'users/query.html', {'content': [content]})
+            return redirect("query",data=str(content))
+            # return render(request,'users/query.html', {'content': [content]})
             #return render(json.dumps(content,sort_keys=True, indent=4),'users/query.html', content_type="application/json"))
             #return (HttpResponse(json.dumps(content,sort_keys=True, indent=4), content_type="application/json"))
 
