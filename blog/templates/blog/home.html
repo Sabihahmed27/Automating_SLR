@@ -1,40 +1,81 @@
 {% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
 {% block content %}
-    {% for post in posts %}
-       <article class="media content-section">
-           <img class="rounder-circle article-img" src="{{ post.author.profile.image.url }}">
-          <div class="media-body">
-            <div class="article-metadata">
-              <a class="mr-2" href="{% url 'user-posts' post.author.username %}">{{ post.author }}</a>
-              <small class="text-muted">{{ post.date_posted|date:"F d, Y"}}</small>
-            </div>
-            <h2><a class="article-title" href="{% url 'post-detail' post.id %}">{{ post.title }}</a></h2>
-            <p class="article-content">{{ post.content }}</p>
+     <div class="row">
+
+        <div class="col-md-8">
+            <div class="content-section">
+            <form method="POST">
+                {% csrf_token %}
+
+                WE ARE HERE TO HELP THE RESEARCHERS!
+<!--                <fieldset class = "form-group">-->
+<!--&lt;!&ndash;                    <legend class="border-bottom mb-4">Data Retrieval </legend>&ndash;&gt;-->
+<!--&lt;!&ndash;                     <p>EnterUrl: <input type="text" name="enterUrl"></p>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <p><input type="submit" value="submit"></p>&ndash;&gt;-->
+
+<!--                    <p><label form="id_title" class="control-label">Query</label> <input type="text" name="query"></p>-->
+<!--&lt;!&ndash;    <input class="form-control" id="id_title" maxlength="255" name="title" type="text" value="hello world" />&ndash;&gt;-->
+<!--      <p><input type="submit" value="submit"></p>-->
+
+<!--                </fieldset>-->
+
+
+
+            </form>
+
+
         </div>
-    </article>
-    {% endfor %}
-    {% if is_paginated %}
-        {% if page_obj.has_previous %}
-            <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
-            <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-        {% endif %}
-
-    {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-                 <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3'%}
-            <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
-            {% endif %}
-    {% endfor%}
-
-    {% if page_obj.has_next %}
-            <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
-            <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
-
-        {% endif %}
-    {% endif %}
+              <div class="form-group">
 
 
+
+
+
+  </div>
+
+        </div>
+                   <div class="col-md-4">
+<!--                       <div class="form-group">-->
+<!--                    <a href="/database" class="btn btn-primary pull-right">New review</a>-->
+
+<!--&lt;!&ndash;                <button class="btn btn-outline-info" href="/database" >New review</button>&ndash;&gt;-->
+<!--            </div>-->
+                    <a href="/database" class="btn btn-primary pull-right">New review</a>
+                  <div class="content-section">
+                    <h3>Our Sidebar</h3>
+                    <p class='text-muted'>You can put any information here you'd like.
+                      <ul class="list-group">
+                        <li class="list-group-item list-group-item-light">Latest Posts</li>
+                        <li class="list-group-item list-group-item-light">Announcements</li>
+                        <li class="list-group-item list-group-item-light">Calendars</li>
+                        <li class="list-group-item list-group-item-light">etc</li>
+                      </ul>
+                    </p>
+                  </div>
+                 </div>
+
+
+
+    </div>
+<!--    <div class="col-md-4">-->
+<!--        <a href="/review" class="btn btn-primary pull-right">New review</a>-->
+<!--      <div class="content-section">-->
+<!--        <h3>Our Sidebar</h3>-->
+<!--        <p class='text-muted'>You can put any information here you'd like.-->
+<!--          <ul class="list-group">-->
+<!--            <li class="list-group-item list-group-item-light">Latest Posts</li>-->
+<!--            <li class="list-group-item list-group-item-light">Announcements</li>-->
+<!--            <li class="list-group-item list-group-item-light">Calendars</li>-->
+<!--            <li class="list-group-item list-group-item-light">etc</li>-->
+<!--          </ul>-->
+<!--        </p>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
 
 
 {% endblock content %}
+
+
+

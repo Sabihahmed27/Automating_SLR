@@ -43,19 +43,19 @@ class DocumentForm(forms.ModelForm):
 
 
 class SimpleForm(forms.ModelForm):
-     enterUrl = forms.CharField(max_length=100)
+     Title = forms.CharField(max_length=300)
 
 
      class Meta:
          model = User
-         fields = ['enterUrl']
+         fields = ['Title']
     #lastname = forms.CharField(max_length=100)
 
 
 class QueryForm(forms.ModelForm):
-    query = forms.CharField(max_length=100)
+    enterUrl = forms.CharField(max_length=100)
 
     class Meta:
         model = User
-        fields = ['query']
+        fields = ['enterUrl']
 

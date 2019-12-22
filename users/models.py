@@ -10,6 +10,11 @@ class Document(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
 
+class ResearchPapers(models.Model):
+    doi = models.CharField(max_length=255,blank=True)
+
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     image = models.ImageField(default= 'default.jpg', upload_to='profile_pics')

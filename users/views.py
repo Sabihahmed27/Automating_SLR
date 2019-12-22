@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, render_to_response
 from django.contrib import messages
+from django.urls import reverse
 from habanero import Crossref
 from urllib.parse import urlparse
 from django.contrib.auth.decorators import login_required
@@ -15,6 +16,14 @@ from urllib.parse import urlencode, quote_plus,quote
 
 
 # Create your views here.
+class paper_details:
+    def __init__(self,doi,title,year,url):
+        self.title = title
+        self.doi = doi
+        self.year = year
+        self.url = url
+
+
 
 
 def register(request):
@@ -55,6 +64,8 @@ def profile(request):
 
     return render(request, 'users/profile.html',context)
 
+def review(request):
+    return render(request,'users/review.html')
 
 def data(request):
 
@@ -62,29 +73,189 @@ def data(request):
         form = SimpleForm(request.POST)
         if form.is_valid():
             #query = input('Enter the query to be searched: ')
-            query = form.cleaned_data.get("enterUrl")
-            parameter_values_list = [1, 10, '9ipXPomYaSrHLAIuONZfzUGk3t57RcBD']
+            query = form.cleaned_data.get("Title")
+            parameter_values_list = [1, 100, '9ipXPomYaSrHLAIuONZfzUGk3t57RcBD']
             response = requests.get(edited_search_coreAPI(query, parameter_values_list))
-            # response = requests.get(edited_search_coreAPI(form.enterUrl, parameter_values_list))
             content = response.json()
-            works = Works()
-            w1 = works.query(container_title='zika', author='johannes', publisher_name='Wiley-Blackwell')
-            for item in w1:
-                print(item['title'])
+            core_doi_list = []
+            crossref_doi_list = []
+            crossref_class_list = []
+
+            cr = Crossref()
+
+            x = cr.works(query=query, filter={'has_full_text': True})
+
+            crossref_titles = []
+            crossref_year = []
+            crossref_url = []
 
 
-            print(content)
+            for i in x['message']['items']:
+                crossref_titles.append(str(i['title'][0]))
+                crossref_year.append(i['created']['date-parts'][0][0])
+                crossref_url.append(i['URL'])
+                crossref_doi_list.append(i['DOI'])
+                print(i['DOI'])
+                # temp_doi = i['DOI']
+                # temp_title = i['title']
+                # temp_year = i['created']['date-parts'][0][0]
+                # temp_url = i['URL']
+                # crossref_class_list.append(paper_details(temp_doi,temp_title,temp_year,temp_url))
 
-            print(type(content))
+            # for i in crossref_class_list:
+            #     print(i)
+
+            core_class_list = []
+
+            # for i in content['data']:
+            #
+            #     temp_year = i['_source']['datePublished']
+            #     temp_title = i['_source']['title']
+            #     temp_doi = i['_source']['doi']
+            #     temp_url = i['_source']['urls']
+            #     core_class_list.append(paper_details(temp_doi,temp_title,temp_year,temp_url))
+
+
+
+            core_title = []
+            core_url = []
+            core_year = []
+            for i in content['data']:
+                if i['_source']['doi']!= None:
+                    # print(str(i['_source']['title']) + " "+str(i['_source']['datePublished']))
+                    core_doi_list.append(i['_source']['doi'])
+                    core_year.append(i['_source']['datePublished'])
+                    core_title.append(i['_source']['title'])
+                    core_url.append(i['_source']['urls'][0])
+                    print(i['_source']['urls'][0])
+                    print(i['_source']['doi'])
+
+            # print("Before duplication")
+            # print(len(crossref_titles))
+            # print(len(core_title))
+            new_core_title = []
+            for i in core_title:
+                if i not in new_core_title:
+                    new_core_title.append(i)
+            # print("After deduplication")
+            # print(len(new_core_title))
+
+
+
+            new_crossref_year = []
+            for i in crossref_year:
+                if i not in new_crossref_year:
+                    new_crossref_year.append(i)
+
+
+
+            new_crossref_url = []
+            for i in crossref_url:
+                if i not in new_crossref_url:
+                    new_crossref_url.append(i)
+
+
+
+
+
+
+
+
+            new_crossref_titles=[]
+            for i in crossref_titles:
+                if i not in new_crossref_titles:
+                    new_crossref_titles.append(i)
+
+
+            new_core_title = []
+            for i in core_title:
+                if i not in new_core_title:
+                    new_core_title.append(i)
+
+            # print("Length of titles")
+
+            # print(len(new_core_title))
+            # print("After deduplication")
+            # print(len(new_core_title))
+
+
+
+            new_core_year = []
+            for i in core_year:
+                if i not in new_core_year:
+                    new_core_year.append(i)
+
+            # print("Length of years")
+            #
+            # print(len(new_core_year))
+            #
+
+
+
+            new_core_url = []
+            for i in core_url:
+                if i not in new_core_url:
+                    new_core_url.append(i)
+            # print("Length of urls")
+            #
+            # print(len(new_core_url))
+
+
+
+
+            # print("After de duplication")
+            # print(len(new_crossref_titles))
+            # for i in new_crossref_titles:
+            #     print(i)
+            #
+
+            common_dois = []
+            common_title = []
+            # common_title = list(set(new_crossref_titles) & set(new_core_title))
+            # print(len(common_title))
+
+            common_dois = list(set(crossref_doi_list) & set(core_doi_list))
+            # print(len(common_dois))
+            # for i in common_dois:
+                # print(i)
+
 
             context = {
-                'form': form,
-                'content': content
+                # 'form': form,
+                # 'content': content,
+                'crossref_dois' : crossref_doi_list,
+                'core_doi_list': core_doi_list,
+                'crossref_class_list': crossref_class_list,
+                'core_class_list':core_class_list
+
+
             }
+            crossref_dup = zip(crossref_titles,crossref_year,crossref_url)
+            crossRef = zip(new_crossref_titles,new_crossref_year,new_crossref_url)
 
-            messages.success(request, f'Your Url has been generated')
+            core_dup = zip(core_title,core_year,core_url)
+            core = zip(new_core_title,new_core_year,new_core_url)
 
-            return redirect("query",data=str(content))
+            messages.success(request, f'Your Database has been successfully retrieved')
+
+
+           # return render(request, 'users/query.html',data=str(content))
+            return render(request, 'users/scholar.html', {'crossref_dois': crossref_doi_list,
+                                                          'core_doi_list': core_doi_list,
+                                                          'new_crossref_titles' : new_crossref_titles,
+                                                          'crossref_year': crossref_year,
+                                                          'crossRef': crossRef,
+                                                          'coredup':core_dup,
+                                                          'core':core,
+                                                          'crossref_dup':crossref_dup,
+                                                          'crossref_url':crossref_url,
+
+                                                          'new_core_title':new_core_title,
+                                                          'core_year':core_year,
+                                                          'core_url':core_url
+
+                                                          })
+            # return redirect("query", content=content)
             # return render(request,'users/query.html', {'content': [content]})
             #return render(json.dumps(content,sort_keys=True, indent=4),'users/query.html', content_type="application/json"))
             #return (HttpResponse(json.dumps(content,sort_keys=True, indent=4), content_type="application/json"))
@@ -96,11 +267,11 @@ def data(request):
 
         else:
                 messages.error(request,f'Wrong Url')
-                return render(request, 'users/query.html', {'form': form})
+                return render(request, 'users/scholar.html', {'form': form})
 
     else:
         form = SimpleForm()
-        return render(request, 'users/data.html', {'form': form})
+        return render(request, 'users/scholar.html', {'form': form})
     # if request.method == 'POST':
     #     u_form = UserUpdateForm(request.POST, instance=request.user)
     #     p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
@@ -153,6 +324,10 @@ def query(request,data):
     return render(request,'users/query.html',{data:data})
 
 
+def snowballing(request):
+    return render(request,'users/snowballing.html')
+
+
 def scholarly_data(request):
 
     if request.method == 'POST':
@@ -160,14 +335,14 @@ def scholarly_data(request):
 
         if form2.is_valid():
             # query = input('Enter the query to be searched: ')
-            query2 = form2.cleaned_data.get("query")
+            query2 = form2.cleaned_data.get("enterUrl")
             #parameter_values_list = [1, 10, '9ipXPomYaSrHLAIuONZfzUGk3t57RcBD']
             #response = requests.get(edited_search_coreAPI(query, parameter_values_list))
             # response = requests.get(edited_search_coreAPI(form.enterUrl, parameter_values_list))
             #content = response.json()
             # print(content)
             #
-            search_query = scholarly.search_author(query2)
+            search_query = scholarly.search_keyword(query2)
             #print(next(search_query))
             #content = search_query.json()
             #lst = []
@@ -179,19 +354,36 @@ def scholarly_data(request):
                 auth_name = i.name
                 print(i.name)
 
+
+
+            cr = Crossref()
+
+            x = cr.works(query = query2,filter = {'has_full_text': True})
+            print(len(x['message']['items']))
+            url_list = []
+            crossref_list = []
+            lists_urls = x['message']['items']
+            # for i in x['message']['items']:
+            #     crossref_list.append(paper_details(i['doi'], i['title']))
+                #url_list.append(i['link'][0]['URL'])
+
+            # for i in crossref_list:
+            #     if()
+            temp =[]
+            for i in x['message']['items']:
+                temp.append(i['title'])
+            temp_urls = []
+
+            for i in x['message']['items']:
+                temp_urls.append(i['URL'])
+
             context = {
                 'form2': form2,
                 'search_query': search_query,
                 #'content': content
             }
 
-            cr = Crossref()
 
-            x = cr.works(query = 'Barbara  Ann Kitchenham',filter = {'has_full_text': True})
-            print(len(x['message']['items']))
-            lists_urls = x['message']['items']
-            for i in x['message']['items']:
-                print(i['link'])
 
 
             #dois = ['10.1186/s13643-018-0740-7']
@@ -206,7 +398,8 @@ def scholarly_data(request):
             messages.success(request, f'Your Url has been generated')
             #return render_to_response(request, {"day_list": ['sunday', 'monday', 'tuesday']})
             # return redirect(request,'users/query.html',{'content' : content})
-            return render(request, 'users/scholar.html', {'content': [auth_name,auth_id,em_author]})
+            zip_lists = zip(temp,temp_urls)
+            return render(request, 'users/database.html', {'content': zip_lists})
             #return render(request, 'users/query.html',{"content" : content})
             #return render(json.dumps(search_query,sort_keys=True, indent=4),'users/query.html', content_type="application/json")
             #query_serialized = serializers.serialize('json', search_query)
@@ -218,11 +411,11 @@ def scholarly_data(request):
 
         else:
             messages.error(request, f'Wrong Url')
-            return render(request, 'users/scholar.html', {'form2': form2})
+            return render(request, 'users/database.html', {'form2': form2})
 
     else:
         form2 = QueryForm()
-        return render(request, 'users/scholar.html', {'form2': form2})
+        return render(request, 'users/database.html', {'form2': form2})
 
 
 
