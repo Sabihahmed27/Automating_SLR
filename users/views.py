@@ -1,6 +1,7 @@
-from django.http import HttpResponse
+from django.http import HttpResponse,Http404
 from django.shortcuts import render, redirect, render_to_response
 from django.contrib import messages
+from sqlitedict import SqliteDict
 from django.urls import reverse
 from habanero import Crossref
 from urllib.parse import urlparse
@@ -9,10 +10,15 @@ from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm, SimpleFo
 import requests,json
 from django.http import JsonResponse
 import urllib
+from urllib.error import HTTPError
 from crossref.restful import Works
 import scholarly
+import re
 from django.core import serializers
 from urllib.parse import urlencode, quote_plus,quote
+
+
+common_dois = []
 
 
 # Create your views here.
@@ -74,199 +80,226 @@ def data(request):
         if form.is_valid():
             #query = input('Enter the query to be searched: ')
             query = form.cleaned_data.get("Title")
+
             parameter_values_list = [1, 100, '9ipXPomYaSrHLAIuONZfzUGk3t57RcBD']
             response = requests.get(edited_search_coreAPI(query, parameter_values_list))
-            content = response.json()
-            core_doi_list = []
-            crossref_doi_list = []
-            crossref_class_list = []
+            try:
 
-            cr = Crossref()
+                content = response.json()
+                core_doi_list = []
+                crossref_doi_list = []
+                crossref_class_list = []
 
-            x = cr.works(query=query, filter={'has_full_text': True})
-
-            crossref_titles = []
-            crossref_year = []
-            crossref_url = []
+                cr = Crossref()
 
 
-            for i in x['message']['items']:
-                crossref_titles.append(str(i['title'][0]))
-                crossref_year.append(i['created']['date-parts'][0][0])
-                crossref_url.append(i['URL'])
-                crossref_doi_list.append(i['DOI'])
-                print(i['DOI'])
-                # temp_doi = i['DOI']
-                # temp_title = i['title']
-                # temp_year = i['created']['date-parts'][0][0]
-                # temp_url = i['URL']
-                # crossref_class_list.append(paper_details(temp_doi,temp_title,temp_year,temp_url))
+                if not str(query).isalnum():
+                    query = re.sub(r"[^a-zA-Z0-9]+", ' ', query)
 
-            # for i in crossref_class_list:
-            #     print(i)
+                    query = re.sub(' +', ' ', query)
 
-            core_class_list = []
+                if len(query.replace(" ","")) == 0:
+                    temp_messages = 'Invalid Input! Please provide a valid input'
+                    # messages.error(request, f'Wrong Url')
+                    return render(request, 'users/scholar.html', {'form': form, 'temp_messages':temp_messages})
 
-            # for i in content['data']:
-            #
-            #     temp_year = i['_source']['datePublished']
-            #     temp_title = i['_source']['title']
-            #     temp_doi = i['_source']['doi']
-            #     temp_url = i['_source']['urls']
-            #     core_class_list.append(paper_details(temp_doi,temp_title,temp_year,temp_url))
+                # if query.isa
+                #     return render(request, 'users/scholar.html', {'form': form})
 
 
-
-            core_title = []
-            core_url = []
-            core_year = []
-            for i in content['data']:
-                if i['_source']['doi']!= None:
-                    # print(str(i['_source']['title']) + " "+str(i['_source']['datePublished']))
-                    core_doi_list.append(i['_source']['doi'])
-                    core_year.append(i['_source']['datePublished'])
-                    core_title.append(i['_source']['title'])
-                    core_url.append(i['_source']['urls'][0])
-                    print(i['_source']['urls'][0])
-                    print(i['_source']['doi'])
-
-            # print("Before duplication")
-            # print(len(crossref_titles))
-            # print(len(core_title))
-            new_core_title = []
-            for i in core_title:
-                if i not in new_core_title:
-                    new_core_title.append(i)
-            # print("After deduplication")
-            # print(len(new_core_title))
-
-
-
-            new_crossref_year = []
-            for i in crossref_year:
-                if i not in new_crossref_year:
-                    new_crossref_year.append(i)
-
-
-
-            new_crossref_url = []
-            for i in crossref_url:
-                if i not in new_crossref_url:
-                    new_crossref_url.append(i)
+                x = cr.works(query=query, filter={'has_full_text': True})
+                if x['status'] == "error":
+                    return render(request, 'users/scholar.html', {'form': form})
 
 
 
 
+                crossref_titles = []
+                crossref_year = []
+                crossref_url = []
+
+
+                for i in x['message']['items']:
+                    crossref_titles.append(str(i['title'][0]))
+                    crossref_year.append(i['created']['date-parts'][0][0])
+                    crossref_url.append(i['URL'])
+                    crossref_doi_list.append(i['DOI'])
+                    # print(i['DOI'])
+                    # temp_doi = i['DOI']
+                    # temp_title = i['title']
+                    # temp_year = i['created']['date-parts'][0][0]
+                    # temp_url = i['URL']
+                    # crossref_class_list.append(paper_details(temp_doi,temp_title,temp_year,temp_url))
+
+
+                core_class_list = []
 
 
 
 
-            new_crossref_titles=[]
-            for i in crossref_titles:
-                if i not in new_crossref_titles:
-                    new_crossref_titles.append(i)
+                core_title = []
+                core_url = []
+                core_year = []
+                if content.__contains__('data'):
+                    if content['data'] is not None:
+                        for i in content['data']:
+                            if i['_source'].__contains__('doi'):
+                                if i['_source']['doi'] is not None:
+                                    # print(str(i['_source']['title']) + " "+str(i['_source']['datePublished']))
+                                    core_doi_list.append(i['_source']['doi'])
+                                    core_year.append(i['_source']['datePublished'])
+                                    core_title.append(i['_source']['title'])
+                                    if len(i['_source']['urls']) > 0:
+                                        core_url.append(i['_source']['urls'][0])
+                                        # print(i['_source']['urls'][0])
+                                    else:
+                                        core_url.append(None)
+                                    # print(i['_source']['doi'])
+                # else:
+                #     return render(request, 'users/scholar.html', {'form': form})
 
 
-            new_core_title = []
-            for i in core_title:
-                if i not in new_core_title:
-                    new_core_title.append(i)
-
-            # print("Length of titles")
-
-            # print(len(new_core_title))
-            # print("After deduplication")
-            # print(len(new_core_title))
-
-
-
-            new_core_year = []
-            for i in core_year:
-                if i not in new_core_year:
-                    new_core_year.append(i)
-
-            # print("Length of years")
-            #
-            # print(len(new_core_year))
-            #
-
-
-
-            new_core_url = []
-            for i in core_url:
-                if i not in new_core_url:
-                    new_core_url.append(i)
-            # print("Length of urls")
-            #
-            # print(len(new_core_url))
+                # print("Before duplication")
+                # print(len(crossref_titles))
+                # print(len(core_title))
+                new_core_title = []
+                for i in core_title:
+                    if i not in new_core_title:
+                        new_core_title.append(i)
+                # print("After deduplication")
+                # print(len(new_core_title))
 
 
 
-
-            # print("After de duplication")
-            # print(len(new_crossref_titles))
-            # for i in new_crossref_titles:
-            #     print(i)
-            #
-
-            common_dois = []
-            common_title = []
-            # common_title = list(set(new_crossref_titles) & set(new_core_title))
-            # print(len(common_title))
-
-            common_dois = list(set(crossref_doi_list) & set(core_doi_list))
-            # print(len(common_dois))
-            # for i in common_dois:
-                # print(i)
+                new_crossref_year = []
+                for i in crossref_year:
+                    if i not in new_crossref_year:
+                        new_crossref_year.append(i)
 
 
-            context = {
-                # 'form': form,
-                # 'content': content,
-                'crossref_dois' : crossref_doi_list,
-                'core_doi_list': core_doi_list,
-                'crossref_class_list': crossref_class_list,
-                'core_class_list':core_class_list
+
+                new_crossref_url = []
+                for i in crossref_url:
+                    if i not in new_crossref_url:
+                        new_crossref_url.append(i)
 
 
-            }
-            crossref_dup = zip(crossref_titles,crossref_year,crossref_url)
-            crossRef = zip(new_crossref_titles,new_crossref_year,new_crossref_url)
-
-            core_dup = zip(core_title,core_year,core_url)
-            core = zip(new_core_title,new_core_year,new_core_url)
-
-            messages.success(request, f'Your Database has been successfully retrieved')
 
 
-           # return render(request, 'users/query.html',data=str(content))
-            return render(request, 'users/scholar.html', {'crossref_dois': crossref_doi_list,
-                                                          'core_doi_list': core_doi_list,
-                                                          'new_crossref_titles' : new_crossref_titles,
-                                                          'crossref_year': crossref_year,
-                                                          'crossRef': crossRef,
-                                                          'coredup':core_dup,
-                                                          'core':core,
-                                                          'crossref_dup':crossref_dup,
-                                                          'crossref_url':crossref_url,
-
-                                                          'new_core_title':new_core_title,
-                                                          'core_year':core_year,
-                                                          'core_url':core_url
-
-                                                          })
-            # return redirect("query", content=content)
-            # return render(request,'users/query.html', {'content': [content]})
-            #return render(json.dumps(content,sort_keys=True, indent=4),'users/query.html', content_type="application/json"))
-            #return (HttpResponse(json.dumps(content,sort_keys=True, indent=4), content_type="application/json"))
 
 
-            # print(lists[0])
 
-        #     form.save()
+
+                new_crossref_titles=[]
+                for i in crossref_titles:
+                    if i not in new_crossref_titles:
+                        new_crossref_titles.append(i)
+
+
+                new_core_title = []
+                for i in core_title:
+                    if i not in new_core_title:
+                        new_core_title.append(i)
+
+                # print("Length of titles")
+
+                # print(len(new_core_title))
+                # print("After deduplication")
+                # print(len(new_core_title))
+
+
+
+                new_core_year = []
+                for i in core_year:
+                    if i not in new_core_year:
+                        new_core_year.append(i)
+
+                # print("Length of years")
+                #
+                # print(len(new_core_year))
+                #
+
+
+
+                new_core_url = []
+                for i in core_url:
+                    if i not in new_core_url:
+                        new_core_url.append(i)
+                # print("Length of urls")
+                #
+                # print(len(new_core_url))
+
+
+
+
+                # print("After de duplication")
+                # print(len(new_crossref_titles))
+                # for i in new_crossref_titles:
+                #     print(i)
+                #
+
+                # common_dois = []
+                common_title = []
+                # common_title = list(set(new_crossref_titles) & set(new_core_title))
+                # print(len(common_title))
+
+                # common_dois = list(set(crossref_doi_list) & set(core_doi_list))
+                # print(len(common_dois))
+                # for i in common_dois:
+                    # print(i)
+
+
+                context = {
+                    # 'form': form,
+                    # 'content': content,
+                    'crossref_dois' : crossref_doi_list,
+                    'core_doi_list': core_doi_list,
+                    'crossref_class_list': crossref_class_list,
+                    'core_class_list':core_class_list
+
+
+                }
+                crossref_dup = zip(crossref_titles,crossref_year,crossref_url)
+                crossRef = zip(new_crossref_titles,new_crossref_year,new_crossref_url)
+
+                core_dup = zip(core_title,core_year,core_url)
+                core = zip(new_core_title,new_core_year,new_core_url)
+
+                messages.success(request, f'Your Database has been successfully retrieved')
+
+                database = SqliteDict('./database.sqlite',autocommit=True)
+                print(database['snowballing'])
+                common_dois = core_doi_list
+                common_dois.extend(crossref_doi_list)
+                request.session['list'] = common_dois
+
+                # return redirect("query", data=str(common_dois))
+
+
+            # return render(request, 'users/query.html',data=str(content))
+                return render(request, 'users/scholar.html', {'crossref_dois': crossref_doi_list,
+                                                              'core_doi_list': core_doi_list,
+                                                              'new_crossref_titles' : new_crossref_titles,
+                                                              'crossref_year': crossref_year,
+                                                              'crossRef': crossRef,
+                                                              'coredup':core_dup,
+                                                              'core':core,
+                                                              'crossref_dup':crossref_dup,
+                                                              'crossref_url':crossref_url,
+
+                                                              'new_core_title':new_core_title,
+                                                              'core_year':core_year,
+                                                              'core_url':core_url,
+                                                              'form': form
+
+                                                              })
+            except HTTPError:
+                messages.error(request,f'No response from Server')
+                return render(request, 'users/scholar.html', {'form': form})
+
 
         else:
-                messages.error(request,f'Wrong Url')
+                #messages.error(request,f'Wrong Url')
                 return render(request, 'users/scholar.html', {'form': form})
 
     else:
@@ -286,7 +319,8 @@ def data(request):
     #     u_form = UserUpdateForm(instance=request.user)
     #     p_form = ProfileUpdateForm(instance=request.user.profile)
     #
-
+def funct():
+    return common_dois
 
 def edited_search_coreAPI(query, parameter_values_list):
     url = 'https://core.ac.uk:443/api-v2/search/'
@@ -320,12 +354,30 @@ def model_form_upload(request):
 
 
 
-def query(request,data):
+def query(request):
+
     return render(request,'users/query.html',{data:data})
 
 
 def snowballing(request):
-    return render(request,'users/snowballing.html')
+    print("Snowballing dois")
+
+    com = request.session['list']
+
+    for i in com:
+        print(i)
+
+    database = SqliteDict('./database.sqlite', autocommit=True)
+    dois = []
+
+    for i in com:
+
+        if i in database['snowballing']:
+
+            dois.append(database['snowballing'][i])
+
+
+    return render(request,'users/snowballing.html',{'com': dois})
 
 
 def scholarly_data(request):
@@ -398,7 +450,7 @@ def scholarly_data(request):
             messages.success(request, f'Your Url has been generated')
             #return render_to_response(request, {"day_list": ['sunday', 'monday', 'tuesday']})
             # return redirect(request,'users/query.html',{'content' : content})
-            zip_lists = zip(temp,temp_urls)
+            zip_lists = list(zip(temp,temp_urls))
             return render(request, 'users/database.html', {'content': zip_lists})
             #return render(request, 'users/query.html',{"content" : content})
             #return render(json.dumps(search_query,sort_keys=True, indent=4),'users/query.html', content_type="application/json")
@@ -410,7 +462,7 @@ def scholarly_data(request):
         #return (HttpResponse((search_query), content_type="application/json"))
 
         else:
-            messages.error(request, f'Wrong Url')
+            #messages.error(request, f'Wrong Url')
             return render(request, 'users/database.html', {'form2': form2})
 
     else:

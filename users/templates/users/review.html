@@ -1,0 +1,154 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+<body>
+
+    <main>
+      <div class="container">
+        <div class="messages-container">
+
+        </div>
+
+
+
+  <h3 class="review-title">
+    <a href="/SaqibArsalan/hello-world/settings/" class="btn btn-primary pull-right"><span class="glyphicon glyphicon-cog"></span> Review settings</a>
+
+  <span class="text-muted">Welcome</span>
+  <a href="{% url 'profile' %}" class="review-title-user">{{ user.username }}</a>
+
+</h3>
+<ul class="review-menu">
+  <li class="active">
+    <a href="#">Review</a>
+  </li>
+  <li>
+    <a href="/scholar">Database</a>
+  </li>
+  <li>
+    <a href="/snowballing">Snowballing</a>
+  </li>
+  <li>
+    <a href="#">Results</a>
+  </li>
+</ul>
+<input type="hidden" id="review-id" value="6085">
+
+  <div class="row">
+    <div class="col-sm-7 col-md-8 col-lg-9">
+      <form method="post">
+        <input type='hidden' name='csrfmiddlewaretoken' value='IZ6IugjtKNXR3KF5gJDWTVxuxeiZPf2i' />
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Review details</h3>
+          </div>
+          <div class="panel-body">
+
+
+
+  <div class="form-group">
+
+      <p><label form="id_title" class="control-label">Query</label> <input type="text" name="query"></p>
+<!--    <input class="form-control" id="id_title" maxlength="255" name="title" type="text" value="hello world" />-->
+      <p><input type="submit" value="submit"></p>
+
+
+
+  </div>
+
+<!--  <div class="form-group">-->
+<!--    <label for="id_description" class="control-label">Description</label>-->
+<!--    <textarea class="form-control expanding" cols="40" id="id_description" maxlength="500" name="description" rows="4">-->
+<!--hello world how are you?-->
+<!--</textarea>-->
+
+
+
+
+
+<!--  </div>-->
+
+
+          </div>
+<!--          <div class="panel-footer">-->
+<!--            <button type="submit" class="btn btn-success">-->
+<!--              <span class="glyphicon glyphicon-ok"></span>-->
+<!--              Save-->
+<!--            </button>-->
+<!--          </div>-->
+        </div>
+      </form>
+    </div>
+    <div class="col-sm-5 col-md-4 col-lg-3">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Authors</h3>
+        </div>
+        <ul class="list-group authors" data-remove-url="/reviews/remove_author/">
+          <li class="list-group-item" author-id="6697">
+            <a href="/SaqibArsalan/">
+              SaqibArsalan
+            </a>
+            <span class="badge">main author</span>
+          </li>
+
+        </ul>
+
+          <div class="panel-footer">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-author-modal">
+              <span class="glyphicon glyphicon-plus"></span>
+              Add author
+            </button>
+            <form method="post" action="/reviews/add_author/">
+              <input type='hidden' name='csrfmiddlewaretoken' value='IZ6IugjtKNXR3KF5gJDWTVxuxeiZPf2i' />
+              <input type="hidden" name="review-id" value="6085">
+              <div class="modal fade" id="add-author-modal">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      <h4 class="modal-title">Add author</h4>
+                    </div>
+                    <div class="modal-body">
+                      <div class="alert alert-info">
+                        You may add someone that doesn't have a Parsifal Account. Just type his email adress and we will send an invitation. :)
+                      </div>
+                      <div class="form-group">
+                        <label for="users" class="control-label">Contacts</label>
+                        <select id="users" name="users" class="contacts" placeholder="Pick an author or invite someone..."></select>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                      <button type="submit" class="btn btn-success">Send invitation</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+      </div>
+    </div>
+  </div>
+
+
+      </div>
+    </main>
+
+<script src="/static/js/mustache.min.js"></script>
+  <script src="/static/js/jquery-1.11.3.min.js"></script>
+  <script src="/static/js/bootstrap.min.js"></script>
+  <script src="/static/js/jquery.tablesorter.min.js"></script>
+  <script src="/static/js/selectize.min.js"></script>
+  <script src="/static/js/expanding.js"></script>
+  <script src="/static/js/parsifal.js?v=2"></script>
+</body>
+{% endblock content %}
+
+</html>

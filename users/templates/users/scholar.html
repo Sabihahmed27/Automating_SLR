@@ -80,7 +80,7 @@
     <div class="content-section">
         <form method="POST">
             {% csrf_token %}
-            <fieldset class = "form-group">
+            <fieldset class = "form-group" >
                 <legend class="border-bottom mb-4">Data Retrieval </legend>
 <!--                <p>Query: <input type="text" name="query"></p>-->
                 {{ form|crispy }}
@@ -92,7 +92,6 @@
 <!--                <div class="spinner-border" role="status">-->
 <!--                <span class="sr-only">Loading...</span>-->
 <!--                </div>-->
-</div>
 
           <a href="/snowballing" class="btn btn-primary pull-right">Start Snowballing</a>
 

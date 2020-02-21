@@ -11,7 +11,7 @@ class Document(models.Model):
 
 
 class ResearchPapers(models.Model):
-    doi = models.CharField(max_length=255,blank=True)
+    doi = models.CharField(max_length=255,blank=False)
 
 
 

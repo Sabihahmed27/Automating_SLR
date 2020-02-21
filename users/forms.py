@@ -1,8 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Profile,Document
-
+from .models import Profile, Document, ResearchPapers
 
 
 class UserRegisterForm(UserCreationForm):
@@ -43,11 +42,11 @@ class DocumentForm(forms.ModelForm):
 
 
 class SimpleForm(forms.ModelForm):
-     Title = forms.CharField(max_length=300)
+     Title = forms.CharField(max_length=300,help_text="(Keyword AND keyword)")
 
 
      class Meta:
-         model = User
+         model = ResearchPapers
          fields = ['Title']
     #lastname = forms.CharField(max_length=100)
 
