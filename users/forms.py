@@ -1,7 +1,10 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from django.core.validators import MaxValueValidator, MinValueValidator
+
 from .models import Profile, Document, ResearchPapers
+import datetime
 
 
 class UserRegisterForm(UserCreationForm):
@@ -40,14 +43,29 @@ class DocumentForm(forms.ModelForm):
         model = Document
         fields = ['description', 'document']
 
+def year_choices():
+    return [(r,r) for r in range(1984, datetime.date.today().year+1)]
+
+def current_year():
+    return datetime.date.today().year
+
+def max_value_current_year(value):
+    return MaxValueValidator(current_year())(value)
 
 class SimpleForm(forms.ModelForm):
-     Title = forms.CharField(max_length=300,help_text="(Keyword AND keyword)")
+     Title = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",required=True)
+     StartYear = forms.IntegerField(min_value=1960, max_value=current_year(), required=False ,validators=[MinValueValidator(1984), max_value_current_year])
+     # StartYear = forms.CharField(widget=forms.widgets.DateTimeInput(attrs={"type": "date",format("YYYY")}),required=False)
+     # EndYear = forms.CharField(widget=forms.widgets.DateTimeInput(attrs={"type": "date"}),required=False)
+     EndYear = forms.IntegerField(min_value=1960, max_value=current_year(), required=False,validators=[MinValueValidator(1984), max_value_current_year])
+
+     Author = forms.CharField(max_length = 200, help_text="Enter Author Name",required=False)
 
 
      class Meta:
          model = ResearchPapers
-         fields = ['Title']
+         fields = ['Title', 'Author','StartYear','EndYear']
+
     #lastname = forms.CharField(max_length=100)
 
 

@@ -80,6 +80,10 @@ def data(request):
         if form.is_valid():
             #query = input('Enter the query to be searched: ')
             query = form.cleaned_data.get("Title")
+            startYear = form.cleaned_data.get("StartYear")
+            endYear = form.cleaned_data.get("EndYear")
+            author = form.cleaned_data.get("author")
+
 
             parameter_values_list = [1, 100, '9ipXPomYaSrHLAIuONZfzUGk3t57RcBD']
             response = requests.get(edited_search_coreAPI(query, parameter_values_list))
