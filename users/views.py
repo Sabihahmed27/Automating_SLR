@@ -11,7 +11,7 @@ import requests,json
 from django.http import JsonResponse
 import urllib
 from urllib.error import HTTPError
-from crossref.restful import Works
+#from Crossref.restful import Works
 import scholarly
 import re
 from django.core import serializers
@@ -357,6 +357,86 @@ def model_form_upload(request):
     return render(request, 'users/model_form_upload.html', {'form': form})
 
 
+def filter_articles(articles_list, starting_year, ending_year, input_author_list, article_info_db):
+    result = set()
+
+    if articles_list:
+
+        for j in articles_list:
+
+            if article_info_db.__contains__(j):
+
+                if j and len(article_info_db[j]['year']) > 0 and len(article_info_db[j]['author']) > 0:
+
+                    author_list = article_info_db[j]['author']
+
+                    final_list_author = re.split(',|;| ', author_list)
+
+                    final_list = [i for i in final_list_author if i]
+
+                    if ending_year >= int(article_info_db[j]['year']) >= starting_year or len(
+                            set(final_list).intersection(set(input_author_list))) > 0:
+                        result.add(j)
+
+                if j and (not article_info_db[j]['year'] or not article_info_db[j]['author']):
+                    result.add(j)
+
+    return result
+
+
+final_result = {}
+
+final_result['references'] = []
+
+final_result['citations'] = []
+
+
+def perform_snowballing(doi_list, starting_year, ending_year, authors, database_snowballing, snowball_type, iteration):
+    if iteration > 2:
+
+        return
+
+    else:
+
+        for i in doi_list:
+
+            type_articles = database_snowballing[i][snowball_type]
+
+            snowball_result = filter_articles(type_articles, starting_year, ending_year, authors, database_snowballing)
+
+            if snowball_result:
+                doi_list = snowball_result
+
+                final_result[snowball_type].extend(doi_list)
+            # print(doi_list)
+
+        perform_snowballing(doi_list, starting_year, ending_year, authors, database_snowballing, snowball_type,
+                            iteration + 1)
+
+
+database = SqliteDict('./SLR_database.sqlite', autocommit=True)
+
+database_snowballing = database['snowballing']
+
+starting_year = 2010
+
+ending_year = 2018
+
+authors = ['Kitchenham', 'Barbara']
+
+doi_list_initial = ['10.2903/sp.efsa.2018.EN-1427', '10.5277/e-Inf180104', '10.1145/2745802.2745818',
+                    '10.1145/2601248.2601268', '10.1016/j.infsof.2010.03.006', '10.1186/s13643-018-0740-7']
+
+examined_articles = []
+
+perform_snowballing(doi_list_initial, starting_year, ending_year, authors, database_snowballing, 'citations', 0)
+
+perform_snowballing(doi_list_initial, starting_year, ending_year, authors, database_snowballing, 'references', 0)
+
+print("Backward: " + str(len(final_result['references'])))
+print("Forward: " + str(len(final_result['citations'])))
+
+
 
 def query(request):
 
@@ -364,6 +444,7 @@ def query(request):
 
 
 def snowballing(request):
+
     print("Snowballing dois")
 
     com = request.session['list']
