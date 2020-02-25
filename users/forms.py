@@ -54,10 +54,9 @@ def max_value_current_year(value):
 
 class SimpleForm(forms.ModelForm):
      Title = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",required=True)
-     StartYear = forms.IntegerField(min_value=1960, max_value=current_year(), required=False ,validators=[MinValueValidator(1984), max_value_current_year])
-     # StartYear = forms.CharField(widget=forms.widgets.DateTimeInput(attrs={"type": "date",format("YYYY")}),required=False)
-     # EndYear = forms.CharField(widget=forms.widgets.DateTimeInput(attrs={"type": "date"}),required=False)
-     EndYear = forms.IntegerField(min_value=1960, max_value=current_year(), required=False,validators=[MinValueValidator(1984), max_value_current_year])
+     StartYear = forms.IntegerField(min_value=1960, max_value=current_year(), help_text="Year format: YYYY",required=False ,validators=[MinValueValidator(1960), max_value_current_year])
+
+     EndYear = forms.IntegerField(min_value=1960, max_value=current_year(), help_text="Year format: YYYY", required=False,validators=[MinValueValidator(1960), max_value_current_year])
 
      Author = forms.CharField(max_length = 200, help_text="Enter Author Name",required=False)
 
