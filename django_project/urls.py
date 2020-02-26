@@ -28,6 +28,7 @@ urlpatterns = [
     path('register/', user_views.register, name='register'),
     path('review/', user_views.review, name='review'),
     path('database/', user_views.scholarly_data , name='database'),
+    path('abstract/', user_views.abstract, name='abstract'),
     path('model_form_upload/', user_views.model_form_upload,name = 'model_form_upload'),
     path('query/<str:data>', user_views.query, name='query'),
     path('scholar/', user_views.data, name='scholar'),

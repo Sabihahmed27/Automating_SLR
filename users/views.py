@@ -555,12 +555,5 @@ def scholarly_data(request):
         return render(request, 'users/database.html', {'form2': form2})
 
 
-
-
-
-
-
-
-
-
-
+def abstract(request):
+    return render(request, 'users/abstract.html')
