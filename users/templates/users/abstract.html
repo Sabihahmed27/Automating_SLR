@@ -86,9 +86,9 @@
         <form method="POST">
             {% csrf_token %}
             <fieldset class = "form-group" >
-                <legend class="border-bottom mb-4">Data Retrieval </legend>
+                <legend class="border-bottom mb-4">Enter keywords to search abstract</legend>
 <!--                <p>Query: <input type="text" name="query"></p>-->
-                {{ form|crispy }}
+                    {{ form|crispy }}
 
                 <p><input type="submit" class = "btn btn-primary" value="submit"></p>
 
@@ -98,52 +98,52 @@
 <!--                <span class="sr-only">Loading...</span>-->
 <!--                </div>-->
 
-          <a href="/snowballing" class="btn btn-primary pull-right">Start Snowballing</a>
+<!--          <a href="/snowballing" class="btn btn-primary pull-right">Start Snowballing</a>-->
 
 
 
-                <table style="width:60%">
+<!--                <table style="width:60%">-->
 
-                    <tr>
-                    <th>CrossRef Results from all sites</th>
-                    </tr>
-                    <tr>
-                    {% for i,j,k in crossref_dup %}
-                        <td class="list-group-item"><a href={{k}}> <p>{{i}}</p> <p>Published Year {{j}}</p>  </a></td>
-                        {% endfor %}
-                    </tr>
+<!--                    <tr>-->
+<!--                    <th>CrossRef Results from all sites</th>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                    {% for i,j,k in crossref_dup %}-->
+<!--                        <td class="list-group-item"><a href={{k}}> <p>{{i}}</p> <p>Published Year {{j}}</p>  </a></td>-->
+<!--                        {% endfor %}-->
+<!--                    </tr>-->
 
-                    <tr>
-                    <th>Core Results from all sites</th>
-                    </tr>
+<!--                    <tr>-->
+<!--                    <th>Core Results from all sites</th>-->
+<!--                    </tr>-->
 
-                    <tr>
-                    {% for i,j,k in coredup %}
-                        <td class="list-group-item"><a href={{k}}> {{i}} <p>Published Year {{j}}</p> <p>{{k}}</p></a></td>
-                        {% endfor %}
-                    </tr>
+<!--                    <tr>-->
+<!--                    {% for i,j,k in coredup %}-->
+<!--                        <td class="list-group-item"><a href={{k}}> {{i}} <p>Published Year {{j}}</p> <p>{{k}}</p></a></td>-->
+<!--                        {% endfor %}-->
+<!--                    </tr>-->
 
-                    <tr>
-                    <th>Core Results (De-duplicating)</th>
-                    </tr>
+<!--                    <tr>-->
+<!--                    <th>Core Results (De-duplicating)</th>-->
+<!--                    </tr>-->
 
-                    <tr>
-                    {% for i,j,k in core %}
-                        <td class="list-group-item"><a href={{k}}> {{i}} <p>Published Year {{j}}</p> <p>{{k}}</p> </a></td>
-                        {% endfor %}
-                    </tr>
+<!--                    <tr>-->
+<!--                    {% for i,j,k in core %}-->
+<!--                        <td class="list-group-item"><a href={{k}}> {{i}} <p>Published Year {{j}}</p> <p>{{k}}</p> </a></td>-->
+<!--                        {% endfor %}-->
+<!--                    </tr>-->
 
-                    <tr>
-                    <th>CrossRef Results (De-duplicating)</th>
-                    </tr>
+<!--                    <tr>-->
+<!--                    <th>CrossRef Results (De-duplicating)</th>-->
+<!--                    </tr>-->
 
-                    <tr>
-                    {% for i,j,k in crossRef %}
-                        <td class="list-group-item"><a href={{k}}> {{i}} <p>Published Year {{j}}</p> </a></td>
-                        {% endfor %}
-                    </tr>
+<!--                    <tr>-->
+<!--                    {% for i,j,k in crossRef %}-->
+<!--                        <td class="list-group-item"><a href={{k}}> {{i}} <p>Published Year {{j}}</p> </a></td>-->
+<!--                        {% endfor %}-->
+<!--                    </tr>-->
 
-                </table>
+<!--                </table>-->
 
 
 <!--                {% for c in crossref_url %}-->

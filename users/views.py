@@ -6,7 +6,8 @@ from django.urls import reverse
 from habanero import Crossref
 from urllib.parse import urlparse
 from django.contrib.auth.decorators import login_required
-from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, DocumentForm
+from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, DocumentForm, \
+    AbstractForm
 import requests,json
 from django.http import JsonResponse
 import urllib
@@ -16,7 +17,12 @@ import scholarly
 import re
 from django.core import serializers
 from urllib.parse import urlencode, quote_plus,quote
+from whoosh import index,query,qparser
+#from whoosh.lang.morph_en import variations
 
+#import whoosh
+from whoosh.fields import Schema , TEXT, ID
+from whoosh.analysis import StemmingAnalyzer
 
 common_dois = []
 
@@ -83,6 +89,9 @@ def data(request):
             startYear = form.cleaned_data.get("StartYear")
             endYear = form.cleaned_data.get("EndYear")
             author = form.cleaned_data.get("Author")
+            keyword = form.cleaned_data.get("Keyword")
+
+            request.session['Keyword'] = keyword
 
 
             parameter_values_list = [1, 100, '9ipXPomYaSrHLAIuONZfzUGk3t57RcBD']
@@ -384,14 +393,32 @@ def filter_articles(articles_list, starting_year, ending_year, input_author_list
                 if j and (not article_info_db[j]['year'] or not article_info_db[j]['author']):
                     result.add(j)
 
-    return result
+    doi_map = {}
+    for i in result:
+        doi_map[i] = article_info_db[i]['title']
+
+
+
+
+
+
+    return doi_map
 
 
 final_result = {}
 
-final_result['references'] = []
+final_result['references']={}
 
-final_result['citations'] = []
+final_result['citations']={}
+
+
+# final_result['references']['doi'] = {}
+#
+# final_result['references']['title'] = {}
+#
+# final_result['citations']['doi'] = {}
+#
+# final_result['citations']['title'] = {}
 
 
 def perform_snowballing(doi_list, starting_year, ending_year, authors, snowball_type, iteration):
@@ -410,12 +437,17 @@ def perform_snowballing(doi_list, starting_year, ending_year, authors, snowball_
 
                 type_articles = database_snowballing[i][snowball_type]
 
+
+
                 snowball_result = filter_articles(type_articles, starting_year, ending_year, authors, database_snowballing)
 
                 if snowball_result:
-                    doi_list = snowball_result
+                    doi_list = snowball_result.keys()
 
-                    final_result[snowball_type].extend(doi_list)
+
+
+                    final_result[snowball_type].update(snowball_result)
+
             # print(doi_list)
 
         perform_snowballing(doi_list, starting_year, ending_year, authors, snowball_type,
@@ -450,6 +482,9 @@ def query(request):
 
     return render(request,'users/query.html',{data:data})
 
+def Merge(dict1, dict2):
+    res = {**dict1, **dict2}
+    return res
 
 def snowballing(request):
 
@@ -497,13 +532,58 @@ def snowballing(request):
 
 
 
-    print("Backward Snowballing result")
-    for i in final_result['references']:
-        print(i)
+    # print("Backward Snowballing result")
+    # print("References")
+    # for i in final_result['references']['doi']:
+    #     print(i)
+    #
+    # print("Forward Snowballing result")
+    # print("Citations")
+    # for x in final_result['citations']['doi']:
+    #     print(x)
+    #
+    # print("References titles")
+    #
+    # for i in final_result['references']['title']:
+    #     print(i)
 
-    print("Forward Snowballing result")
-    for x in final_result['citations']:
-        print(x)
+    # print("Forward Snowballing result")
+    # print("Citations titles")
+    # for x in final_result['citations']['title']:
+    #     print(x)
+
+
+    # final_title = list(set(final_result['citations']['title']).union(final_result['references']['title']))
+    #
+    # final_doi = list(set(final_result['citations']['doi']).union(final_result['references']['doi']))
+
+
+    # for i in range(len(final_doi)) :
+    #
+    #     print(final_doi[i] + "  " + final_title[i])
+
+    for i in final_result['references'] :
+
+        print(i + "   " + final_result['references'][i])
+
+
+    temp_ref = final_result['references']
+
+    temp_cite = final_result['citations']
+
+    references_dict = {}
+
+    citations_dict = {}
+
+    for i in temp_ref:
+
+        references_dict["https://dx.doi.org/" + i] = temp_ref[i]
+
+
+    for i in temp_cite:
+
+        citations_dict["https://dx.doi.org/" + i] = temp_cite[i]
+
 
 
     del request.session['list']
@@ -511,12 +591,19 @@ def snowballing(request):
     del request.session['StartYear']
     del request.session['EndYear']
 
+    result_dict = Merge(references_dict,citations_dict)
+
+    request.session['result_dict'] = result_dict
 
 
 
 
 
-    return render(request,'users/snowballing.html')
+
+
+
+
+    return render(request,'users/snowballing.html',{'data': references_dict.items(),"data2":citations_dict.items()})
 
 
 
@@ -610,5 +697,153 @@ def scholarly_data(request):
         return render(request, 'users/database.html', {'form2': form2})
 
 
+def search_coreAPI(doi_title_dict):
+    lists = []
+
+    parameter_values_list = [1, 10, '9ipXPomYaSrHLAIuONZfzUGk3t57RcBD']
+
+    parameter_list = ['page', 'pageSize', 'apiKey']
+
+    for i in doi_title_dict:
+
+        query = doi_title_dict[i]
+
+        url = 'https://core.ac.uk:443/api-v2/search/'
+
+        parameters = {}
+
+        for k in range(len(parameter_list)):
+            key = parameter_list[k]
+
+            value = parameter_values_list[k]
+
+            parameters[key] = value
+
+        parameters = urlencode(parameters, quote_via=quote)
+
+        url += quote(query) + "?" + parameters
+
+        # print(url)
+
+        response = requests.get(url)
+
+        content = response.json()
+        print(content)
+
+        if content.__contains__("data"):
+            for j in content["data"]:
+
+                if j['_source']['description']:
+                    # print(i['_source']['description'])
+                    lists.append([i, query, j['_source']['description']])
+
+                    break
+
+    return lists
+
+
+def create_index(doi_title_abstract):
+    schema = Schema(
+        article_doi=ID(stored=True),
+        article_title=ID(stored=True),
+        article_abstract=TEXT(analyzer=StemmingAnalyzer(), stored=True)
+    )
+
+    ix = index.create_in("C:/Users/sahme/PycharmProjects/django_project/index_dir", schema)
+
+    writer = ix.writer()
+
+    for i in doi_title_abstract:
+        writer.add_document(article_doi=u"" + i[0], article_title=u"" + i[1], article_abstract=u"" + i[2])
+
+    writer.commit()
+
+    return ix
+
+
+def perform_search(ix, input_query):
+    with ix.searcher() as searcher:
+
+        query_parser = qparser.QueryParser("article_abstract", schema=ix.schema, termclass=query.Variations)
+
+        # input_query = input("\nEnter query: ")
+
+        query_user = query_parser.parse(input_query)
+
+        # actual_query = input_query
+
+        corrected = searcher.correct_query(query_user, input_query)
+
+        if corrected.query != query_user:
+
+            # choice = input("\nDid you mean " + corrected.string + "? ")
+
+            choice = 'y'
+
+            if choice == 'y':
+
+                actual_query = corrected.string
+
+            else:
+
+                actual_query = corrected.string
+
+        else:
+            print("\nNo need to correct the query\n\n ")
+
+            actual_query = input_query
+
+        splitted_query = actual_query.split(" ")
+
+        final_query = ""
+
+        for i in splitted_query:
+            final_query += "*" + i + "* OR "
+
+        # actual_query = "*" + actual_query + "*"
+
+        # print('\n' + final_query + '\n')
+
+        query_user = query_parser.parse(final_query)
+
+        results = searcher.search(query_user)
+
+        print("\nTotal Documents Matched: " + str(len(results)))
+
+        return_map = {}
+
+        for result in results:
+            return_map[result['article_doi']] = result['article_title']
+
+    return return_map
+
+
 def abstract(request):
+
+
+    res_dict = request.session['result_dict']
+    list_abstracts = search_coreAPI(res_dict)
+    index = create_index(list_abstracts)
+    query = request.session.get("Keyword")
+    map_result = perform_search(index, query)
+
+
+
+
+
+    # if request.method == 'POST':
+    #     form = AbstractForm(request.POST)
+    #     if form.is_valid():
+    #         #query = input('Enter the query to be searched: ')
+
+    #
+    #
+    #
+    #
+    #     else:
+    #             #messages.error(request,f'Wrong Url')
+    #             return render(request, 'users/abstract.html', {'form': form})
+
+
+
     return render(request, 'users/abstract.html')

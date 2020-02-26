@@ -47,13 +47,28 @@
              <table style="width:60%">
 
                   <tr>
-                    <th>DOIs</th>
+                    <th>Backward Snowballing output</th>
                   </tr>
-                      <tr>
-                      {% for c in com %}
-                       <td class="list-group-item"><p> {{c}} </p></td>
-                      {% endfor %}
-                        </tr>
+                     {% for key, value in data %}
+                    <tr>
+                     <td class="list-group-item"><a href= {{key}}> {{ value }}: </a></td>
+                     </tr>
+                        {% endfor %}
+
+
+
+
+                  <tr>
+                    <th>Forward Snowballing output</th>
+                  </tr>
+
+                    {% for key, value in data2 %}
+                    <tr>
+<!--                        <td class="list-group-item"><a href={{key}}>: </td> <td>{{value}}</a></td>-->
+
+                     <td class="list-group-item"><a href= {{key}}> {{ value }}: </a></td>
+                     </tr>
+                 {% endfor %}
 
 
 

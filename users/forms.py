@@ -52,18 +52,27 @@ def current_year():
 def max_value_current_year(value):
     return MaxValueValidator(current_year())(value)
 
+class AbstractForm(forms.ModelForm):
+    Keyword = forms.CharField(max_length=300, help_text="(Keyword for search)", required=True)
+    class Meta:
+        model = ResearchPapers
+        fields = ['Keyword']
+
+
+
 class SimpleForm(forms.ModelForm):
      Title = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",required=True)
-     StartYear = forms.IntegerField(min_value=1960, max_value=current_year(), help_text="Year format: YYYY",required=False ,validators=[MinValueValidator(1960), max_value_current_year])
+     StartYear = forms.IntegerField(min_value=1960, label="Start Year", max_value=current_year(), help_text="Year format: YYYY",required=False ,validators=[MinValueValidator(1960), max_value_current_year])
 
-     EndYear = forms.IntegerField(min_value=1960, max_value=current_year(), help_text="Year format: YYYY", required=False,validators=[MinValueValidator(1960), max_value_current_year])
+     EndYear = forms.IntegerField(min_value=1960, label="End Year",max_value=current_year(), help_text="Year format: YYYY", required=False,validators=[MinValueValidator(1960), max_value_current_year])
 
      Author = forms.CharField(max_length = 200, help_text="Enter Author Name",required=False)
 
+     Keyword = forms.CharField(max_length=300, help_text="(Keyword for Abstract Screening)", required=True)
 
      class Meta:
          model = ResearchPapers
-         fields = ['Title', 'Author','StartYear','EndYear']
+         fields = ['Title', 'Author','StartYear','EndYear','Keyword']
 
     #lastname = forms.CharField(max_length=100)
 
