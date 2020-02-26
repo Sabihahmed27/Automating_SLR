@@ -82,7 +82,7 @@ def data(request):
             query = form.cleaned_data.get("Title")
             startYear = form.cleaned_data.get("StartYear")
             endYear = form.cleaned_data.get("EndYear")
-            author = form.cleaned_data.get("author")
+            author = form.cleaned_data.get("Author")
 
 
             parameter_values_list = [1, 100, '9ipXPomYaSrHLAIuONZfzUGk3t57RcBD']
@@ -276,6 +276,9 @@ def data(request):
                 common_dois = core_doi_list
                 common_dois.extend(crossref_doi_list)
                 request.session['list'] = common_dois
+                request.session['StartYear'] = startYear
+                request.session['EndYear'] = endYear
+                request.session['author'] = author
 
                 # return redirect("query", data=str(common_dois))
 
@@ -391,7 +394,10 @@ final_result['references'] = []
 final_result['citations'] = []
 
 
-def perform_snowballing(doi_list, starting_year, ending_year, authors, database_snowballing, snowball_type, iteration):
+def perform_snowballing(doi_list, starting_year, ending_year, authors, snowball_type, iteration):
+    database = SqliteDict('./SLR_database.sqlite', autocommit=True)
+
+    database_snowballing = database['snowballing']
     if iteration > 2:
 
         return
@@ -400,41 +406,43 @@ def perform_snowballing(doi_list, starting_year, ending_year, authors, database_
 
         for i in doi_list:
 
-            type_articles = database_snowballing[i][snowball_type]
+            if database_snowballing.__contains__(i):
 
-            snowball_result = filter_articles(type_articles, starting_year, ending_year, authors, database_snowballing)
+                type_articles = database_snowballing[i][snowball_type]
 
-            if snowball_result:
-                doi_list = snowball_result
+                snowball_result = filter_articles(type_articles, starting_year, ending_year, authors, database_snowballing)
 
-                final_result[snowball_type].extend(doi_list)
+                if snowball_result:
+                    doi_list = snowball_result
+
+                    final_result[snowball_type].extend(doi_list)
             # print(doi_list)
 
-        perform_snowballing(doi_list, starting_year, ending_year, authors, database_snowballing, snowball_type,
+        perform_snowballing(doi_list, starting_year, ending_year, authors, snowball_type,
                             iteration + 1)
 
 
-database = SqliteDict('./SLR_database.sqlite', autocommit=True)
-
-database_snowballing = database['snowballing']
-
-starting_year = 2010
-
-ending_year = 2018
-
-authors = ['Kitchenham', 'Barbara']
-
-doi_list_initial = ['10.2903/sp.efsa.2018.EN-1427', '10.5277/e-Inf180104', '10.1145/2745802.2745818',
-                    '10.1145/2601248.2601268', '10.1016/j.infsof.2010.03.006', '10.1186/s13643-018-0740-7']
-
-examined_articles = []
-
-perform_snowballing(doi_list_initial, starting_year, ending_year, authors, database_snowballing, 'citations', 0)
-
-perform_snowballing(doi_list_initial, starting_year, ending_year, authors, database_snowballing, 'references', 0)
-
-print("Backward: " + str(len(final_result['references'])))
-print("Forward: " + str(len(final_result['citations'])))
+# database = SqliteDict('./SLR_database.sqlite', autocommit=True)
+#
+# database_snowballing = database['snowballing']
+#
+# starting_year = 2010
+#
+# ending_year = 2018
+#
+# authors = ['Kitchenham', 'Barbara']
+#
+# doi_list_initial = ['10.2903/sp.efsa.2018.EN-1427', '10.5277/e-Inf180104', '10.1145/2745802.2745818',
+#                     '10.1145/2601248.2601268', '10.1016/j.infsof.2010.03.006', '10.1186/s13643-018-0740-7']
+#
+# examined_articles = []
+#
+# perform_snowballing(doi_list_initial, starting_year, ending_year, authors, database_snowballing, 'citations', 0)
+#
+# perform_snowballing(doi_list_initial, starting_year, ending_year, authors, database_snowballing, 'references', 0)
+#
+# print("Backward: " + str(len(final_result['references'])))
+# print("Forward: " + str(len(final_result['citations'])))
 
 
 
@@ -445,24 +453,71 @@ def query(request):
 
 def snowballing(request):
 
-    print("Snowballing dois")
+    database = SqliteDict('./SLR_database.sqlite', autocommit=True)
 
-    com = request.session['list']
+    database_snowballing = database['snowballing']
 
-    for i in com:
+    starting_year = 2010
+
+    ending_year = 2018
+    authors = []
+    if request.session['author'] :
+        authors = request.session.get('author').split(' ')
+    else:
+        authors  = ['Kitchenham', 'Barbara']
+
+    if request.session['StartYear']:
+        starting_year = request.session.get('StartYear')
+    else:
+        starting_year = 2010
+
+    if request.session['EndYear']:
+        ending_year = request.session.get('EndYear')
+    else:
+        ending_year = 2018
+    print("sasanksanskanska")
+    print("Start Year" + str(starting_year))
+    print("Ending Year" + str(ending_year))
+    print("Author" + str(authors))
+
+
+
+
+
+    doi_list_initial =  request.session['list']
+
+    # doi_list_initial = ['10.2903/sp.efsa.2018.EN-1427', '10.5277/e-Inf180104', '10.1145/2745802.2745818',
+    #                     '10.1145/2601248.2601268', '10.1016/j.infsof.2010.03.006', '10.1186/s13643-018-0740-7']
+
+    examined_articles = []
+
+    perform_snowballing(doi_list_initial, starting_year, ending_year, authors, 'citations', 0)
+
+    perform_snowballing(doi_list_initial, starting_year, ending_year, authors, 'references', 0)
+
+
+
+    print("Backward Snowballing result")
+    for i in final_result['references']:
         print(i)
 
-    database = SqliteDict('./database.sqlite', autocommit=True)
-    dois = []
-
-    for i in com:
-
-        if i in database['snowballing']:
-
-            dois.append(database['snowballing'][i])
+    print("Forward Snowballing result")
+    for x in final_result['citations']:
+        print(x)
 
 
-    return render(request,'users/snowballing.html',{'com': dois})
+    del request.session['list']
+    del request.session['author']
+    del request.session['StartYear']
+    del request.session['EndYear']
+
+
+
+
+
+
+    return render(request,'users/snowballing.html')
+
 
 
 def scholarly_data(request):
