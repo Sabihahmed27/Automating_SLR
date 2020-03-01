@@ -17,7 +17,7 @@ import scholarly
 import re
 from django.core import serializers
 from urllib.parse import urlencode, quote_plus,quote
-from whoosh import index,query,qparser
+from whoosh import index,query as q,qparser
 #from whoosh.lang.morph_en import variations
 
 #import whoosh
@@ -91,7 +91,7 @@ def data(request):
             author = form.cleaned_data.get("Author")
             keyword = form.cleaned_data.get("Keyword")
 
-            request.session['Keyword'] = keyword
+
 
 
             parameter_values_list = [1, 100, '9ipXPomYaSrHLAIuONZfzUGk3t57RcBD']
@@ -111,8 +111,18 @@ def data(request):
 
                     query = re.sub(' +', ' ', query)
 
+                if not str(author).isalnum():
+                    query = re.sub(r"[^a-zA-Z0-9]+", ' ', query)
+
+                    query = re.sub(' +', ' ', query)
+
+                if len(author.replace(" ","")) == 0:
+                    temp_messages = 'Invalid Input! Please provide a valid Author name'
+                    # messages.error(request, f'Wrong Url')
+                    return render(request, 'users/scholar.html', {'form': form, 'temp_messages':temp_messages})
+
                 if len(query.replace(" ","")) == 0:
-                    temp_messages = 'Invalid Input! Please provide a valid input'
+                    temp_messages = 'Invalid Input! Please provide a valid Title'
                     # messages.error(request, f'Wrong Url')
                     return render(request, 'users/scholar.html', {'form': form, 'temp_messages':temp_messages})
 
@@ -288,6 +298,7 @@ def data(request):
                 request.session['StartYear'] = startYear
                 request.session['EndYear'] = endYear
                 request.session['author'] = author
+                request.session['Keyword'] = keyword
 
                 # return redirect("query", data=str(common_dois))
 
@@ -496,24 +507,21 @@ def snowballing(request):
 
     ending_year = 2018
     authors = []
-    if request.session['author'] :
+    if request.session['author']:
         authors = request.session.get('author').split(' ')
-    else:
-        authors  = ['Kitchenham', 'Barbara']
+    # else:
+    #     authors  = ['Kitchenham', 'Barbara']
 
     if request.session['StartYear']:
         starting_year = request.session.get('StartYear')
-    else:
-        starting_year = 2010
+
 
     if request.session['EndYear']:
         ending_year = request.session.get('EndYear')
-    else:
-        ending_year = 2018
-    print("sasanksanskanska")
-    print("Start Year" + str(starting_year))
-    print("Ending Year" + str(ending_year))
-    print("Author" + str(authors))
+
+    print("Start Year " + str(starting_year))
+    print("Ending Year " + str(ending_year))
+    print("Author " + str(authors))
 
 
 
@@ -586,14 +594,12 @@ def snowballing(request):
 
 
 
-    del request.session['list']
-    del request.session['author']
-    del request.session['StartYear']
-    del request.session['EndYear']
+
 
     result_dict = Merge(references_dict,citations_dict)
 
     request.session['result_dict'] = result_dict
+
 
 
 
@@ -764,7 +770,7 @@ def create_index(doi_title_abstract):
 def perform_search(ix, input_query):
     with ix.searcher() as searcher:
 
-        query_parser = qparser.QueryParser("article_abstract", schema=ix.schema, termclass=query.Variations)
+        query_parser = qparser.QueryParser("article_abstract", schema=ix.schema, termclass=q.Variations)
 
         # input_query = input("\nEnter query: ")
 
@@ -820,16 +826,12 @@ def perform_search(ix, input_query):
 
 def abstract(request):
 
-
     res_dict = request.session['result_dict']
     list_abstracts = search_coreAPI(res_dict)
     index = create_index(list_abstracts)
-    query = request.session.get("Keyword")
-    map_result = perform_search(index, query)
 
-
-
-
+    word = request.session.get("Keyword")
+    map_result = perform_search(index, word)
 
     # if request.method == 'POST':
     #     form = AbstractForm(request.POST)
@@ -844,6 +846,12 @@ def abstract(request):
     #             #messages.error(request,f'Wrong Url')
     #             return render(request, 'users/abstract.html', {'form': form})
 
+    del request.session['list']
+    del request.session['author']
+    del request.session['StartYear']
+    del request.session['EndYear']
 
 
-    return render(request, 'users/abstract.html')
+
+
+    return render(request, 'users/abstract.html', {'map_result': map_result.items()})

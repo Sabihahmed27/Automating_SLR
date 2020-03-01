@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 
 from .models import Profile, Document, ResearchPapers
 import datetime
@@ -61,18 +61,15 @@ class AbstractForm(forms.ModelForm):
 
 
 class SimpleForm(forms.ModelForm):
-     Title = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",required=True)
-     StartYear = forms.IntegerField(min_value=1960, label="Start Year", max_value=current_year(), help_text="Year format: YYYY",required=False ,validators=[MinValueValidator(1960), max_value_current_year])
-
-     EndYear = forms.IntegerField(min_value=1960, label="End Year",max_value=current_year(), help_text="Year format: YYYY", required=False,validators=[MinValueValidator(1960), max_value_current_year])
-
-     Author = forms.CharField(max_length = 200, help_text="Enter Author Name",required=False)
-
-     Keyword = forms.CharField(max_length=300, help_text="(Keyword for Abstract Screening)", required=True)
-
-     class Meta:
-         model = ResearchPapers
-         fields = ['Title', 'Author','StartYear','EndYear','Keyword']
+    alphanumeric = RegexValidator(r'^[0-9a-zA-Z]*$', 'Only alphanumeric characters are allowed.')
+    Title = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=True)
+    StartYear = forms.IntegerField(min_value=1960, label="Start Year", max_value=current_year(), help_text="Year format: YYYY",required=True ,validators=[MinValueValidator(1960), max_value_current_year])
+    EndYear = forms.IntegerField(min_value=1960, label="End Year",max_value=current_year(), help_text="Year format: YYYY", required=True,validators=[MinValueValidator(1960), max_value_current_year])
+    Author = forms.CharField(max_length = 200, help_text="Enter Author name",required=True)
+    Keyword = forms.CharField(max_length=300, help_text="(Keyword for Abstract Screening)", required=True)
+    class Meta:
+        model = ResearchPapers
+        fields = ['Title', 'Author','StartYear','EndYear','Keyword']
 
     #lastname = forms.CharField(max_length=100)
 
