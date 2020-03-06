@@ -73,6 +73,19 @@ class SimpleForm(forms.ModelForm):
 
     #lastname = forms.CharField(max_length=100)
 
+class PICOC(forms.ModelForm):
+    alphanumeric = RegexValidator(r'^[0-9a-zA-Z]*$', 'Only alphanumeric characters are allowed.')
+    population = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=True)
+    intervention = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=True)
+    comparison = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=True)
+    outcome = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=True)
+    context = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=True)
+
+    class Meta:
+        model = ResearchPapers
+        fields = ['population','intervention','comparison','outcome','context']
+
+
 
 class QueryForm(forms.ModelForm):
     enterUrl = forms.CharField(max_length=100)

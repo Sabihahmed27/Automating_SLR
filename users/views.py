@@ -7,7 +7,7 @@ from habanero import Crossref
 from urllib.parse import urlparse
 from django.contrib.auth.decorators import login_required
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, DocumentForm, \
-    AbstractForm
+    AbstractForm, PICOC
 import requests,json
 from django.http import JsonResponse
 import urllib
@@ -83,13 +83,23 @@ def data(request):
 
     if request.method == 'POST':
         form = SimpleForm(request.POST)
-        if form.is_valid():
+        form2 = PICOC(request.POST)
+
+        if form.is_valid() or form2.is_valid():
             #query = input('Enter the query to be searched: ')
             query = form.cleaned_data.get("Title")
             startYear = form.cleaned_data.get("StartYear")
             endYear = form.cleaned_data.get("EndYear")
             author = form.cleaned_data.get("Author")
             keyword = form.cleaned_data.get("Keyword")
+
+
+            population = form2.cleaned_data.get("population")
+            intervention = form2.cleaned_data.get("intervention")
+            comparison = form2.cleaned_data.get("comparison")
+            outcome = form2.cleaned_data.get("outcome")
+            context = form2.cleaned_data.get("context")
+
 
 
 
@@ -331,7 +341,8 @@ def data(request):
 
     else:
         form = SimpleForm()
-        return render(request, 'users/scholar.html', {'form': form})
+        form2 = PICOC()
+        return render(request, 'users/scholar.html', {'form': form,'form2':form2})
     # if request.method == 'POST':
     #     u_form = UserUpdateForm(request.POST, instance=request.user)
     #     p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
@@ -431,6 +442,16 @@ final_result['citations']={}
 #
 # final_result['citations']['title'] = {}
 
+# class SearchResultsView(ListView):
+#     model = City
+#     template_name = 'search_results.html'
+#
+#     def get_queryset(self): # new
+#         query = self.request.GET.get('q')
+#         object_list = City.objects.filter(
+#             Q(name__icontains=query) | Q(state__icontains=query)
+#         )
+#         return object_list
 
 def perform_snowballing(doi_list, starting_year, ending_year, authors, snowball_type, iteration):
     database = SqliteDict('./SLR_database.sqlite', autocommit=True)

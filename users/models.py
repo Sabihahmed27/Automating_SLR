@@ -12,6 +12,11 @@ class Document(models.Model):
 
 class ResearchPapers(models.Model):
     doi = models.CharField(max_length=255,blank=False)
+    population =  models.CharField(max_length=255,blank=False)
+    intervention = models.CharField(max_length=255, blank=False)
+    context = models.CharField(max_length=255, blank=False)
+    outcome = models.CharField(max_length=255, blank=False)
+    comparison = models.CharField(max_length=255, blank=False)
 
 
 
