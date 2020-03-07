@@ -310,25 +310,22 @@ def data(request):
                 request.session['author'] = author
                 request.session['Keyword'] = keyword
 
+                core_heading = 'Results from Core'
+                crossref_heading = 'Results from Crossref'
+
                 # return redirect("query", data=str(common_dois))
+                #removed some elements to be sent to html: new_crossref_titles,crossref_year,crossref_url,new_core_title, core_year, core_url
 
 
             # return render(request, 'users/query.html',data=str(content))
                 return render(request, 'users/scholar.html', {'crossref_dois': crossref_doi_list,
                                                               'core_doi_list': core_doi_list,
-                                                              'new_crossref_titles' : new_crossref_titles,
-                                                              'crossref_year': crossref_year,
                                                               'crossRef': crossRef,
-                                                              'coredup':core_dup,
+                                                              'core_heading':core_heading,
+                                                              'crossref_heading':crossref_heading,
                                                               'core':core,
-                                                              'crossref_dup':crossref_dup,
-                                                              'crossref_url':crossref_url,
-
-                                                              'new_core_title':new_core_title,
-                                                              'core_year':core_year,
-                                                              'core_url':core_url,
-                                                              'form': form
-
+                                                              'form': form,
+                                                              'form2':form2
                                                               })
             except HTTPError:
                 messages.error(request,f'No response from Server')

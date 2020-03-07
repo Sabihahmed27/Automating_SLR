@@ -67,27 +67,27 @@
 
                 <table style="width:60%">
 
-                    <tr>
-                    <th>CrossRef Results from all sites</th>
-                    </tr>
-                    <tr>
-                    {% for i,j,k in crossref_dup %}
-                        <td class="list-group-item"><a href={{k}}> <p>{{i}}</p> <p>Published Year {{j}}</p>  </a></td>
-                        {% endfor %}
-                    </tr>
+<!--                    <tr>-->
+<!--                    <th>CrossRef Results from all sites</th>-->
+<!--                    </tr>-->
+<!--                    <tr>-->
+<!--                    {% for i,j,k in crossref_dup %}-->
+<!--                        <td class="list-group-item"><a href={{k}}> <p>{{i}}</p> <p>Published Year {{j}}</p>  </a></td>-->
+<!--                        {% endfor %}-->
+<!--                    </tr>-->
+
+<!--                    <tr>-->
+<!--                    <th>Core Results from all sites</th>-->
+<!--                    </tr>-->
+
+<!--                    <tr>-->
+<!--                    {% for i,j,k in coredup %}-->
+<!--                        <td class="list-group-item"><a href={{k}}> {{i}} <p>Published Year {{j}}</p> <p>{{k}}</p></a></td>-->
+<!--                        {% endfor %}-->
+<!--                    </tr>-->
 
                     <tr>
-                    <th>Core Results from all sites</th>
-                    </tr>
-
-                    <tr>
-                    {% for i,j,k in coredup %}
-                        <td class="list-group-item"><a href={{k}}> {{i}} <p>Published Year {{j}}</p> <p>{{k}}</p></a></td>
-                        {% endfor %}
-                    </tr>
-
-                    <tr>
-                    <th>Core Results (De-duplicating)</th>
+                    <th>{{core_heading}}</th>
                     </tr>
 
                     <tr>
@@ -97,7 +97,7 @@
                     </tr>
 
                     <tr>
-                    <th>CrossRef Results (De-duplicating)</th>
+                    <th>{{crossref_heading}}</th>
                     </tr>
 
                     <tr>
@@ -149,7 +149,7 @@
             {% csrf_token %}
             <fieldset class = "form-group" >
                 <legend class="border-bottom mb-4">Population </legend>
-<!--                {{ form }}-->
+                {{ form2|crispy}}
 
                 <p><input type="submit" class = "btn btn-primary" value="submit"></p>
 
@@ -161,27 +161,9 @@
 
                 <table style="width:60%">
 
-                    <tr>
-                    <th>CrossRef Results from all sites</th>
-                    </tr>
-                    <tr>
-                    {% for i,j,k in crossref_dup %}
-                        <td class="list-group-item"><a href={{k}}> <p>{{i}}</p> <p>Published Year {{j}}</p>  </a></td>
-                        {% endfor %}
-                    </tr>
 
-                    <tr>
-                    <th>Core Results from all sites</th>
-                    </tr>
-
-                    <tr>
-                    {% for i,j,k in coredup %}
-                        <td class="list-group-item"><a href={{k}}> {{i}} <p>Published Year {{j}}</p> <p>{{k}}</p></a></td>
-                        {% endfor %}
-                    </tr>
-
-                    <tr>
-                    <th>Core Results (De-duplicating)</th>
+                     <tr>
+                    <th>{{core_heading}}</th>
                     </tr>
 
                     <tr>
@@ -191,7 +173,7 @@
                     </tr>
 
                     <tr>
-                    <th>CrossRef Results (De-duplicating)</th>
+                    <th>{{crossref_heading}}</th>
                     </tr>
 
                     <tr>
