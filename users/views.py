@@ -85,7 +85,7 @@ def data(request):
         form = SimpleForm(request.POST)
         form2 = PICOC(request.POST)
 
-        if form.is_valid() or form2.is_valid():
+        if form.is_valid() and form2.is_valid():
             #query = input('Enter the query to be searched: ')
             query = form.cleaned_data.get("Title")
             startYear = form.cleaned_data.get("StartYear")

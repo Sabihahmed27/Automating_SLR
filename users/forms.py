@@ -62,7 +62,7 @@ class AbstractForm(forms.ModelForm):
 # ^[0-9a-zA-Z]*$  ^[a-zA-Z0-9 .!?"-\(\)]+$ ^[a-zA-Z0-9\n _ .?"-:!()]$
 # ^[a-zA-Z0-9 _.,!()+=`,"@$#%*-]+$
 class SimpleForm(forms.ModelForm):
-    alphanumeric = RegexValidator(r'^[a-zA-Z0-9 _.,!()+=`,"@$#%*-]+$', 'Only alphanumeric characters are allowed.')
+    alphanumeric = RegexValidator(r'^[0-9a-zA-Z_ .?"-:!()]+$', 'Only alphanumeric characters are allowed.')
     Title = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=True)
     StartYear = forms.IntegerField(min_value=1960, label="Start Year", max_value=current_year(), help_text="Year format: YYYY",required=True ,validators=[MinValueValidator(1960), max_value_current_year])
     EndYear = forms.IntegerField(min_value=1960, label="End Year",max_value=current_year(), help_text="Year format: YYYY", required=True,validators=[MinValueValidator(1960), max_value_current_year])
@@ -76,11 +76,11 @@ class SimpleForm(forms.ModelForm):
 
 class PICOC(forms.ModelForm):
     alphanumeric = RegexValidator(r'^[0-9a-zA-Z].*$', 'Only alphanumeric characters are allowed.')
-    population = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=True)
-    intervention = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=True)
-    comparison = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=True)
-    outcome = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=True)
-    context = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=True)
+    population = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=False)
+    intervention = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=False)
+    comparison = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=False)
+    outcome = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=False)
+    context = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=False)
 
     class Meta:
         model = ResearchPapers
