@@ -3,6 +3,10 @@ from django.contrib.auth.models import User
 from PIL import Image
 # Create your models here.
 
+class Articles(models.Model):
+    Title = models.CharField(max_length=255, blank=True)
+
+
 
 class Document(models.Model):
     description = models.CharField(max_length=255, blank=True)
@@ -14,10 +18,9 @@ class ResearchPapers(models.Model):
     doi = models.CharField(max_length=255,blank=False)
     population =  models.CharField(max_length=255,blank=False)
     intervention = models.CharField(max_length=255, blank=False)
-    context = models.CharField(max_length=255, blank=False)
-    outcome = models.CharField(max_length=255, blank=False)
     comparison = models.CharField(max_length=255, blank=False)
-
+    outcome = models.CharField(max_length=255, blank=False)
+    context = models.CharField(max_length=255, blank=False)
 
 
 class Profile(models.Model):

@@ -13,14 +13,14 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from users import views as user_views
-
-
+from users.views import searchposts
 
 urlpatterns = [
     path('', user_views.data, name='scholar'),
@@ -31,6 +31,7 @@ urlpatterns = [
     path('abstract/', user_views.abstract, name='abstract'),
     path('model_form_upload/', user_views.model_form_upload,name = 'model_form_upload'),
     path('query/<str:data>', user_views.query, name='query'),
+    path('searchposts/', user_views.searchposts, name='searchposts'),
     path('scholar/', user_views.data, name='scholar'),
     path('snowballing/', user_views.snowballing, name='snowballing'),
     path('profile/', user_views.profile, name='profile'),

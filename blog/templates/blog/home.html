@@ -3,6 +3,7 @@
 {% block content %}
      <div class="row">
 
+
         <div class="col-md-8">
             <div class="content-section">
             <form method="POST">
@@ -58,22 +59,33 @@
 
 
     </div>
-<!--    <div class="col-md-4">-->
-<!--        <a href="/review" class="btn btn-primary pull-right">New review</a>-->
-<!--      <div class="content-section">-->
-<!--        <h3>Our Sidebar</h3>-->
-<!--        <p class='text-muted'>You can put any information here you'd like.-->
-<!--          <ul class="list-group">-->
-<!--            <li class="list-group-item list-group-item-light">Latest Posts</li>-->
-<!--            <li class="list-group-item list-group-item-light">Announcements</li>-->
-<!--            <li class="list-group-item list-group-item-light">Calendars</li>-->
-<!--            <li class="list-group-item list-group-item-light">etc</li>-->
-<!--          </ul>-->
-<!--        </p>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </div>-->
+<h1>Search Page</h1>
 
+<br/>
+<form action="{% url 'search:searchposts' %}" method="GET" value="{{request.GET.q}}">
+Search <input type="text" name="q" value="{{request.GET.q}}" placeholder="Search posts"/>
+<input type="submit" name="submit" value="Search"/>
+</form>
+
+
+{% if submitbutton == 'Search' and request.GET.q != '' %}
+{% if results %}
+<h1>Results for <b>{{ request.GET.q }}</b></h1>
+<br/><br/>
+
+{% for result in results %}
+
+{{result.title}}
+<br/>
+
+{{result.content}}
+<br/>
+
+{% endfor %}
+{% else %}
+No search results for this query
+{% endif %}
+{% endif %}
 
 {% endblock content %}
 

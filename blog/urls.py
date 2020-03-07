@@ -1,6 +1,7 @@
 from os import name
 
-from django.urls import path
+from django.conf.urls import url
+from django.urls import path, include
 from .views import PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView, UserPostListView
 from . import views
 

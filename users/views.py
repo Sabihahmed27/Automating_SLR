@@ -6,6 +6,8 @@ from django.urls import reverse
 from habanero import Crossref
 from urllib.parse import urlparse
 from django.contrib.auth.decorators import login_required
+
+from users.models import Articles
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, DocumentForm, \
     AbstractForm, PICOC
 import requests,json
@@ -13,6 +15,7 @@ from django.http import JsonResponse
 import urllib
 from urllib.error import HTTPError
 #from Crossref.restful import Works
+from django.db.models import Q
 import scholarly
 import re
 from django.core import serializers
@@ -873,3 +876,22 @@ def abstract(request):
 
 
     return render(request, 'users/abstract.html', {'map_result': map_result.items()})
+
+
+def searchposts(request):
+    if(request.method == 'GET'):
+        query = request.GET.get('q')
+
+        submitbutton = request.GET.get('submit')
+
+        if(query is not None):
+            lookups = Q(Title__icontains=query)
+            results = Articles.objects.filter(lookups).distinct()
+            context = {'results': results, 'submitbutton': submitbutton}
+
+            return render(request, 'blog/home.html' ,context)
+
+        else:
+            return render(request,'blog/home.html')
+    else:
+        return render(request, 'blog/home.html')
