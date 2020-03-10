@@ -889,9 +889,9 @@ def searchposts(request):
             results = Articles.objects.filter(lookups).distinct()
             context = {'results': results, 'submitbutton': submitbutton}
 
-            return render(request, 'blog/home.html' ,context)
+            return render(request, 'users/searchposts.html' ,context)
 
         else:
-            return render(request,'blog/home.html')
+            return render(request,'users/searchposts.html')
     else:
-        return render(request, 'blog/home.html')
+        return render(request, 'users/searchposts.html')

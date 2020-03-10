@@ -15,9 +15,9 @@
 
 
     {% if title %}
-        <title>Django Blog - {{ title }}</title>
+        <title>SLR Automation - {{ title }}</title>
     {% else %}
-        <title>Django Block</title>
+        <title>SLR Automation</title>
     {% endif %}
 
 
@@ -47,6 +47,15 @@
                 <form action="{% url 'search_results' %}" method="get">
                     <input name="q" type="text" placeholder="Search...">
                 </form>
+                <span class="wrap">
+                    <div class="search">
+                      <input type="text" class="searchTerm" placeholder="What are you looking for?">
+                      <button type="submit" class="searchButton">
+                        <i class="fa fa-search"></i>
+                     </button>
+                   </div>
+                </span>
+
 
             {% else %}
                 <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>

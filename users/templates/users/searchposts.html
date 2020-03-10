@@ -7,12 +7,12 @@
 <body>
 
 
-
+HELLOO WORLD
 
 <h1>Search Page</h1>
 
 <br/>
-<form action="{% url 'search:searchposts' %}" method="GET" value="{{request.GET.q}}">
+<form action="{% url 'searchposts' %}" method="GET" value="{{request.GET.q}}">
 Search <input type="text" name="q" value="{{request.GET.q}}" placeholder="Search posts"/>
 <input type="submit" name="submit" value="Search"/>
 </form>
