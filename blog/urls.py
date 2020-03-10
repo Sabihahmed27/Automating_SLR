@@ -1,7 +1,12 @@
 from os import name
 
 from django.conf.urls import url
+from django.template.context_processors import static
 from django.urls import path, include
+
+from django_project import settings
+from django.conf import settings
+from django.conf.urls.static import static
 from .views import PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView, UserPostListView
 from . import views
 

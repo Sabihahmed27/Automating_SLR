@@ -6,7 +6,7 @@ from django.urls import reverse
 from habanero import Crossref
 from urllib.parse import urlparse
 from django.contrib.auth.decorators import login_required
-
+from .models import Document
 from users.models import Articles
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, DocumentForm, \
     AbstractForm, PICOC
@@ -895,3 +895,28 @@ def searchposts(request):
             return render(request,'users/searchposts.html')
     else:
         return render(request, 'users/searchposts.html')
+
+
+def model_form_upload(request):
+    form2 = []
+    if request.method == 'POST':
+        form = DocumentForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            form.save(commit=True)
+            form2 = Document
+            print(form2.description)
+            return savepdf(request)
+
+    else:
+        form = DocumentForm()
+        return render(request, 'users/model_form_upload.html', {'form': form})
+
+    return savepdf(request)
+
+def savepdf(request):
+    document = Document.objects.all()
+    # print(document.description)
+    print(type(document))
+    return render(request, 'users/model_form_upload.html', { 'document' : document})
+
