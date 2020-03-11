@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 
-from .models import Profile, Document, ResearchPapers
+from .models import Profile, Document, ResearchPapers, Articles
 import datetime
 
 
@@ -69,7 +69,7 @@ class SimpleForm(forms.ModelForm):
     Author = forms.CharField(max_length = 200, help_text="Enter Author name",required=True)
     Keyword = forms.CharField(max_length=300, help_text="(Keyword for Abstract Screening)", required=True)
     class Meta:
-        model = ResearchPapers
+        model = Articles
         fields = ['Title', 'Author','StartYear','EndYear','Keyword']
 
     #lastname = forms.CharField(max_length=100)
@@ -92,6 +92,6 @@ class QueryForm(forms.ModelForm):
     enterUrl = forms.CharField(max_length=100)
 
     class Meta:
-        model = User
+        model = Articles
         fields = ['enterUrl']
 

@@ -38,9 +38,6 @@ class paper_details:
         self.year = year
         self.url = url
 
-
-
-
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
@@ -89,6 +86,7 @@ def data(request):
         form2 = PICOC(request.POST)
 
         if form.is_valid() and form2.is_valid():
+            form.save()
             #query = input('Enter the query to be searched: ')
             query = form.cleaned_data.get("Title")
             startYear = form.cleaned_data.get("StartYear")
@@ -96,16 +94,11 @@ def data(request):
             author = form.cleaned_data.get("Author")
             keyword = form.cleaned_data.get("Keyword")
 
-
             population = form2.cleaned_data.get("population")
             intervention = form2.cleaned_data.get("intervention")
             comparison = form2.cleaned_data.get("comparison")
             outcome = form2.cleaned_data.get("outcome")
             context = form2.cleaned_data.get("context")
-
-
-
-
 
             parameter_values_list = [1, 100, '9ipXPomYaSrHLAIuONZfzUGk3t57RcBD']
             response = requests.get(edited_search_coreAPI(query, parameter_values_list))
@@ -139,16 +132,9 @@ def data(request):
                     # messages.error(request, f'Wrong Url')
                     return render(request, 'users/scholar.html', {'form': form, 'temp_messages':temp_messages})
 
-                # if query.isa
-                #     return render(request, 'users/scholar.html', {'form': form})
-
-
                 x = cr.works(query=query, filter={'has_full_text': True})
                 if x['status'] == "error":
                     return render(request, 'users/scholar.html', {'form': form})
-
-
-
 
                 crossref_titles = []
                 crossref_year = []
@@ -169,9 +155,6 @@ def data(request):
 
 
                 core_class_list = []
-
-
-
 
                 core_title = []
                 core_url = []
@@ -195,17 +178,10 @@ def data(request):
                 #     return render(request, 'users/scholar.html', {'form': form})
 
 
-                # print("Before duplication")
-                # print(len(crossref_titles))
-                # print(len(core_title))
                 new_core_title = []
                 for i in core_title:
                     if i not in new_core_title:
                         new_core_title.append(i)
-                # print("After deduplication")
-                # print(len(new_core_title))
-
-
 
                 new_crossref_year = []
                 for i in crossref_year:
@@ -219,13 +195,6 @@ def data(request):
                     if i not in new_crossref_url:
                         new_crossref_url.append(i)
 
-
-
-
-
-
-
-
                 new_crossref_titles=[]
                 for i in crossref_titles:
                     if i not in new_crossref_titles:
@@ -237,52 +206,20 @@ def data(request):
                     if i not in new_core_title:
                         new_core_title.append(i)
 
-                # print("Length of titles")
-
-                # print(len(new_core_title))
-                # print("After deduplication")
-                # print(len(new_core_title))
-
-
 
                 new_core_year = []
                 for i in core_year:
                     if i not in new_core_year:
                         new_core_year.append(i)
 
-                # print("Length of years")
-                #
-                # print(len(new_core_year))
-                #
-
-
-
                 new_core_url = []
                 for i in core_url:
                     if i not in new_core_url:
                         new_core_url.append(i)
-                # print("Length of urls")
-                #
-                # print(len(new_core_url))
 
-
-
-
-                # print("After de duplication")
-                # print(len(new_crossref_titles))
-                # for i in new_crossref_titles:
-                #     print(i)
-                #
 
                 # common_dois = []
                 common_title = []
-                # common_title = list(set(new_crossref_titles) & set(new_core_title))
-                # print(len(common_title))
-
-                # common_dois = list(set(crossref_doi_list) & set(core_doi_list))
-                # print(len(common_dois))
-                # for i in common_dois:
-                    # print(i)
 
 
                 context = {
@@ -343,20 +280,7 @@ def data(request):
         form = SimpleForm()
         form2 = PICOC()
         return render(request, 'users/scholar.html', {'form': form,'form2':form2})
-    # if request.method == 'POST':
-    #     u_form = UserUpdateForm(request.POST, instance=request.user)
-    #     p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
-    #
-    #     if u_form.is_valid() and p_form.is_valid():
-    #         u_form.save()
-    #         p_form.save()
-    #         messages.success(request, f'Your Url has been generated')
-    #         #return redirect('register')
-    #
-    # else:
-    #     u_form = UserUpdateForm(instance=request.user)
-    #     p_form = ProfileUpdateForm(instance=request.user.profile)
-    #
+
 def funct():
     return common_dois
 
@@ -419,11 +343,6 @@ def filter_articles(articles_list, starting_year, ending_year, input_author_list
     for i in result:
         doi_map[i] = article_info_db[i]['title']
 
-
-
-
-
-
     return doi_map
 
 
@@ -434,13 +353,6 @@ final_result['references']={}
 final_result['citations']={}
 
 
-# final_result['references']['doi'] = {}
-#
-# final_result['references']['title'] = {}
-#
-# final_result['citations']['doi'] = {}
-#
-# final_result['citations']['title'] = {}
 
 # class SearchResultsView(ListView):
 #     model = City
@@ -486,30 +398,6 @@ def perform_snowballing(doi_list, starting_year, ending_year, authors, snowball_
                             iteration + 1)
 
 
-# database = SqliteDict('./SLR_database.sqlite', autocommit=True)
-#
-# database_snowballing = database['snowballing']
-#
-# starting_year = 2010
-#
-# ending_year = 2018
-#
-# authors = ['Kitchenham', 'Barbara']
-#
-# doi_list_initial = ['10.2903/sp.efsa.2018.EN-1427', '10.5277/e-Inf180104', '10.1145/2745802.2745818',
-#                     '10.1145/2601248.2601268', '10.1016/j.infsof.2010.03.006', '10.1186/s13643-018-0740-7']
-#
-# examined_articles = []
-#
-# perform_snowballing(doi_list_initial, starting_year, ending_year, authors, database_snowballing, 'citations', 0)
-#
-# perform_snowballing(doi_list_initial, starting_year, ending_year, authors, database_snowballing, 'references', 0)
-#
-# print("Backward: " + str(len(final_result['references'])))
-# print("Forward: " + str(len(final_result['citations'])))
-
-
-
 def query(request):
 
     return render(request,'users/query.html',{data:data})
@@ -544,10 +432,6 @@ def snowballing(request):
     print("Ending Year " + str(ending_year))
     print("Author " + str(authors))
 
-
-
-
-
     doi_list_initial =  request.session['list']
 
     # doi_list_initial = ['10.2903/sp.efsa.2018.EN-1427', '10.5277/e-Inf180104', '10.1145/2745802.2745818',
@@ -558,38 +442,6 @@ def snowballing(request):
     perform_snowballing(doi_list_initial, starting_year, ending_year, authors, 'citations', 0)
 
     perform_snowballing(doi_list_initial, starting_year, ending_year, authors, 'references', 0)
-
-
-
-    # print("Backward Snowballing result")
-    # print("References")
-    # for i in final_result['references']['doi']:
-    #     print(i)
-    #
-    # print("Forward Snowballing result")
-    # print("Citations")
-    # for x in final_result['citations']['doi']:
-    #     print(x)
-    #
-    # print("References titles")
-    #
-    # for i in final_result['references']['title']:
-    #     print(i)
-
-    # print("Forward Snowballing result")
-    # print("Citations titles")
-    # for x in final_result['citations']['title']:
-    #     print(x)
-
-
-    # final_title = list(set(final_result['citations']['title']).union(final_result['references']['title']))
-    #
-    # final_doi = list(set(final_result['citations']['doi']).union(final_result['references']['doi']))
-
-
-    # for i in range(len(final_doi)) :
-    #
-    #     print(final_doi[i] + "  " + final_title[i])
 
     for i in final_result['references'] :
 
@@ -613,22 +465,9 @@ def snowballing(request):
 
         citations_dict["https://dx.doi.org/" + i] = temp_cite[i]
 
-
-
-
-
     result_dict = Merge(references_dict,citations_dict)
 
     request.session['result_dict'] = result_dict
-
-
-
-
-
-
-
-
-
 
     return render(request,'users/snowballing.html',{'data': references_dict.items(),"data2":citations_dict.items()})
 
@@ -640,14 +479,8 @@ def scholarly_data(request):
         form2 = QueryForm(request.POST)
 
         if form2.is_valid():
-            # query = input('Enter the query to be searched: ')
             query2 = form2.cleaned_data.get("enterUrl")
-            #parameter_values_list = [1, 10, '9ipXPomYaSrHLAIuONZfzUGk3t57RcBD']
-            #response = requests.get(edited_search_coreAPI(query, parameter_values_list))
-            # response = requests.get(edited_search_coreAPI(form.enterUrl, parameter_values_list))
-            #content = response.json()
-            # print(content)
-            #
+
             search_query = scholarly.search_keyword(query2)
             #print(next(search_query))
             #content = search_query.json()
@@ -660,8 +493,6 @@ def scholarly_data(request):
                 auth_name = i.name
                 print(i.name)
 
-
-
             cr = Crossref()
 
             x = cr.works(query = query2,filter = {'has_full_text': True})
@@ -673,8 +504,6 @@ def scholarly_data(request):
             #     crossref_list.append(paper_details(i['doi'], i['title']))
                 #url_list.append(i['link'][0]['URL'])
 
-            # for i in crossref_list:
-            #     if()
             temp =[]
             for i in x['message']['items']:
                 temp.append(i['title'])
@@ -689,31 +518,9 @@ def scholarly_data(request):
                 #'content': content
             }
 
-
-
-
-            #dois = ['10.1186/s13643-018-0740-7']
-            # x = cr.works(filter={"doi": ['10.1186/s13643-018-0740-7']})
-            # # ,'has_full_text': True
-            # for y in x['message']['items']:
-            #     auth_URL = y['URL']
-            #     print(y['URL'])
-            # search_query = scholarly.search_pubs_query('guidelines for snowballing')
-            # print(next(search_query))
-
             messages.success(request, f'Your Url has been generated')
-            #return render_to_response(request, {"day_list": ['sunday', 'monday', 'tuesday']})
-            # return redirect(request,'users/query.html',{'content' : content})
             zip_lists = list(zip(temp,temp_urls))
             return render(request, 'users/database.html', {'content': zip_lists})
-            #return render(request, 'users/query.html',{"content" : content})
-            #return render(json.dumps(search_query,sort_keys=True, indent=4),'users/query.html', content_type="application/json")
-            #query_serialized = serializers.serialize('json', search_query)
-            #return JsonResponse(query_serialized, safe=False)
-            #return (HttpResponse(json.dumps(search_query,sort_keys=True, indent=4), content_type="application/json"))
-            #return render(request, 'users/scholar.html', {"data": data, "country_list": country_list})
-
-        #return (HttpResponse((search_query), content_type="application/json"))
 
         else:
             #messages.error(request, f'Wrong Url')
@@ -749,8 +556,6 @@ def search_coreAPI(doi_title_dict):
         parameters = urlencode(parameters, quote_via=quote)
 
         url += quote(query) + "?" + parameters
-
-        # print(url)
 
         response = requests.get(url)
 
@@ -827,9 +632,6 @@ def perform_search(ix, input_query):
         for i in splitted_query:
             final_query += "*" + i + "* OR "
 
-        # actual_query = "*" + actual_query + "*"
-
-        # print('\n' + final_query + '\n')
 
         query_user = query_parser.parse(final_query)
 
@@ -854,26 +656,10 @@ def abstract(request):
     word = request.session.get("Keyword")
     map_result = perform_search(index, word)
 
-    # if request.method == 'POST':
-    #     form = AbstractForm(request.POST)
-    #     if form.is_valid():
-    #         #query = input('Enter the query to be searched: ')
-
-    #
-    #
-    #
-    #
-    #     else:
-    #             #messages.error(request,f'Wrong Url')
-    #             return render(request, 'users/abstract.html', {'form': form})
-
     del request.session['list']
     del request.session['author']
     del request.session['StartYear']
     del request.session['EndYear']
-
-
-
 
     return render(request, 'users/abstract.html', {'map_result': map_result.items()})
 
@@ -889,7 +675,7 @@ def searchposts(request):
             results = Articles.objects.filter(lookups).distinct()
             context = {'results': results, 'submitbutton': submitbutton}
 
-            return render(request, 'users/searchposts.html' ,context)
+            return render(request, 'users/scholar.html' ,context)
 
         else:
             return render(request,'users/searchposts.html')
