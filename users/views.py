@@ -6,7 +6,7 @@ from django.urls import reverse
 from habanero import Crossref
 from urllib.parse import urlparse
 from django.contrib.auth.decorators import login_required
-from .models import Document
+from .models import Document, Snowballing_model
 from users.models import Articles
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, DocumentForm, \
     AbstractForm, PICOC
@@ -237,6 +237,10 @@ def data(request):
                     if i not in new_core_title:
                         new_core_title.append(i)
 
+                for i in set(new_core_title).union(set(new_crossref_titles)):
+                    a = Articles(Title=i)
+                    a.save()
+
                 # print("Length of titles")
 
                 # print(len(new_core_title))
@@ -418,6 +422,8 @@ def filter_articles(articles_list, starting_year, ending_year, input_author_list
     doi_map = {}
     for i in result:
         doi_map[i] = article_info_db[i]['title']
+        s = Snowballing_model(Title = article_info_db[i]['title'])
+        s.save()
 
 
 
@@ -919,4 +925,41 @@ def savepdf(request):
     # print(document.description)
     print(type(document))
     return render(request, 'users/model_form_upload.html', { 'document' : document})
+
+
+def search_database(request):
+    if(request.method == 'POST'):
+        query = request.POST.get('q')
+
+        submitbutton = request.POST.get('submit-database')
+
+        if(query is not None):
+            lookups = Q(Title__icontains=query)
+            results = Articles.objects.filter(lookups).distinct()
+            context = {'results': results, 'submitbutton': submitbutton}
+
+            return render(request, 'users/search_database.html' ,{'results': results})
+
+        else:
+            return render(request,'users/search_database.html')
+    else:
+        return render(request, 'users/search_database.html')
+
+def search_snowballing(request):
+    if(request.method == 'POST'):
+        query = request.POST.get('q')
+
+        submitbutton = request.POST.get('submit-snowballing')
+
+        if(query is not None):
+            lookups = Q(Title__icontains=query)
+            results = Articles.objects.filter(lookups).distinct()
+            context = {'results': results, 'submitbutton': submitbutton}
+
+            return render(request, 'users/search_snowballing.html' ,{'results': results})
+
+        else:
+            return render(request,'users/search_snowballing.html')
+    else:
+        return render(request, 'users/search_snowballing.html')
 
