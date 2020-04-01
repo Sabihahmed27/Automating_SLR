@@ -7,7 +7,7 @@ from habanero import Crossref
 from urllib.parse import urlparse
 from django.contrib.auth.decorators import login_required
 from .models import Document
-from users.models import Articles,Snowballing_articles,Snowballing_model
+from users.models import Articles
 from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, DocumentForm, \
     AbstractForm, PICOC
 import requests,json
@@ -202,11 +202,8 @@ def data(request):
                 for i in core_title:
                     if i not in new_core_title:
                         new_core_title.append(i)
-
                 # print("After deduplication")
                 # print(len(new_core_title))
-
-
 
 
 
@@ -233,11 +230,6 @@ def data(request):
                 for i in crossref_titles:
                     if i not in new_crossref_titles:
                         new_crossref_titles.append(i)
-
-                for i in set(new_core_title).union(set(new_crossref_titles)):
-                    a = Articles(Title=i)
-                    a.save()
-
 
 
                 new_core_title = []
@@ -424,15 +416,8 @@ def filter_articles(articles_list, starting_year, ending_year, input_author_list
                     result.add(j)
 
     doi_map = {}
-    # s = Snowballing_articles(article= 'random string')
-    # s.save()
-
     for i in result:
         doi_map[i] = article_info_db[i]['title']
-        # if article_info_db[i]['title']:
-        print("Check before error")
-        s = Snowballing_model(Title = str(article_info_db[i]['title']))
-        s.save()
 
 
 
@@ -449,7 +434,24 @@ final_result['references']={}
 final_result['citations']={}
 
 
+# final_result['references']['doi'] = {}
+#
+# final_result['references']['title'] = {}
+#
+# final_result['citations']['doi'] = {}
+#
+# final_result['citations']['title'] = {}
 
+# class SearchResultsView(ListView):
+#     model = City
+#     template_name = 'search_results.html'
+#
+#     def get_queryset(self): # new
+#         query = self.request.GET.get('q')
+#         object_list = City.objects.filter(
+#             Q(name__icontains=query) | Q(state__icontains=query)
+#         )
+#         return object_list
 
 def perform_snowballing(doi_list, starting_year, ending_year, authors, snowball_type, iteration):
     database = SqliteDict('./SLR_database.sqlite', autocommit=True)
@@ -483,6 +485,28 @@ def perform_snowballing(doi_list, starting_year, ending_year, authors, snowball_
         perform_snowballing(doi_list, starting_year, ending_year, authors, snowball_type,
                             iteration + 1)
 
+
+# database = SqliteDict('./SLR_database.sqlite', autocommit=True)
+#
+# database_snowballing = database['snowballing']
+#
+# starting_year = 2010
+#
+# ending_year = 2018
+#
+# authors = ['Kitchenham', 'Barbara']
+#
+# doi_list_initial = ['10.2903/sp.efsa.2018.EN-1427', '10.5277/e-Inf180104', '10.1145/2745802.2745818',
+#                     '10.1145/2601248.2601268', '10.1016/j.infsof.2010.03.006', '10.1186/s13643-018-0740-7']
+#
+# examined_articles = []
+#
+# perform_snowballing(doi_list_initial, starting_year, ending_year, authors, database_snowballing, 'citations', 0)
+#
+# perform_snowballing(doi_list_initial, starting_year, ending_year, authors, database_snowballing, 'references', 0)
+#
+# print("Backward: " + str(len(final_result['references'])))
+# print("Forward: " + str(len(final_result['citations'])))
 
 
 
@@ -537,7 +561,35 @@ def snowballing(request):
 
 
 
+    # print("Backward Snowballing result")
+    # print("References")
+    # for i in final_result['references']['doi']:
+    #     print(i)
+    #
+    # print("Forward Snowballing result")
+    # print("Citations")
+    # for x in final_result['citations']['doi']:
+    #     print(x)
+    #
+    # print("References titles")
+    #
+    # for i in final_result['references']['title']:
+    #     print(i)
 
+    # print("Forward Snowballing result")
+    # print("Citations titles")
+    # for x in final_result['citations']['title']:
+    #     print(x)
+
+
+    # final_title = list(set(final_result['citations']['title']).union(final_result['references']['title']))
+    #
+    # final_doi = list(set(final_result['citations']['doi']).union(final_result['references']['doi']))
+
+
+    # for i in range(len(final_doi)) :
+    #
+    #     print(final_doi[i] + "  " + final_title[i])
 
     for i in final_result['references'] :
 
@@ -578,9 +630,6 @@ def snowballing(request):
 
 
 
-
-
-
     return render(request,'users/snowballing.html',{'data': references_dict.items(),"data2":citations_dict.items()})
 
 
@@ -591,8 +640,14 @@ def scholarly_data(request):
         form2 = QueryForm(request.POST)
 
         if form2.is_valid():
+            # query = input('Enter the query to be searched: ')
             query2 = form2.cleaned_data.get("enterUrl")
-
+            #parameter_values_list = [1, 10, '9ipXPomYaSrHLAIuONZfzUGk3t57RcBD']
+            #response = requests.get(edited_search_coreAPI(query, parameter_values_list))
+            # response = requests.get(edited_search_coreAPI(form.enterUrl, parameter_values_list))
+            #content = response.json()
+            # print(content)
+            #
             search_query = scholarly.search_keyword(query2)
             #print(next(search_query))
             #content = search_query.json()
@@ -830,13 +885,11 @@ def searchposts(request):
         submitbutton = request.GET.get('submit')
 
         if(query is not None):
-            lookups = Q(article__icontains=query)
-
-            results = Snowballing_articles.objects.filter(lookups).distinct()
-            print(type(results))
+            lookups = Q(Title__icontains=query)
+            results = Articles.objects.filter(lookups).distinct()
             context = {'results': results, 'submitbutton': submitbutton}
 
-            return render(request, 'users/searchposts.html' ,{'results': results, 'submitbutton': submitbutton})
+            return render(request, 'users/searchposts.html' ,context)
 
         else:
             return render(request,'users/searchposts.html')
@@ -866,45 +919,4 @@ def savepdf(request):
     # print(document.description)
     print(type(document))
     return render(request, 'users/model_form_upload.html', { 'document' : document})
-
-def search_database(request):
-    if(request.method == 'POST'):
-        query = request.POST.get('q')
-        print(query)
-
-        submitbutton = request.POST.get('submit-database')
-
-        if(query is not None):
-            lookups = Q(Title__icontains=query)
-
-            results = Articles.objects.filter(lookups).distinct()
-            print(results)
-
-            return render(request, 'users/search_database.html',{'results': results})
-
-        else:
-            return render(request,'users/search_database.html')
-    else:
-        return render(request, 'users/search_database.html')
-
-
-def search_snowballing(request):
-    if(request.method == 'POST'):
-        query = request.POST.get('q')
-        print(query)
-
-        submitbutton = request.POST.get('submit-snowballing')
-
-        if(query is not None):
-            lookups = Q(Title__icontains=query)
-
-            results = Snowballing_model.objects.filter(lookups).distinct()
-            print(results)
-
-            return render(request, 'users/search_snowballing.html',{'results': results})
-
-        else:
-            return render(request,'users/search_snowballing.html')
-    else:
-        return render(request, 'users/search_snowballing.html')
 
