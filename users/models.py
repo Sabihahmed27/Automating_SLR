@@ -6,6 +6,20 @@ from PIL import Image
 class Articles(models.Model):
     Title = models.CharField(max_length=255, blank=True)
 
+    def __str__(self):
+        return self.Title
+
+class Snowballing_model(models.Model):
+    Title = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return self.Title
+
+class Snowballing_articles(models.Model):
+    article = models.CharField(max_length=255,blank=True)
+
+    def __str__(self):
+        return self.article
 
 
 class Document(models.Model):

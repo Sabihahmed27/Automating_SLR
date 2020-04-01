@@ -12,7 +12,12 @@
   src: local('Merriweather'), url(../fonts/merriweather.woff2) format('woff2'), url(../fonts/merriweather.woff) format('woff');
 }
 
-/* Parsifal base */
+
+.search_group_button{
+  width: 1.5%;
+  white-space: nowrap;
+  vertical-align: middle;
+}
 
 html, body {
   height: 100%;

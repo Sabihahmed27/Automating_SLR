@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 
-from .models import Profile, Document, ResearchPapers
+from .models import Profile, Document, ResearchPapers, Articles
 import datetime
 
 
@@ -94,4 +94,11 @@ class QueryForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['enterUrl']
+
+class SearchBar(forms.ModelForm):
+    search_string = forms.CharField(max_length=255)
+
+    class Meta:
+        model = Articles
+        fields = ['search_string']
 

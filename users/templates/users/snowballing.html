@@ -17,9 +17,30 @@
 
 
   <h3 class="review-title">
-  <span class="text-muted">Welcome</span>
-  <a href="{% url 'profile' %}" class="review-title-user">{{ user.username }}</a>
+              <div class="row">
+                  <div class="col-md-4 ">
+                    <span class="text-muted">Welcome</span>
+                    <a href="{% url 'profile' %}" class="review-title-user">{{ user.username }}</a>
+                  </div>
 
+
+              <div class="col-md-6">
+                  <form action="{% url 'search_snowballing' %}" method="POST" value="{{request.POST.q}}">
+                      {% csrf_token %}
+                      <div class="form-row align-items-right">
+                          <div class="my-1">
+                            <input type="text" class="form-control" placeholder="Search" name="q" value="{{request.POST.q}}">
+                          </div>
+                          <button class="btn btn-default" type="submit" name="submit-snowballing">
+                            <i class="glyphicon glyphicon-search"></i>
+                          </button>
+                      </div>
+                  </form>
+
+
+              </div>
+
+              </div>
 </h3>
 <ul class="review-menu">
   <li>
