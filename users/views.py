@@ -422,8 +422,8 @@ def filter_articles(articles_list, starting_year, ending_year, input_author_list
     doi_map = {}
     for i in result:
         doi_map[i] = article_info_db[i]['title']
-        s = Snowballing_model(Title = article_info_db[i]['title'])
-        s.save()
+        # s = Snowballing_model(Title = article_info_db[i]['title'])
+        # s.save()
 
 
 
