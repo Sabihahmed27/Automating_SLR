@@ -307,8 +307,6 @@ def data(request):
 
                 messages.success(request, f'Your Database has been successfully retrieved')
 
-                database = SqliteDict('./database.sqlite',autocommit=True)
-                print(database['snowballing'])
                 common_dois = core_doi_list
                 common_dois.extend(crossref_doi_list)
                 request.session['list'] = common_dois

@@ -7,7 +7,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
+
+  <!-- Font-awesome -->
+<!--  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">-->
     <title>Title</title>
+</head>
 <body>
 
     <main>
@@ -98,46 +103,62 @@
 
 
 
-                <table style="width:60%">
-
-<!--                    <tr>-->
-<!--                    <th>CrossRef Results from all sites</th>-->
-<!--                    </tr>-->
-<!--                    <tr>-->
-<!--                    {% for i,j,k in crossref_dup %}-->
-<!--                        <td class="list-group-item"><a href={{k}}> <p>{{i}}</p> <p>Published Year {{j}}</p>  </a></td>-->
-<!--                        {% endfor %}-->
-<!--                    </tr>-->
-
-<!--                    <tr>-->
-<!--                    <th>Core Results from all sites</th>-->
-<!--                    </tr>-->
-
-<!--                    <tr>-->
-<!--                    {% for i,j,k in coredup %}-->
-<!--                        <td class="list-group-item"><a href={{k}}> {{i}} <p>Published Year {{j}}</p> <p>{{k}}</p></a></td>-->
-<!--                        {% endfor %}-->
-<!--                    </tr>-->
-
+                <table id="database_table" class="table" style="width:100%">
+                    <thead>
                     <tr>
-                    <th>{{core_heading}}</th>
+                        <th>Year</th>
+                        <th>Title</th>
+                        <th>URL</th>
+
+
                     </tr>
-
-                    <tr>
+                    </thead>
+                    <tbody>
                     {% for i,j,k in core %}
-                        <td class="list-group-item"><a href={{k}}> {{i}} <p>Published Year {{j}}</p> <p>{{k}}</p> </a></td>
-                        {% endfor %}
+                    <tr>
+                        <td >{{j}} </td>
+
+                        <td ><a href={{k}}> {{i}}</a></td>
+
+                        <td> {{k}}</td>
                     </tr>
 
+                    {% endfor %}
+
+                    {% for x,y,z in crossRef %}
                     <tr>
-                    <th>{{crossref_heading}}</th>
+                        <td >{{y}} </td>
+
+                        <td ><a href={{z}}> {{x}}</a></td>
+
+                        <td> {{z}}</td>
                     </tr>
 
-                    <tr>
-                    {% for i,j,k in crossRef %}
-                        <td class="list-group-item"><a href={{k}}> {{i}} <p>Published Year {{j}}</p> </a></td>
-                        {% endfor %}
-                    </tr>
+                    {% endfor %}
+
+                    </tbody>
+
+
+
+<!--                    <tr>-->
+<!--                    <th>{{core_heading}}</th>-->
+<!--                    </tr>-->
+
+<!--                    <tr>-->
+<!--                    {% for i,j,k in core %}-->
+<!--                        <td class="list-group-item"><a href={{k}}> {{i}} <p>Published Year {{j}}</p> <p>{{k}}</p> </a></td>-->
+<!--                        {% endfor %}-->
+<!--                    </tr>-->
+
+<!--                    <tr>-->
+<!--                    <th>{{crossref_heading}}</th>-->
+<!--                    </tr>-->
+
+<!--                    <tr>-->
+<!--                    {% for i,j,k in crossRef %}-->
+<!--                        <td class="list-group-item"><a href={{k}}> {{i}} <p>Published Year {{j}}</p> </a></td>-->
+<!--                        {% endfor %}-->
+<!--                    </tr>-->
 
                 </table>
 
@@ -255,15 +276,36 @@
 
       </div>
     </main>
+        <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<!--      <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>-->
+<!--  <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>-->
+
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 
 
-<script src="/static/js/mustache.min.js"></script>
-  <script src="/static/js/jquery-1.11.3.min.js"></script>
-  <script src="/static/js/bootstrap.min.js"></script>
-  <script src="/static/js/jquery.tablesorter.min.js"></script>
-  <script src="/static/js/selectize.min.js"></script>
-  <script src="/static/js/expanding.js"></script>
-  <script src="/static/js/parsifal.js?v=2"></script>
+    <script>
+        $(document).ready(function () {
+            $('#database_table').DataTable();
+
+        });
+    </script>
+
+
+
+<!--    <script src="/static/js/mustache.min.js"></script>-->
+<!--  <script src="/static/js/jquery-1.11.3.min.js"></script>-->
+<!--  <script src="/static/js/bootstrap.min.js"></script>-->
+<!--  <script src="/static/js/jquery.tablesorter.min.js"></script>-->
+<!--  <script src="/static/js/selectize.min.js"></script>-->
+<!--  <script src="/static/js/expanding.js"></script>-->
+<!--  <script src="/static/js/parsifal.js?v=2"></script>-->
+
+
+
+
+
 </body>
 {% endblock content %}
 

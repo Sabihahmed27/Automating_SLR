@@ -9,6 +9,20 @@ class Articles(models.Model):
     def __str__(self):
         return self.Title
 
+class DatabaseSearch_Datatable(models.Model):
+    Title=models.CharField(max_length=255,blank=True)
+    Year = models.IntegerField(blank=True)
+    Url = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return self.Title,self.Year,self.Url
+
+    class Meta:
+        ordering = ['Title']
+
+        def __unicode__(self):
+            return self.title
+
 class Snowballing_model(models.Model):
     Title = models.CharField(max_length=255, blank=True)
 
