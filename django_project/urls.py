@@ -23,7 +23,7 @@ from users import views as user_views
 from users.views import searchposts
 
 urlpatterns = [
-    path('', user_views.data, name='scholar'),
+    # path('', user_views.data, name='scholar'),
     path('admin/', admin.site.urls),
     path('register/', user_views.register, name='register'),
     path('review/', user_views.review, name='review'),
@@ -48,7 +48,7 @@ urlpatterns = [
     path('password-reset-complete/',
          auth_views.PasswordResetCompleteView.as_view(template_name='users/password_reset_complete.html'),
          name='password_reset_complete'),
-    path('blog/', include('blog.urls')),
+    path('', include('blog.urls')),
 
 
 ]

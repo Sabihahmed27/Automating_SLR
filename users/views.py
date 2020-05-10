@@ -82,6 +82,7 @@ def profile(request):
 def review(request):
     return render(request,'users/review.html')
 
+@login_required()
 def data(request):
 
     if request.method == 'POST':
