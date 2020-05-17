@@ -7,8 +7,8 @@ from habanero import Crossref
 from urllib.parse import urlparse
 from django.contrib.auth.decorators import login_required
 from .models import Document, Snowballing_model
-from users.models import Articles
-from .forms import UserRegisterForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, DocumentForm, \
+from users.models import Articles, Papers
+from .forms import UserRegisterForm,JournalForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, DocumentForm, \
     AbstractForm, PICOC
 import requests,json
 from django.http import JsonResponse
@@ -781,7 +781,7 @@ def create_index(doi_title_abstract):
         article_abstract=TEXT(analyzer=StemmingAnalyzer(), stored=True)
     )
 
-    ix = index.create_in("C:/Users/sahme/PycharmProjects/django_project/index_dir", schema)
+    ix = index.create_in("E:/Automating_SLR/django_project/index_dir", schema)
 
     writer = ix.writer()
 
@@ -925,6 +925,28 @@ def savepdf(request):
     print(type(document))
     return render(request, 'users/model_form_upload.html', { 'document' : document})
 
+
+def journal_list(request):
+    journals = Papers.objects.all()
+    for i in journals:
+        print(i.author)
+    return render(request, 'users/journal_list.html',{
+        'journals': journals
+    })
+@login_required()
+def upload_journal(request):
+    if request.method == 'POST':
+        form = JournalForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('journal_list')
+
+    else:
+        form = JournalForm()
+
+    return render(request, 'users/upload_journal.html', {
+        'form': form
+    })
 
 def search_database(request):
     if(request.method == 'POST'):

@@ -1,9 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
-
-from .models import Profile, Document, ResearchPapers, Articles
+from .models import Profile, Document, ResearchPapers, Articles, Papers
 import datetime
 
 
@@ -38,10 +38,18 @@ class ProfileUpdateForm(forms.ModelForm):
 #     comment = forms.CharField(widget=forms.Textarea)
 #     fields = ['Query Data']
 
+class JournalForm(forms.ModelForm):
+    class Meta:
+        model = Papers
+        fields = ('title', 'author', 'pdf')
+
+
+
 class DocumentForm(forms.ModelForm):
     class Meta:
         model = Document
         fields = ['description', 'document']
+
 
 def year_choices():
     return [(r,r) for r in range(1984, datetime.date.today().year+1)]

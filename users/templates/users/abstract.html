@@ -70,25 +70,24 @@
 
 <!--                <p><input type="submit" class = "btn btn-primary" value="submit"></p>-->
 
-             <table style="width:60%">
+             <table id="abstract" style="width:100%">
 
-                 <tr>
-                    <th>Abstract Screening Results</th>
-                  </tr>
-                     {% for key, value in map_result %}
+                  <thead>
                     <tr>
-                     <td class="list-group-item"><a href= {{key}}> {{ value }}: </a></td>
-                     </tr>
-                        {% endfor %}
+                        <th>Abstract Screening Results</th>
+                    </tr>
+                    </thead>
+                <tbody>
+                  {% for key, value in map_result %}
+                    <tr>
+                       <td class="list-group-item"><a href= {{key}}> {{ value }}: </a></td>
+                    </tr>
 
+                    {% endfor %}
 
-
-
+                    </tbody>
 
                 </table>
-
-
-
 
             </fieldset>
 
@@ -117,14 +116,27 @@
       </div>
     </main>
 
+ <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<!--      <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>-->
+<!--  <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>-->
 
-<script src="/static/js/mustache.min.js"></script>
-  <script src="/static/js/jquery-1.11.3.min.js"></script>
-  <script src="/static/js/bootstrap.min.js"></script>
-  <script src="/static/js/jquery.tablesorter.min.js"></script>
-  <script src="/static/js/selectize.min.js"></script>
-  <script src="/static/js/expanding.js"></script>
-  <script src="/static/js/parsifal.js?v=2"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+
+    <script>
+        $(document).ready(function () {
+            $('#abstract').DataTable();
+        });
+    </script>
+<!--    <script src="/static/js/mustache.min.js"></script>-->
+<!--  <script src="/static/js/jquery-1.11.3.min.js"></script>-->
+<!--  <script src="/static/js/bootstrap.min.js"></script>-->
+<!--  <script src="/static/js/jquery.tablesorter.min.js"></script>-->
+<!--  <script src="/static/js/selectize.min.js"></script>-->
+<!--  <script src="/static/js/expanding.js"></script>-->
+<!--  <script src="/static/js/parsifal.js?v=2"></script>-->
 </body>
 {% endblock content %}
 

@@ -102,7 +102,7 @@
                     <tr>
                         <th>Year</th>
                         <th>Title</th>
-                        <th>URL</th>
+                        <th>Article</th>
 
 
                     </tr>
@@ -112,9 +112,13 @@
                     <tr>
                         <td >{{j}} </td>
 
-                        <td ><a href={{k}}> {{i}}</a></td>
+                         <td>{{i}}</td>
 
-                        <td> {{k}}</td>
+                    <td>
+                        <a href="{{k}}" class="btn btn-primary btn sm" target="_blank">
+                            Open Article
+                        </a>
+                    </td>
                     </tr>
 
                     {% endfor %}
@@ -123,9 +127,13 @@
                     <tr>
                         <td >{{y}} </td>
 
-                        <td ><a href={{z}}> {{x}}</a></td>
+                        <td>{{x}}</td>
 
-                        <td> {{z}}</td>
+                        <td>
+                        <a href="{{z}}" class="btn btn-primary btn sm" target="_blank">
+                            Open Article
+                        </a>
+                    </td>
                     </tr>
 
                     {% endfor %}

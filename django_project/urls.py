@@ -27,6 +27,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/', user_views.register, name='register'),
     path('review/', user_views.review, name='review'),
+    path('journals/', user_views.journal_list, name='journal_list'),
+    path('journals/upload', user_views.upload_journal, name='upload_journal'),
     path('database/', user_views.scholarly_data , name='database'),
     path('abstract/', user_views.abstract, name='abstract'),
     path('model_form_upload/', user_views.model_form_upload,name = 'model_form_upload'),
