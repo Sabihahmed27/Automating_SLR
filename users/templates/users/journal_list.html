@@ -1,0 +1,32 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <h2>Research Papers</h2>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Download</th>
+
+            </tr>
+        </thead>
+        <tbody>
+
+                <tr>
+                    <td>{{ journals.title}}</td>
+                    <td>{{journals.author}}</td>
+                    <td>
+                        <a href="{{journals.pdf.url}}" class="btn btn-primary btn sm" target="_blank">
+                            Download PDF
+                        </a>
+                    </td>
+                </tr>
+        </tbody>
+
+    </table>
+    <p>
+        <a href="{% url 'upload_journal' %}" class="btn btn-primary">Upload Research Paper</a>
+    </p>
+{% endblock %}

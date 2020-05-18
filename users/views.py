@@ -927,9 +927,10 @@ def savepdf(request):
 
 
 def journal_list(request):
-    journals = Papers.objects.all()
-    for i in journals:
-        print(i.author)
+    journals = Papers.objects.latest('uploaded_at')
+    print(journals.title)
+    print(journals.author)
+
     return render(request, 'users/journal_list.html',{
         'journals': journals
     })
