@@ -1,0 +1,41 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <h2>Research Papers</h2>
+        <a href="/journals_delete" class="btn btn-danger pull-right">Delete All</a>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>View</th>
+                <th>Snowballing</th>
+
+            </tr>
+        </thead>
+        <tbody>
+                {% for journal in journals %}
+                <tr>
+                    <td>{{ journal.title}}</td>
+                    <td>{{journal.author}}</td>
+                    <td>
+                        <a href="{{journal.pdf.url}}" class="btn btn-primary btn sm" target="_blank">
+                            View PDF
+                        </a>
+                    </td>
+                    <td>
+                        <a href="/scholar" class="btn btn-success btn sm" target="_blank">
+                           Start Snowballing
+                        </a>
+                    </td>
+                </tr>
+                    {% endfor %}
+        </tbody>
+
+    </table>
+
+    <p>
+        <a href="{% url 'upload_journal' %}" class="btn btn-primary">Upload Research Paper</a>
+    </p>
+{% endblock %}
