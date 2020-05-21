@@ -8,18 +8,24 @@
             <tr>
                 <th>Title</th>
                 <th>Author</th>
-                <th>Download</th>
+                <th>View</th>
+                <th>Snowballing</th>
 
             </tr>
         </thead>
         <tbody>
 
                 <tr>
-                    <td>{{ journals.title}}</td>
-                    <td>{{journals.author}}</td>
+                    <td>{{ journal.title}}</td>
+                    <td>{{journal.author}}</td>
                     <td>
-                        <a href="{{journals.pdf.url}}" class="btn btn-primary btn sm" target="_blank">
-                            Download PDF
+                        <a href="{{journal.pdf.url}}" class="btn btn-primary btn sm" target="_blank">
+                            View PDF
+                        </a>
+                    </td>
+                    <td>
+                        <a href="/scholar" class="btn btn-success btn sm" target="_blank">
+                           Start Snowballing
                         </a>
                     </td>
                 </tr>
@@ -28,5 +34,6 @@
     </table>
     <p>
         <a href="{% url 'upload_journal' %}" class="btn btn-primary">Upload Research Paper</a>
+
     </p>
 {% endblock %}

@@ -203,20 +203,15 @@
     <div class="content-section">
         <form method="POST">
             {% csrf_token %}
-            <fieldset class = "form-group" >
-                <legend class="border-bottom mb-4">Population </legend>
+            <fieldset class = "form-group">
+
                 {{ form2|crispy}}
 
-                <p><input type="submit" class = "btn btn-primary" value="submit"></p>
-
-
+                <button type="submit" class="btn btn-success">Save</button>
 
           <a href="/snowballing" class="btn btn-primary pull-right">Start Snowballing</a>
 
-
-
                 <table style="width:60%">
-
 
                      <tr>
                     <th>{{core_heading}}</th>

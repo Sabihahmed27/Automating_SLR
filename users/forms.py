@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
-from .models import Profile, Document, ResearchPapers, Articles, Papers
+from upload_validator import FileTypeValidator
+from .models import Profile, Document, ResearchPapers, Articles,Papers
 import datetime
 
 
@@ -39,9 +40,11 @@ class ProfileUpdateForm(forms.ModelForm):
 #     fields = ['Query Data']
 
 class JournalForm(forms.ModelForm):
+    pdf =  forms.FileField(label='', help_text="Formats accepted: PDF", required=False,validators=[FileTypeValidator(allowed_types=['application/pdf'])])
+
     class Meta:
         model = Papers
-        fields = ('title', 'author', 'pdf')
+        fields = ('title', 'author','pdf')
 
 
 

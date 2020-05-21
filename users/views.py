@@ -1,6 +1,9 @@
 from django.http import HttpResponse,Http404
-from django.shortcuts import render, redirect, render_to_response
+from django.shortcuts import render, redirect,get_object_or_404, render_to_response
 from django.contrib import messages
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.models import User
+from django.db.models import Q
 from sqlitedict import SqliteDict
 from django.urls import reverse
 from habanero import Crossref
@@ -925,21 +928,34 @@ def savepdf(request):
     print(type(document))
     return render(request, 'users/model_form_upload.html', { 'document' : document})
 
+def journal_delete(request):
+    delete_Journals = Papers.objects.all().delete()
+    print(delete_Journals)
+
+    return render(request, 'users/journal_history.html')
+
+
+def journal_history(request):
+    journals = Papers.objects.filter(user=request.user).order_by('-uploaded_at')
+
+    return render(request, 'users/journal_history.html', {'journals': journals})
 
 def journal_list(request):
-    journals = Papers.objects.latest('uploaded_at')
-    print(journals.title)
-    print(journals.author)
+
+    username = get_object_or_404(User, username=request.user)
+    journal = Papers.objects.filter(user=username).latest('uploaded_at')
 
     return render(request, 'users/journal_list.html',{
-        'journals': journals
+        'journal': journal
     })
 @login_required()
 def upload_journal(request):
     if request.method == 'POST':
         form = JournalForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            doc = form.save(commit=False)
+            doc.user = request.user
+            doc.save()
             return redirect('journal_list')
 
     else:
