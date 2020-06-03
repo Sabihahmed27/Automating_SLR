@@ -60,10 +60,10 @@
                      {% endif%}
   </li>
   <li>
-   <a href="/snowballing">Snowballing</a>
+   <a href="/snowballing" id="snowballing-btn1">Snowballing</a>
   </li>
     <li>
-    <a href="/abstract">Abstract Screening</a>
+    <a href="/abstract" id="abstract-btn">Abstract Screening</a>
 
   </li>
 </ul>
@@ -93,7 +93,7 @@
 
 
 
-          <a href="/snowballing" class="btn btn-primary pull-right">Start Snowballing</a>
+          <a href="/snowballing" id="snowballing-btn2" class="btn btn-primary pull-right">Start Snowballing</a>
 
 
 
@@ -209,7 +209,7 @@
 
                 <button type="submit" class="btn btn-success">Save</button>
 
-          <a href="/snowballing" class="btn btn-primary pull-right">Start Snowballing</a>
+          <a href="/snowballing"  class="btn btn-primary pull-right">Start Snowballing</a>
 
                 <table style="width:60%">
 
@@ -284,7 +284,20 @@
 
     <script>
         $(document).ready(function () {
-            $('#database_table').DataTable();
+            var table = $('#database_table').DataTable();
+
+            if(!table.data().any()){
+                $('#snowballing-btn2').click(function(){
+                    return false;
+                }) ;
+                $('#snowballing-btn1').click(function(){
+                    return false;
+                }) ;
+                $('#abstract-btn').click(function(){
+                    return false;
+                }) ; ;
+            }
+
 
         });
     </script>
