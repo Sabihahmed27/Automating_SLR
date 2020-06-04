@@ -8,7 +8,9 @@ from .validators import validate_file
 # Create your models here.
 
 class Articles(models.Model):
+    id = models.AutoField(primary_key=True)
     Title = models.CharField(max_length=255, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.Title
@@ -17,6 +19,7 @@ class DatabaseSearch_Datatable(models.Model):
     Title=models.CharField(max_length=255,blank=True)
     Year = models.IntegerField(blank=True)
     Url = models.CharField(max_length=255, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.Title,self.Year,self.Url
@@ -48,6 +51,7 @@ class Snowballing_model(models.Model):
 #         return self.title
 
 class Papers(models.Model):
+    id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=100)
     pdf = models.FileField(upload_to='documents/')
@@ -76,6 +80,7 @@ class ResearchPapers(models.Model):
     comparison = models.CharField(max_length=255, blank=False)
     outcome = models.CharField(max_length=255, blank=False)
     context = models.CharField(max_length=255, blank=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
 
 class Profile(models.Model):

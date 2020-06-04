@@ -67,52 +67,53 @@
           <div class="panel-body">
              <table id="backward" style="width:100%">
 
-            <thead>
+                 <thead> <th>Backward Snowballing</th>
                     <tr>
-                        <th>Backward Snowballing</th>
+                        <th>Title</th>
+                        <th>Article</th>
                     </tr>
                     </thead>
 
                  <tbody>
                     {% for key, value in data %}
                     <tr>
-                        <td class="list-group-item"><a href= {{key}}> {{ value }}: </a></td>
+                        <td>{{value}}</td>
+                        <td>
+                         <a href="{{key}}" class="btn btn-primary btn sm" target="_blank">
+                            Open Article
+                        </a>
+                        </td>
                     </tr>
 
                     {% endfor %}
 
                     </tbody>
-<!--                  <tr>-->
-<!--                    <th>Forward Snowballing output</th>-->
-<!--                  </tr>-->
-
-<!--                    {% for key, value in data2 %}-->
-<!--                    <tr>-->
-<!--&lt;!&ndash;                        <td class="list-group-item"><a href={{key}}>: </td> <td>{{value}}</a></td>&ndash;&gt;-->
-
-<!--                     <td class="list-group-item"><a href= {{key}}> {{ value }}: </a></td>-->
-<!--                     </tr>-->
-<!--                 {% endfor %}-->
 
                 </table>
-              <table id="forward" style="width: 100%;">
-                    <thead>
+              <table id="forward" style="width:100%">
+
+                 <thead> <th>Forward Snowballing</th>
                     <tr>
-                        <th>Forward Snowballing</th>
+                        <th>Title</th>
+                        <th>Article</th>
                     </tr>
                     </thead>
 
                  <tbody>
                     {% for key, value in data2 %}
                     <tr>
-                        <td class="list-group-item"><a href= {{key}}> {{ value }}: </a></td>
+                        <td>{{value}}</td>
+                        <td>
+                         <a href="{{key}}" class="btn btn-primary btn sm" target="_blank">
+                            Open Article
+                        </a>
+                        </td>
                     </tr>
 
                     {% endfor %}
 
                     </tbody>
-              </table>
-
+                </table>
           </div>
 <!--          <p> <input type="submit" class = "btn btn-primary" value="Start Snowballing"></p>-->
 

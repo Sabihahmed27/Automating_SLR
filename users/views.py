@@ -9,7 +9,7 @@ from django.urls import reverse
 from habanero import Crossref
 from urllib.parse import urlparse
 from django.contrib.auth.decorators import login_required
-from .models import Document, Snowballing_model
+from .models import Document, Snowballing_model, ResearchPapers
 from users.models import Articles, Papers
 from .forms import UserRegisterForm,JournalForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, DocumentForm, \
     AbstractForm, PICOC
@@ -85,6 +85,18 @@ def profile(request):
 def review(request):
     return render(request,'users/review.html')
 
+def savePicoc(request):
+    articles = Articles.objects.all()
+    print(articles)
+    username = get_object_or_404(User, username=request.user)
+    print("username is ", username)
+
+    picoc = ResearchPapers.objects.all()
+
+    for i in picoc:
+        print(i.population)
+
+
 @login_required()
 def data(request):
 
@@ -92,7 +104,7 @@ def data(request):
         form = SimpleForm(request.POST)
         form2 = PICOC(request.POST)
 
-        if form.is_valid() and form2.is_valid():
+        if form.is_valid() or form2.is_valid():
             #query = input('Enter the query to be searched: ')
             query = form.cleaned_data.get("Title")
             startYear = form.cleaned_data.get("StartYear")
@@ -100,16 +112,21 @@ def data(request):
             author = form.cleaned_data.get("Author")
             keyword = form.cleaned_data.get("Keyword")
 
+            doc = form.save(commit=False)
+            picoc = form2.save(commit=False)
+            doc.user = request.user
+            picoc.user = request.user
+            doc.save()
+            picoc.save()
+
+            savePicoc(request)
+            # print(form2.population)
 
             population = form2.cleaned_data.get("population")
             intervention = form2.cleaned_data.get("intervention")
             comparison = form2.cleaned_data.get("comparison")
             outcome = form2.cleaned_data.get("outcome")
             context = form2.cleaned_data.get("context")
-
-
-
-
 
             parameter_values_list = [1, 100, '9ipXPomYaSrHLAIuONZfzUGk3t57RcBD']
             response = requests.get(edited_search_coreAPI(query, parameter_values_list))
@@ -343,7 +360,7 @@ def data(request):
 
         else:
                 #messages.error(request,f'Wrong Url')
-                return render(request, 'users/scholar.html', {'form': form})
+                return render(request, 'users/scholar.html', {'form': form, 'form2':form2})
 
     else:
         form = SimpleForm()
@@ -628,15 +645,6 @@ def snowballing(request):
     result_dict = Merge(references_dict,citations_dict)
 
     request.session['result_dict'] = result_dict
-
-
-
-
-
-
-
-
-
 
     return render(request,'users/snowballing.html',{'data': references_dict.items(),"data2":citations_dict.items()})
 
@@ -928,15 +936,32 @@ def savepdf(request):
     print(type(document))
     return render(request, 'users/model_form_upload.html', { 'document' : document})
 
+
 def journal_delete(request):
     delete_Journals = Papers.objects.all().delete()
     print(delete_Journals)
 
     return render(request, 'users/journal_history.html')
 
+def testing(request,username):
+    return HttpResponse('<h1> This is my profile page')
+
+def journal_deleteOne(request,key):
+    instance = Papers.objects.get(id=key)
+    instance.delete()
+    return render(request, 'users/journal_history.html')
+
 
 def journal_history(request):
     journals = Papers.objects.filter(user=request.user).order_by('-uploaded_at')
+    print(journals)
+    #
+    # for j in journals:
+    #     print(j.id)
+    #
+    #
+    # id = Papers.objects.filter(title='systematic literature review').values('id')[0]['id']
+    # print(id)
 
     return render(request, 'users/journal_history.html', {'journals': journals})
 
@@ -964,6 +989,9 @@ def upload_journal(request):
     return render(request, 'users/upload_journal.html', {
         'form': form
     })
+
+
+
 
 def search_database(request):
     if(request.method == 'POST'):
