@@ -1,0 +1,141 @@
+
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        a.disable {
+          pointer-events: none;
+          cursor: default;
+        }
+
+    </style>
+</head>
+<body>
+
+    <main>
+      <div class="container">
+        <div class="messages-container">
+
+        </div>
+
+
+
+  <h3 class="review-title">
+  <span class="text-muted">Welcome</span>
+  <a href="{% url 'profile' %}" class="review-title-user">{{ user.username }}</a>
+
+</h3>
+<!--<ul class="review-menu">-->
+<!--  <li>-->
+<!--    <a href="/scholar" class="disable">Databases</a>-->
+<!--  </li>-->
+<!--  <li>-->
+<!--    <a href="/snowballing" class="disable">Snowballing</a>-->
+<!--  </li>-->
+
+<!--    <li class="active">-->
+<!--    <a href="/abstract">Abstract Screening</a>-->
+<!--  </li>-->
+
+
+<!--</ul>-->
+<input type="hidden" id="review-id" value="6085">
+
+  <div class="row">
+    <div class="col-sm-11 col-md-12 col-lg-13">
+      <form method="post">
+        <input type='hidden' name='csrfmiddlewaretoken' value='IZ6IugjtKNXR3KF5gJDWTVxuxeiZPf2i' />
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">References Bib-Tex</h3>
+          </div>
+          <div class="panel-body">
+
+
+<section>
+
+    <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class = "form-group" >
+<!--                <legend class="border-bottom mb-4">Enter keywords to search abstract</legend>-->
+<!--                <p>Query: <input type="text" name="query"></p>-->
+<!--                    {{ form|crispy }}-->
+
+<!--                <p><input type="submit" class = "btn btn-primary" value="submit"></p>-->
+
+             <table id="bib_tex_table" style="width:100%">
+
+                  <thead>
+<!--                    <tr>-->
+<!--                        <th>Bib tex results</th>-->
+<!--                    </tr>-->
+                    </thead>
+                <tbody>
+<!--                  {% for key, value in map_result %}-->
+<!--                    <tr>-->
+<!--                       <td class="list-group-item"><a href= {{key}}> {{ value }}: </a></td>-->
+<!--                    </tr>-->
+
+<!--                    {% endfor %}-->
+
+                    </tbody>
+
+                </table>
+
+            </fieldset>
+
+
+        </form>
+
+    </div>
+
+
+</section>
+
+
+          </div>
+
+
+        </div>
+
+
+
+      </form>
+    </div>
+
+  </div>
+
+
+      </div>
+    </main>
+
+ <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<!--      <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>-->
+<!--  <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>-->
+
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+
+    <script>
+        $(document).ready(function () {
+            $('#bib_tex_table').DataTable();
+        });
+    </script>
+<!--    <script src="/static/js/mustache.min.js"></script>-->
+<!--  <script src="/static/js/jquery-1.11.3.min.js"></script>-->
+<!--  <script src="/static/js/bootstrap.min.js"></script>-->
+<!--  <script src="/static/js/jquery.tablesorter.min.js"></script>-->
+<!--  <script src="/static/js/selectize.min.js"></script>-->
+<!--  <script src="/static/js/expanding.js"></script>-->
+<!--  <script src="/static/js/parsifal.js?v=2"></script>-->
+</body>
+{% endblock content %}
+

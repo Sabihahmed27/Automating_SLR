@@ -1,6 +1,12 @@
 {% extends "blog/base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
+<body>
+    <main>
+      <div class="container">
+        <div class="messages-container">
+
+        </div>
     <h2>Research Papers</h2>
 
     <table class="table">
@@ -9,6 +15,7 @@
                 <th>Title</th>
                 <th>Author</th>
                 <th>View</th>
+                <th>View Bibtex</th>
                 <th>Snowballing</th>
 
             </tr>
@@ -21,6 +28,12 @@
                     <td>
                         <a href="{{journal.pdf.url}}" class="btn btn-primary btn sm" target="_blank">
                             View PDF
+                        </a>
+                    </td>
+                     <td>
+<!--                         href="/bib-tex/{{journal.pdf.url}}"-->
+                        <a href="/bib-tex/{{journal.pdf.url}}" class="btn btn-primary btn sm" target="_blank">
+                            View Bibtex
                         </a>
                     </td>
                     <td>
@@ -36,4 +49,36 @@
         <a href="{% url 'upload_journal' %}" class="btn btn-primary">Upload Research Paper</a>
 
     </p>
-{% endblock %}
+      </div>
+    </main>
+     <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<!--      <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>-->
+<!--  <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>-->
+
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<!--    <script type="text/javascript">-->
+<!--window.csrf_token = "{{ csrf_token }}";-->
+<!--</script>-->
+
+<!--    <script>-->
+<!--        function setGetParameter(){-->
+<!--        $.ajax({-->
+<!--          type: "POST",-->
+<!--          url: '/bib-tex/',-->
+<!--          data:  {-->
+<!--              title:"{{journal.pdf.url}}",-->
+<!--              csrfmiddlewaretoken:window.csrf_token-->
+<!--          },-->
+<!--          success: function(result){-->
+
+<!--          }-->
+<!--            });-->
+<!--        }-->
+
+<!--    </script>-->
+</body>
+{% endblock content %}
+
+<!--</html>-->

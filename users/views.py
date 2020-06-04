@@ -21,6 +21,9 @@ from urllib.error import HTTPError
 from django.db.models import Q
 import scholarly
 import re
+import os
+from lxml import objectify
+import requests,json
 from django.core import serializers
 from urllib.parse import urlencode, quote_plus,quote
 from whoosh import index,query as q,qparser
@@ -365,6 +368,7 @@ def data(request):
     else:
         form = SimpleForm()
         form2 = PICOC()
+
         return render(request, 'users/scholar.html', {'form': form,'form2':form2})
     # if request.method == 'POST':
     #     u_form = UserUpdateForm(request.POST, instance=request.user)
@@ -989,6 +993,62 @@ def upload_journal(request):
     return render(request, 'users/upload_journal.html', {
         'form': form
     })
+
+def get_bib_tex(request,title):
+
+    # if request.method == "POST":
+    #     title = request.POST['data']
+
+    # print(title)
+    references = os.popen('pdf-extract extract --references --titles --set reference_flex:0.5 "' +title+'"').read()
+
+    pdf = objectify.fromstring(references)
+    print("\n\n\t\t===TITLE===\n")
+
+    print(pdf.title)
+
+    count = 0
+
+    each_reference = []
+
+    for i in pdf.reference:
+        each_reference.append(i)
+
+    references_bibtext = []
+
+    count = 0
+
+    for i in each_reference:
+        url = "https://api.crossref.org/works?query.bibliographic=" + i
+
+        response = requests.get(url)
+
+        content = response.json()
+
+        doi = content['message']['items'][0]['DOI']
+
+        print(str(count + 1) + "DOI: " + doi)
+        count += 1
+
+        headers = {
+            'Accept': 'application/x-bibtex',
+        }
+
+        response = requests.get('http://dx.doi.org/' + doi, headers=headers)
+
+        references_bibtext.append(response.text)
+
+        print(response.text)
+
+
+
+    return render(request, 'users/bib_tex.html',{
+
+    })
+    # else:
+    #     return render(request, 'users/bib_tex.html',{
+    #
+    #     })
 
 
 
