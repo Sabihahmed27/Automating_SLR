@@ -994,13 +994,16 @@ def upload_journal(request):
         'form': form
     })
 
-def get_bib_tex(request,title):
+def get_bib_tex(request):
 
     # if request.method == "POST":
     #     title = request.POST['data']
 
     # print(title)
-    references = os.popen('pdf-extract extract --references --titles --set reference_flex:0.5 "' +title+'"').read()
+    print("Hello")
+    # print(filepath)
+    path = './media/documents/Making_progress_with_the_automation_of_SR.pdf'
+    references = os.popen('pdf-extract extract --references --titles --set reference_flex:0.5 "' +path+'"').read()
 
     pdf = objectify.fromstring(references)
     print("\n\n\t\t===TITLE===\n")
@@ -1017,7 +1020,7 @@ def get_bib_tex(request,title):
     references_bibtext = []
 
     count = 0
-
+    dict_bibtex = {}
     for i in each_reference:
         url = "https://api.crossref.org/works?query.bibliographic=" + i
 
@@ -1025,7 +1028,8 @@ def get_bib_tex(request,title):
 
         content = response.json()
 
-        doi = content['message']['items'][0]['DOI']
+        if len(content['message']['items'])>0:
+            doi = content['message']['items'][0]['DOI']
 
         print(str(count + 1) + "DOI: " + doi)
         count += 1
@@ -1035,7 +1039,7 @@ def get_bib_tex(request,title):
         }
 
         response = requests.get('http://dx.doi.org/' + doi, headers=headers)
-
+        dict_bibtex[doi] = response.text
         references_bibtext.append(response.text)
 
         print(response.text)
@@ -1043,6 +1047,7 @@ def get_bib_tex(request,title):
 
 
     return render(request, 'users/bib_tex.html',{
+        'bib_tex': dict_bibtex.items()
 
     })
     # else:

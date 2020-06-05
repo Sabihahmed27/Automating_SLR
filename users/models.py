@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from PIL import Image
+import os
 from django.utils import timezone
 from django.urls import reverse
 from .validators import validate_file
@@ -64,6 +65,11 @@ class Papers(models.Model):
     def delete(self, *args, **kwargs):
         self.pdf.delete()
         super().delete(*args, **kwargs)
+
+    def filename(self):
+        # return self.pdf.url
+        return os.path.basename(self.pdf.url)
+
 
 
 

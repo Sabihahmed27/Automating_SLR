@@ -27,7 +27,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('register/', user_views.register, name='register'),
     path('review/', user_views.review, name='review'),
-    path('bib-tex/<str:title',user_views.get_bib_tex, name='bib_tex'),
+    path('bib-tex/media/documents/Making_progress_with_the_automation_of_SR_EarE5jL.pdf/',user_views.get_bib_tex, name='bib_tex'),
     path('journals/', user_views.journal_list, name='journal_list'),
     path('journals_history/', user_views.journal_history, name='journal_history'),
     path('profile/<username>/',user_views.testing),

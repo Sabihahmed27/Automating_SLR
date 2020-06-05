@@ -24,7 +24,7 @@
 
                 <tr>
                     <td>{{ journal.title}}</td>
-                    <td>{{journal.author}}</td>
+                    <td>{{journal.author}} {{journal.pdf.filename}}</td>
                     <td>
                         <a href="{{journal.pdf.url}}" class="btn btn-primary btn sm" target="_blank">
                             View PDF
@@ -32,8 +32,9 @@
                     </td>
                      <td>
 <!--                         href="/bib-tex/{{journal.pdf.url}}"-->
-                        <a href="/bib-tex/{{journal.pdf.url}}" class="btn btn-primary btn sm" target="_blank">
-                            View Bibtex
+
+                        <a href="/bib-tex{{journal.pdf.url}}/" class="btn btn-primary btn sm" target="_blank">
+                            View Bibtex {{journal.pdf.filename}}
                         </a>
                     </td>
                     <td>
