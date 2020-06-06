@@ -632,6 +632,11 @@ def snowballing(request):
 
         print(i + "   " + final_result['references'][i])
 
+    print("Forward snowballing result")
+    for i in final_result['citations'] :
+
+        print(i + "   " + final_result['citations'][i])
+
 
     temp_ref = final_result['references']
 
@@ -803,13 +808,15 @@ def create_index(doi_title_abstract):
         article_title=ID(stored=True),
         article_abstract=TEXT(analyzer=StemmingAnalyzer(), stored=True)
     )
+    database = SqliteDict('./SLR_database.sqlite', autocommit=True)
+    database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
 
     ix = index.create_in("C:\\Users\\sahme\\PycharmProjects\\Automating_SLR\\django_project\\index_dir", schema)
 
     writer = ix.writer()
 
     for i in doi_title_abstract:
-        writer.add_document(article_doi=u"" + i[0], article_title=u"" + i[1], article_abstract=u"" + i[2])
+        writer.add_document(article_doi=u"" + i, article_title=u"" + database['snowballing'][i]['title'], article_abstract=u"" + database2['abstract'][i])
 
     writer.commit()
 
@@ -875,7 +882,9 @@ def perform_search(ix, input_query):
 def abstract(request):
 
     res_dict = request.session['result_dict']
-    list_abstracts = search_coreAPI(res_dict)
+    database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
+
+    list_abstracts = database2['abstract']
     index = create_index(list_abstracts)
 
     word = request.session.get("Keyword")
