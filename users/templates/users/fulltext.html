@@ -1,5 +1,3 @@
-
-
 {% extends "blog/base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
@@ -33,16 +31,16 @@
 </h3>
 <ul class="review-menu">
   <li>
-    <a href="/scholar" class="disable">Databases</a>
+    <a href="/scholar" >Databases</a>
   </li>
   <li>
     <a href="/snowballing" class="disable">Snowballing</a>
   </li>
 
-    <li class="active">
-    <a href="/abstract">Abstract Screening</a>
+    <li>
+    <a href="/abstract" class="disable">Abstract Screening</a>
   </li>
-    <li >
+        <li class="active">
     <a href="/fulltext">Full-Text Screening</a>
   </li>
 
@@ -73,18 +71,21 @@
 
 <!--                <p><input type="submit" class = "btn btn-primary" value="submit"></p>-->
 
-             <table id="abstract" style="width:100%">
+             <table id="fulltext_datatable" style="width:100%">
 
                   <thead>
                     <tr>
-                        <th>Abstract Screening Results</th>
+                        <th>Research Paper Title</th>
+                        <th>Scores</th>
                     </tr>
                     </thead>
                 <tbody>
-                  {% for key, value in map_result %}
-                    <tr>
-                       <td class="list-group-item"><a href= {{key}}> {{ value }}: </a></td>
+                  {% for i in fulltext_list %}
+                    <tr >
+                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
+                        <td > {{ i.score }}</td>
                     </tr>
+
 
                     {% endfor %}
 
@@ -130,7 +131,7 @@
 
     <script>
         $(document).ready(function () {
-            $('#abstract').DataTable();
+            $('#fulltext_datatable').DataTable();
         });
     </script>
 <!--    <script src="/static/js/mustache.min.js"></script>-->

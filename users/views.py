@@ -9,10 +9,11 @@ from django.urls import reverse
 from habanero import Crossref
 from urllib.parse import urlparse
 from django.contrib.auth.decorators import login_required
-from .models import Document, Snowballing_model, ResearchPapers
+from .models import Document, Snowballing_model, ResearchPapers, Book
 from users.models import Articles, Papers
-from .forms import UserRegisterForm,JournalForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, DocumentForm, \
-    AbstractForm, PICOC
+from .forms import UserRegisterForm, JournalForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, \
+    DocumentForm, \
+    AbstractForm, PICOC, BookFormset
 import requests,json
 from django.http import JsonResponse
 import urllib
@@ -60,6 +61,42 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'users/register.html',{'form': form})
 
+def create_question_normal(request):
+    form = SimpleForm()
+    form2 = PICOC()
+    template_name = 'users/scholar.html'
+    heading_message = 'Formset Demo'
+    if request.method == 'GET':
+        formset = BookFormset(request.GET or None)
+    elif request.method == 'POST':
+        formset = BookFormset(request.POST)
+        if formset.is_valid():
+            for i in formset:
+                # extract name from each form and save
+                name = i.cleaned_data.get('name')
+                # save book instance
+                if name:
+                    Book(name=name).save()
+                    hello(request)
+            # once all books are saved, redirect to book list view
+            # return redirect('create_normal')
+    return render(request, template_name, {
+        'form':form,
+        'form2':form2,
+        'formset': formset,
+        'heading': heading_message,
+
+    })
+
+
+def hello(request):
+    print("hello world")
+    books = Book.objects.all()
+    print(books)
+    print("saqib")
+
+    return render(request, 'users/create_normal.html', {'form': books})
+
 
 @login_required
 def profile(request):
@@ -82,11 +119,12 @@ def profile(request):
         'p_form': p_form
     }
 
+    return render(request, 'users/profile.html', context)
 
-    return render(request, 'users/profile.html',context)
 
 def review(request):
-    return render(request,'users/review.html')
+    return render(request, 'users/review.html')
+
 
 def savePicoc(request):
     articles = Articles.objects.all()
@@ -95,20 +133,52 @@ def savePicoc(request):
     print("username is ", username)
 
     picoc = ResearchPapers.objects.all()
+    print(picoc)
 
-    for i in picoc:
-        print(i.population)
+    # for i in picoc:
+    #     print(i.comparison)
 
 
 @login_required()
 def data(request):
+    form = SimpleForm()
+    form2 = PICOC()
+    formset = BookFormset(request.GET or None)
 
-    if request.method == 'POST':
-        form = SimpleForm(request.POST)
+    if request.method == 'POST' and 'btnform1' in request.POST:
+        formset = BookFormset(request.POST)
+        if formset.is_valid():
+            print("The length of formset is ",len(formset))
+            for form in formset:
+                print("length is ", len(formset))
+                # extract name from each form and save
+                name = form.cleaned_data.get('name')
+                print("name is ",name)
+                # save book instance
+                if name:
+                    Book(name=name).save()
+
+
+
+        return render(request, 'users/scholar.html', {'formset': formset, 'form2': form2, 'form': form})
+
+    if request.method == 'POST' and 'btnform2' in request.POST:
+        hello(request)
         form2 = PICOC(request.POST)
+        if form2.is_valid():
+            picoc = form2.save(commit=False)
+            picoc.user = request.user
+            picoc.save()
 
-        if form.is_valid() or form2.is_valid():
-            #query = input('Enter the query to be searched: ')
+            savePicoc(request)
+            messages.success(request, f'PICOC have been saved successfully')
+            return render(request, 'users/scholar.html', {'form2': form2, 'form': form, 'formset': formset})
+
+    if request.method == 'POST' and 'btnform3' in request.POST:
+        form = SimpleForm(request.POST)
+        if form.is_valid():
+            # query = input('Enter the query to be searched: ')
+            print("hello world")
             query = form.cleaned_data.get("Title")
             startYear = form.cleaned_data.get("StartYear")
             endYear = form.cleaned_data.get("EndYear")
@@ -116,20 +186,8 @@ def data(request):
             keyword = form.cleaned_data.get("Keyword")
 
             doc = form.save(commit=False)
-            picoc = form2.save(commit=False)
             doc.user = request.user
-            picoc.user = request.user
             doc.save()
-            picoc.save()
-
-            savePicoc(request)
-            # print(form2.population)
-
-            population = form2.cleaned_data.get("population")
-            intervention = form2.cleaned_data.get("intervention")
-            comparison = form2.cleaned_data.get("comparison")
-            outcome = form2.cleaned_data.get("outcome")
-            context = form2.cleaned_data.get("context")
 
             parameter_values_list = [1, 100, '9ipXPomYaSrHLAIuONZfzUGk3t57RcBD']
             response = requests.get(edited_search_coreAPI(query, parameter_values_list))
@@ -142,7 +200,6 @@ def data(request):
 
                 cr = Crossref()
 
-
                 if not str(query).isalnum():
                     query = re.sub(r"[^a-zA-Z0-9]+", ' ', query)
 
@@ -153,31 +210,26 @@ def data(request):
 
                     query = re.sub(' +', ' ', query)
 
-                if len(author.replace(" ","")) == 0:
+                if len(author.replace(" ", "")) == 0:
                     temp_messages = 'Invalid Input! Please provide a valid Author name'
                     # messages.error(request, f'Wrong Url')
-                    return render(request, 'users/scholar.html', {'form': form, 'temp_messages':temp_messages})
+                    return render(request, 'users/scholar.html', {'form': form, 'temp_messages': temp_messages})
 
-                if len(query.replace(" ","")) == 0:
+                if len(query.replace(" ", "")) == 0:
                     temp_messages = 'Invalid Input! Please provide a valid Title'
                     # messages.error(request, f'Wrong Url')
-                    return render(request, 'users/scholar.html', {'form': form, 'temp_messages':temp_messages})
+                    return render(request, 'users/scholar.html', {'form': form, 'temp_messages': temp_messages})
 
                 # if query.isa
                 #     return render(request, 'users/scholar.html', {'form': form})
-
 
                 x = cr.works(query=query, filter={'has_full_text': True})
                 if x['status'] == "error":
                     return render(request, 'users/scholar.html', {'form': form})
 
-
-
-
                 crossref_titles = []
                 crossref_year = []
                 crossref_url = []
-
 
                 for i in x['message']['items']:
                     crossref_titles.append(str(i['title'][0]))
@@ -191,11 +243,7 @@ def data(request):
                     # temp_url = i['URL']
                     # crossref_class_list.append(paper_details(temp_doi,temp_title,temp_year,temp_url))
 
-
                 core_class_list = []
-
-
-
 
                 core_title = []
                 core_url = []
@@ -218,7 +266,6 @@ def data(request):
                 # else:
                 #     return render(request, 'users/scholar.html', {'form': form})
 
-
                 # print("Before duplication")
                 # print(len(crossref_titles))
                 # print(len(core_title))
@@ -226,40 +273,23 @@ def data(request):
                 for i in core_title:
                     if i not in new_core_title:
                         new_core_title.append(i)
-
                 # print("After deduplication")
                 # print(len(new_core_title))
-
-
 
                 new_crossref_year = []
                 for i in crossref_year:
                     if i not in new_crossref_year:
-                        if isinstance(i,datetime.datetime):
-                            new_crossref_year.append(i.year)
-                        else:
-                            new_crossref_year.append(i)
-
-
-
+                        new_crossref_year.append(i)
 
                 new_crossref_url = []
                 for i in crossref_url:
                     if i not in new_crossref_url:
                         new_crossref_url.append(i)
 
-
-
-
-
-
-
-
-                new_crossref_titles=[]
+                new_crossref_titles = []
                 for i in crossref_titles:
                     if i not in new_crossref_titles:
                         new_crossref_titles.append(i)
-
 
                 new_core_title = []
                 for i in core_title:
@@ -276,22 +306,15 @@ def data(request):
                 # print("After deduplication")
                 # print(len(new_core_title))
 
-
-
                 new_core_year = []
                 for i in core_year:
                     if i not in new_core_year:
-                        if isinstance(i,datetime.datetime):
-                            new_core_year.append(i.year)
-                        else:
-                            new_core_year.append(i)
+                        new_core_year.append(i)
 
                 # print("Length of years")
                 #
                 # print(len(new_core_year))
                 #
-
-
 
                 new_core_url = []
                 for i in core_url:
@@ -300,9 +323,6 @@ def data(request):
                 # print("Length of urls")
                 #
                 # print(len(new_core_url))
-
-
-
 
                 # print("After de duplication")
                 # print(len(new_crossref_titles))
@@ -318,24 +338,22 @@ def data(request):
                 # common_dois = list(set(crossref_doi_list) & set(core_doi_list))
                 # print(len(common_dois))
                 # for i in common_dois:
-                    # print(i)
-
+                # print(i)
 
                 context = {
                     # 'form': form,
                     # 'content': content,
-                    'crossref_dois' : crossref_doi_list,
+                    'crossref_dois': crossref_doi_list,
                     'core_doi_list': core_doi_list,
                     'crossref_class_list': crossref_class_list,
-                    'core_class_list':core_class_list
-
+                    'core_class_list': core_class_list
 
                 }
-                crossref_dup = zip(crossref_titles,crossref_year,crossref_url)
-                crossRef = zip(new_crossref_titles,new_crossref_year,new_crossref_url)
+                crossref_dup = zip(crossref_titles, crossref_year, crossref_url)
+                crossRef = zip(new_crossref_titles, new_crossref_year, new_crossref_url)
 
-                core_dup = zip(core_title,core_year,core_url)
-                core = zip(new_core_title,new_core_year,new_core_url)
+                core_dup = zip(core_title, core_year, core_url)
+                core = zip(new_core_title, new_core_year, new_core_url)
 
                 messages.success(request, f'Your Database has been successfully retrieved')
 
@@ -351,33 +369,35 @@ def data(request):
                 crossref_heading = 'Results from Crossref'
 
                 # return redirect("query", data=str(common_dois))
-                #removed some elements to be sent to html: new_crossref_titles,crossref_year,crossref_url,new_core_title, core_year, core_url
+                # removed some elements to be sent to html: new_crossref_titles,crossref_year,crossref_url,new_core_title, core_year, core_url
 
-
-            # return render(request, 'users/query.html',data=str(content))
+                # return render(request, 'users/query.html',data=str(content))
                 return render(request, 'users/scholar.html', {'crossref_dois': crossref_doi_list,
                                                               'core_doi_list': core_doi_list,
                                                               'crossRef': crossRef,
-                                                              'core_heading':core_heading,
-                                                              'crossref_heading':crossref_heading,
-                                                              'core':core,
+                                                              'core_heading': core_heading,
+                                                              'crossref_heading': crossref_heading,
+                                                              'core': core,
                                                               'form': form,
-                                                              'form2':form2
+                                                              'form2': form2,
+                                                              'formset': formset
                                                               })
             except HTTPError:
-                messages.error(request,f'No response from Server')
-                return render(request, 'users/scholar.html', {'form': form})
+                messages.error(request, f'No response from Server')
+                return render(request, 'users/scholar.html', {'form': form, 'form2': form2, 'formset': formset})
 
 
         else:
-                #messages.error(request,f'Wrong Url')
-                return render(request, 'users/scholar.html', {'form': form, 'form2':form2})
+            # messages.error(request,f'Wrong Url')
+            return render(request, 'users/scholar.html', {'form': form, 'form2': form2, 'formset': formset})
 
     else:
         form = SimpleForm()
         form2 = PICOC()
+        # formset = BookFormset()
+        formset = BookFormset(request.GET or None)
 
-        return render(request, 'users/scholar.html', {'form': form,'form2':form2})
+        return render(request, 'users/scholar.html', {'form': form, 'form2': form2,'formset': formset})
     # if request.method == 'POST':
     #     u_form = UserUpdateForm(request.POST, instance=request.user)
     #     p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
@@ -392,6 +412,7 @@ def data(request):
     #     u_form = UserUpdateForm(instance=request.user)
     #     p_form = ProfileUpdateForm(instance=request.user.profile)
     #
+
 def funct():
     return common_dois
 
@@ -504,6 +525,7 @@ def perform_snowballing(doi_list, starting_year, ending_year, authors, snowball_
 
             if database_snowballing.__contains__(i):
 
+
                 type_articles = database_snowballing[i][snowball_type]
 
 
@@ -511,6 +533,7 @@ def perform_snowballing(doi_list, starting_year, ending_year, authors, snowball_
                 snowball_result = filter_articles(type_articles, starting_year, ending_year, authors, database_snowballing)
 
                 if snowball_result:
+
                     doi_list = snowball_result.keys()
 
 
@@ -597,37 +620,6 @@ def snowballing(request):
     perform_snowballing(doi_list_initial, starting_year, ending_year, authors, 'references', 0)
 
 
-
-    # print("Backward Snowballing result")
-    # print("References")
-    # for i in final_result['references']['doi']:
-    #     print(i)
-    #
-    # print("Forward Snowballing result")
-    # print("Citations")
-    # for x in final_result['citations']['doi']:
-    #     print(x)
-    #
-    # print("References titles")
-    #
-    # for i in final_result['references']['title']:
-    #     print(i)
-
-    # print("Forward Snowballing result")
-    # print("Citations titles")
-    # for x in final_result['citations']['title']:
-    #     print(x)
-
-
-    # final_title = list(set(final_result['citations']['title']).union(final_result['references']['title']))
-    #
-    # final_doi = list(set(final_result['citations']['doi']).union(final_result['references']['doi']))
-
-
-    # for i in range(len(final_doi)) :
-    #
-    #     print(final_doi[i] + "  " + final_title[i])
-
     for i in final_result['references'] :
 
         print(i + "   " + final_result['references'][i])
@@ -664,6 +656,80 @@ def snowballing(request):
     request.session['result_dict'] = result_dict
 
     return render(request,'users/snowballing.html',{'data': references_dict.items(),"data2":citations_dict.items()})
+
+def snowballing_one(request,key):
+    research_paper = Papers.objects.get(id=key)
+    url = "https://api.crossref.org/works?query.bibliographic=" + research_paper.title
+
+    response = requests.get(url)
+
+    content = response.json()
+
+    if len(content['message']['items']) > 0:
+        doi = content['message']['items'][0]['DOI']
+
+    print("paper doi: " + doi)
+
+    starting_year = 2000
+
+    ending_year = 2019
+    authors = ['Barbara']
+
+    # doi_list_initial = ['10.2903/sp.efsa.2018.EN-1427', '10.5277/e-Inf180104', '10.1145/2745802.2745818',
+    #                     '10.1145/2601248.2601268', '10.1016/j.infsof.2010.03.006', '10.1186/s13643-018-0740-7']
+
+    examined_articles = []
+
+    database = SqliteDict('./SLR_database.sqlite', autocommit=True)
+    # print("hello" + str(database['snowballing'][doi.lower()]))
+    perform_snowballing([doi], starting_year, ending_year, authors, 'citations', 0)
+
+    perform_snowballing([doi], starting_year, ending_year, authors, 'references', 0)
+
+
+    # for i in final_result['references'] :
+    #
+    #     print(i + "   " + final_result['references'][i])
+    #
+    # print("Forward snowballing result")
+    # for i in final_result['citations'] :
+    #
+    #     print(i + "   " + final_result['citations'][i])
+
+
+    temp_ref = final_result['references']
+
+    temp_cite = final_result['citations']
+
+    references_dict = {}
+
+    citations_dict = {}
+
+    for i in temp_ref:
+
+        references_dict["https://dx.doi.org/" + i] = temp_ref[i]
+
+
+    for i in temp_cite:
+
+        citations_dict["https://dx.doi.org/" + i] = temp_cite[i]
+
+
+
+
+
+    result_dict = Merge(references_dict,citations_dict)
+
+    request.session['result_dict'] = result_dict
+
+
+
+
+
+
+
+    return render(request, 'users/snowballing.html', {'data': references_dict.items(),"data2":citations_dict.items()})
+
 
 
 
@@ -912,6 +978,115 @@ def abstract(request):
 
 
     return render(request, 'users/abstract.html', {'map_result': map_result.items()})
+
+
+def create_index_fulltext(doi_title_abstract):
+    schema = Schema(
+        article_doi=ID(stored=True),
+        article_title=ID(stored=True),
+        article_fulltext=TEXT(analyzer=StemmingAnalyzer(), stored=True)
+    )
+
+    ix = index.create_in("C:\\Users\\sahme\\PycharmProjects\\Automating_SLR\\django_project\\indexdir_fulltext", schema)
+
+    writer = ix.writer()
+    database = SqliteDict('./SLR_database.sqlite', autocommit=True)
+    database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
+
+    for i in doi_title_abstract:
+        writer.add_document(article_doi=u"" + i, article_title=u"" + database['snowballing'][i]['title'],
+                            article_fulltext=u"" + database2['fulltext'][i])
+
+    writer.commit()
+
+    return ix
+
+class fullTextData:
+    def __init__(self, doi, title, score):
+        self.doi = doi
+        self.title = title
+        self.score = score
+
+def perform_search_fulltext(ix, input_query):
+    with ix.searcher() as searcher:
+
+        query_parser = qparser.QueryParser("article_fulltext", schema=ix.schema, termclass=q.Variations)
+
+        # input_query = input("\nEnter query: ")
+
+        query_user = query_parser.parse(input_query)
+
+        # actual_query = input_query
+
+        corrected = searcher.correct_query(query_user, input_query)
+
+        if corrected.query != query_user:
+
+            # choice = input("\nDid you mean " + corrected.string + "? ")
+
+            choice = 'y'
+
+            if choice == 'y':
+
+                actual_query = corrected.string
+
+            else:
+
+                actual_query = corrected.string
+
+            print(corrected.string)
+
+        else:
+            print("\nNo need to correct the query\n\n ")
+
+            actual_query = input_query
+
+        splitted_query = actual_query.split(" ")
+
+        final_query = ""
+
+        for i in splitted_query:
+            final_query += "*" + i + "* OR "
+
+        # actual_query = "*" + actual_query + "*"
+
+        # print('\n' + final_query + '\n')
+
+        query_user = query_parser.parse(final_query)
+
+        results = searcher.search(query_user)
+
+        print("\nTotal Documents Matched: " + str(len(results)))
+
+        return_map = {}
+        full_text_list= []
+        for result in results:
+            return_map[result['article_doi']] = fullTextData(result['article_doi'],result['article_title'],result.score)
+            full_text_list.append(fullTextData("https://dx.doi.org/" +str( result['article_doi']), result['article_title'], result.score))
+
+            print(result.score)
+
+    return full_text_list
+
+
+
+def fulltext(request):
+    database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
+    doi_fulltext = database2['fulltext']
+
+    ix = create_index_fulltext(doi_fulltext)
+    full_text_dict = {}
+    fulltext_list = []
+
+    fulltext_list = perform_search_fulltext(ix, "text mining methods to support the screening of papers")
+    fulltext_list.sort(key=lambda x: x.score, reverse=True)
+
+    # sorted_fulltext_list = sorted(fulltext_list, key=lambda x: x.score, reverse=False)
+
+    return render(request, 'users/fulltext.html', {'fulltext_list' : fulltext_list})
+
+
+
 
 
 def searchposts(request):

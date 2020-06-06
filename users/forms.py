@@ -6,6 +6,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator, RegexVa
 from upload_validator import FileTypeValidator
 from .models import Profile, Document, ResearchPapers, Articles,Papers
 import datetime
+from django.forms import formset_factory
 
 
 class UserRegisterForm(UserCreationForm):
@@ -16,7 +17,26 @@ class UserRegisterForm(UserCreationForm):
         model = User
         fields = ['username', 'email']
 
+class BookForm(forms.Form):
+    name = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'required': 'True',
+            'class': 'form-control',
+            'placeholder': 'Enter Research Question here'
+        })
+    )
+BookFormset = formset_factory(BookForm, extra=3)
 
+
+class QuestionForm(forms.Form):
+    question = forms.CharField(
+        label='Question',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your Question here here'
+        })
+    )
+QuestionFormset = formset_factory(QuestionForm, extra=1)
 
 
 class UserUpdateForm(forms.ModelForm):

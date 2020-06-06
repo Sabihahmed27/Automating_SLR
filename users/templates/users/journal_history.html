@@ -10,6 +10,7 @@
                 <th>Title</th>
                 <th>Author</th>
                 <th>View</th>
+                <th>Bib-Tex</th>
                 <th>Snowballing</th>
                 <th>Delete</th>
 
@@ -25,8 +26,15 @@
                             View PDF
                         </a>
                     </td>
+                     <td>
+
+
+                        <a href="/bib-tex/{{journal.id}}" class="btn btn-primary btn sm" target="_blank">
+                            View Bibtex
+                        </a>
+                    </td>
                     <td>
-                        <a href="/scholar" class="btn btn-success btn sm" target="_blank">
+                        <a href="/snowballing/{{journal.id}}" class="btn btn-success btn sm" target="_blank">
                            Start Snowballing
                         </a>
                     </td>
