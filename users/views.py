@@ -21,7 +21,7 @@ from urllib.error import HTTPError
 from django.db.models import Q
 import scholarly
 import re
-import os
+import os,datetime
 from lxml import objectify
 import requests,json
 from django.core import serializers
@@ -226,6 +226,7 @@ def data(request):
                 for i in core_title:
                     if i not in new_core_title:
                         new_core_title.append(i)
+
                 # print("After deduplication")
                 # print(len(new_core_title))
 
@@ -234,7 +235,11 @@ def data(request):
                 new_crossref_year = []
                 for i in crossref_year:
                     if i not in new_crossref_year:
-                        new_crossref_year.append(i)
+                        if isinstance(i,datetime.datetime):
+                            new_crossref_year.append(i.year)
+                        else:
+                            new_crossref_year.append(i)
+
 
 
 
@@ -276,7 +281,10 @@ def data(request):
                 new_core_year = []
                 for i in core_year:
                     if i not in new_core_year:
-                        new_core_year.append(i)
+                        if isinstance(i,datetime.datetime):
+                            new_core_year.append(i.year)
+                        else:
+                            new_core_year.append(i)
 
                 # print("Length of years")
                 #
@@ -796,7 +804,7 @@ def create_index(doi_title_abstract):
         article_abstract=TEXT(analyzer=StemmingAnalyzer(), stored=True)
     )
 
-    ix = index.create_in("E:/Automating_SLR/django_project/index_dir", schema)
+    ix = index.create_in("C:\\Users\\sahme\\PycharmProjects\\Automating_SLR\\django_project\\index_dir", schema)
 
     writer = ix.writer()
 
@@ -806,7 +814,6 @@ def create_index(doi_title_abstract):
     writer.commit()
 
     return ix
-
 
 def perform_search(ix, input_query):
     with ix.searcher() as searcher:
@@ -994,16 +1001,10 @@ def upload_journal(request):
         'form': form
     })
 
-def get_bib_tex(request):
+def get_bib_tex(request,key):
+    research_paper = Papers.objects.get(id=key)
 
-    # if request.method == "POST":
-    #     title = request.POST['data']
-
-    # print(title)
-    print("Hello")
-    # print(filepath)
-    path = './media/documents/Making_progress_with_the_automation_of_SR.pdf'
-    references = os.popen('pdf-extract extract --references --titles --set reference_flex:0.5 "' +path+'"').read()
+    references = os.popen('pdf-extract extract --references --titles --set reference_flex:0.5 ".' +research_paper.pdf.url+'"').read()
 
     pdf = objectify.fromstring(references)
     print("\n\n\t\t===TITLE===\n")
