@@ -9,10 +9,11 @@ from django.urls import reverse
 from habanero import Crossref
 from urllib.parse import urlparse
 from django.contrib.auth.decorators import login_required
-from .models import Document, Snowballing_model, ResearchPapers
+from .models import Document, Snowballing_model, ResearchPapers, Book
 from users.models import Articles, Papers
-from .forms import UserRegisterForm,JournalForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, DocumentForm, \
-    AbstractForm, PICOC
+from .forms import UserRegisterForm, JournalForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, \
+    DocumentForm, \
+    AbstractForm, PICOC, BookFormset
 import requests,json
 from django.http import JsonResponse
 import urllib
@@ -60,6 +61,37 @@ def register(request):
         form = UserRegisterForm()
     return render(request, 'users/register.html',{'form': form})
 
+def create_question_normal(request):
+    template_name = 'users/scholar.html'
+    heading_message = 'Formset Demo'
+    if request.method == 'GET':
+        formset = BookFormset(request.GET or None)
+    elif request.method == 'POST':
+        formset = BookFormset(request.POST)
+        if formset.is_valid():
+            for form in formset:
+                # extract name from each form and save
+                name = form.cleaned_data.get('name')
+                # save book instance
+                if name:
+                    Book(name=name).save()
+                    hello(request)
+            # once all books are saved, redirect to book list view
+            # return redirect('create_normal')
+    return render(request, template_name, {
+        'formset': formset,
+        'heading': heading_message,
+    })
+
+
+def hello(request):
+    print("hello world")
+    books = Book.objects.all()
+    print(books)
+    print("saqib")
+
+    return render(request, 'users/create_normal.html', {'form': books})
+
 
 @login_required
 def profile(request):
@@ -82,11 +114,12 @@ def profile(request):
         'p_form': p_form
     }
 
+    return render(request, 'users/profile.html', context)
 
-    return render(request, 'users/profile.html',context)
 
 def review(request):
-    return render(request,'users/review.html')
+    return render(request, 'users/review.html')
+
 
 def savePicoc(request):
     articles = Articles.objects.all()
@@ -95,20 +128,52 @@ def savePicoc(request):
     print("username is ", username)
 
     picoc = ResearchPapers.objects.all()
+    print(picoc)
 
-    for i in picoc:
-        print(i.population)
+    # for i in picoc:
+    #     print(i.comparison)
 
 
 @login_required()
 def data(request):
+    form = SimpleForm()
+    form2 = PICOC()
+    formset = BookFormset(request.GET or None)
 
-    if request.method == 'POST':
-        form = SimpleForm(request.POST)
+    if request.method == 'POST' and 'btnform1' in request.POST:
+        formset = BookFormset(request.POST)
+        if formset.is_valid():
+            print("The length of formset is ",len(formset))
+            for form in formset:
+                print("length is ", len(formset))
+                # extract name from each form and save
+                name = form.cleaned_data.get('name')
+                print("name is ",name)
+                # save book instance
+                if name:
+                    Book(name=name).save()
+
+
+
+        return render(request, 'users/scholar.html', {'formset': formset, 'form2': form2, 'form': form})
+
+    if request.method == 'POST' and 'btnform2' in request.POST:
+        hello(request)
         form2 = PICOC(request.POST)
+        if form2.is_valid():
+            picoc = form2.save(commit=False)
+            picoc.user = request.user
+            picoc.save()
 
-        if form.is_valid() or form2.is_valid():
-            #query = input('Enter the query to be searched: ')
+            savePicoc(request)
+            messages.success(request, f'PICOC have been saved successfully')
+            return render(request, 'users/scholar.html', {'form2': form2, 'form': form, 'formset': formset})
+
+    if request.method == 'POST' and 'btnform3' in request.POST:
+        form = SimpleForm(request.POST)
+        if form.is_valid():
+            # query = input('Enter the query to be searched: ')
+            print("hello world")
             query = form.cleaned_data.get("Title")
             startYear = form.cleaned_data.get("StartYear")
             endYear = form.cleaned_data.get("EndYear")
@@ -116,20 +181,8 @@ def data(request):
             keyword = form.cleaned_data.get("Keyword")
 
             doc = form.save(commit=False)
-            picoc = form2.save(commit=False)
             doc.user = request.user
-            picoc.user = request.user
             doc.save()
-            picoc.save()
-
-            savePicoc(request)
-            # print(form2.population)
-
-            population = form2.cleaned_data.get("population")
-            intervention = form2.cleaned_data.get("intervention")
-            comparison = form2.cleaned_data.get("comparison")
-            outcome = form2.cleaned_data.get("outcome")
-            context = form2.cleaned_data.get("context")
 
             parameter_values_list = [1, 100, '9ipXPomYaSrHLAIuONZfzUGk3t57RcBD']
             response = requests.get(edited_search_coreAPI(query, parameter_values_list))
@@ -142,7 +195,6 @@ def data(request):
 
                 cr = Crossref()
 
-
                 if not str(query).isalnum():
                     query = re.sub(r"[^a-zA-Z0-9]+", ' ', query)
 
@@ -153,31 +205,26 @@ def data(request):
 
                     query = re.sub(' +', ' ', query)
 
-                if len(author.replace(" ","")) == 0:
+                if len(author.replace(" ", "")) == 0:
                     temp_messages = 'Invalid Input! Please provide a valid Author name'
                     # messages.error(request, f'Wrong Url')
-                    return render(request, 'users/scholar.html', {'form': form, 'temp_messages':temp_messages})
+                    return render(request, 'users/scholar.html', {'form': form, 'temp_messages': temp_messages})
 
-                if len(query.replace(" ","")) == 0:
+                if len(query.replace(" ", "")) == 0:
                     temp_messages = 'Invalid Input! Please provide a valid Title'
                     # messages.error(request, f'Wrong Url')
-                    return render(request, 'users/scholar.html', {'form': form, 'temp_messages':temp_messages})
+                    return render(request, 'users/scholar.html', {'form': form, 'temp_messages': temp_messages})
 
                 # if query.isa
                 #     return render(request, 'users/scholar.html', {'form': form})
-
 
                 x = cr.works(query=query, filter={'has_full_text': True})
                 if x['status'] == "error":
                     return render(request, 'users/scholar.html', {'form': form})
 
-
-
-
                 crossref_titles = []
                 crossref_year = []
                 crossref_url = []
-
 
                 for i in x['message']['items']:
                     crossref_titles.append(str(i['title'][0]))
@@ -191,11 +238,7 @@ def data(request):
                     # temp_url = i['URL']
                     # crossref_class_list.append(paper_details(temp_doi,temp_title,temp_year,temp_url))
 
-
                 core_class_list = []
-
-
-
 
                 core_title = []
                 core_url = []
@@ -218,7 +261,6 @@ def data(request):
                 # else:
                 #     return render(request, 'users/scholar.html', {'form': form})
 
-
                 # print("Before duplication")
                 # print(len(crossref_titles))
                 # print(len(core_title))
@@ -226,40 +268,23 @@ def data(request):
                 for i in core_title:
                     if i not in new_core_title:
                         new_core_title.append(i)
-
                 # print("After deduplication")
                 # print(len(new_core_title))
-
-
 
                 new_crossref_year = []
                 for i in crossref_year:
                     if i not in new_crossref_year:
-                        if isinstance(i,datetime.datetime):
-                            new_crossref_year.append(i.year)
-                        else:
-                            new_crossref_year.append(i)
-
-
-
+                        new_crossref_year.append(i)
 
                 new_crossref_url = []
                 for i in crossref_url:
                     if i not in new_crossref_url:
                         new_crossref_url.append(i)
 
-
-
-
-
-
-
-
-                new_crossref_titles=[]
+                new_crossref_titles = []
                 for i in crossref_titles:
                     if i not in new_crossref_titles:
                         new_crossref_titles.append(i)
-
 
                 new_core_title = []
                 for i in core_title:
@@ -276,22 +301,15 @@ def data(request):
                 # print("After deduplication")
                 # print(len(new_core_title))
 
-
-
                 new_core_year = []
                 for i in core_year:
                     if i not in new_core_year:
-                        if isinstance(i,datetime.datetime):
-                            new_core_year.append(i.year)
-                        else:
-                            new_core_year.append(i)
+                        new_core_year.append(i)
 
                 # print("Length of years")
                 #
                 # print(len(new_core_year))
                 #
-
-
 
                 new_core_url = []
                 for i in core_url:
@@ -300,9 +318,6 @@ def data(request):
                 # print("Length of urls")
                 #
                 # print(len(new_core_url))
-
-
-
 
                 # print("After de duplication")
                 # print(len(new_crossref_titles))
@@ -318,24 +333,22 @@ def data(request):
                 # common_dois = list(set(crossref_doi_list) & set(core_doi_list))
                 # print(len(common_dois))
                 # for i in common_dois:
-                    # print(i)
-
+                # print(i)
 
                 context = {
                     # 'form': form,
                     # 'content': content,
-                    'crossref_dois' : crossref_doi_list,
+                    'crossref_dois': crossref_doi_list,
                     'core_doi_list': core_doi_list,
                     'crossref_class_list': crossref_class_list,
-                    'core_class_list':core_class_list
-
+                    'core_class_list': core_class_list
 
                 }
-                crossref_dup = zip(crossref_titles,crossref_year,crossref_url)
-                crossRef = zip(new_crossref_titles,new_crossref_year,new_crossref_url)
+                crossref_dup = zip(crossref_titles, crossref_year, crossref_url)
+                crossRef = zip(new_crossref_titles, new_crossref_year, new_crossref_url)
 
-                core_dup = zip(core_title,core_year,core_url)
-                core = zip(new_core_title,new_core_year,new_core_url)
+                core_dup = zip(core_title, core_year, core_url)
+                core = zip(new_core_title, new_core_year, new_core_url)
 
                 messages.success(request, f'Your Database has been successfully retrieved')
 
@@ -351,33 +364,35 @@ def data(request):
                 crossref_heading = 'Results from Crossref'
 
                 # return redirect("query", data=str(common_dois))
-                #removed some elements to be sent to html: new_crossref_titles,crossref_year,crossref_url,new_core_title, core_year, core_url
+                # removed some elements to be sent to html: new_crossref_titles,crossref_year,crossref_url,new_core_title, core_year, core_url
 
-
-            # return render(request, 'users/query.html',data=str(content))
+                # return render(request, 'users/query.html',data=str(content))
                 return render(request, 'users/scholar.html', {'crossref_dois': crossref_doi_list,
                                                               'core_doi_list': core_doi_list,
                                                               'crossRef': crossRef,
-                                                              'core_heading':core_heading,
-                                                              'crossref_heading':crossref_heading,
-                                                              'core':core,
+                                                              'core_heading': core_heading,
+                                                              'crossref_heading': crossref_heading,
+                                                              'core': core,
                                                               'form': form,
-                                                              'form2':form2
+                                                              'form2': form2,
+                                                              'formset': formset
                                                               })
             except HTTPError:
-                messages.error(request,f'No response from Server')
-                return render(request, 'users/scholar.html', {'form': form})
+                messages.error(request, f'No response from Server')
+                return render(request, 'users/scholar.html', {'form': form, 'form2': form2, 'formset': formset})
 
 
         else:
-                #messages.error(request,f'Wrong Url')
-                return render(request, 'users/scholar.html', {'form': form, 'form2':form2})
+            # messages.error(request,f'Wrong Url')
+            return render(request, 'users/scholar.html', {'form': form, 'form2': form2, 'formset': formset})
 
     else:
         form = SimpleForm()
         form2 = PICOC()
+        # formset = BookFormset()
+        formset = BookFormset(request.GET or None)
 
-        return render(request, 'users/scholar.html', {'form': form,'form2':form2})
+        return render(request, 'users/scholar.html', {'form': form, 'form2': form2,'formset': formset})
     # if request.method == 'POST':
     #     u_form = UserUpdateForm(request.POST, instance=request.user)
     #     p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
@@ -392,6 +407,7 @@ def data(request):
     #     u_form = UserUpdateForm(instance=request.user)
     #     p_form = ProfileUpdateForm(instance=request.user.profile)
     #
+
 def funct():
     return common_dois
 
