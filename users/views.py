@@ -1083,7 +1083,9 @@ def fulltext(request):
 
     return render(request, 'users/fulltext.html', {'fulltext_list' : fulltext_list})
 
+def quality_assessment(request):
 
+    return render(request, 'users/qualityAssessment.html', {})
 
 
 

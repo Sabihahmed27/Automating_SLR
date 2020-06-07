@@ -43,6 +43,7 @@ urlpatterns = [
     path('search_database/',user_views.search_database,name='search_database'),
     path('search_snowballing/',user_views.search_snowballing,name='search_snowballing'),
     path('scholar/', user_views.data, name='scholar'),
+    path('quality-assessment/',user_views.quality_assessment,name="quality_assessment"),
     path('snowballing/', user_views.snowballing, name='snowballing'),
     path('snowballing/<key>',user_views.snowballing_one, name='snowballing_one'),
     path('profile/', user_views.profile, name='profile'),

@@ -227,7 +227,7 @@
         <form method="POST">
             {% csrf_token %}
             <fieldset class = "form-group">
-                {{ formset.management_form }}
+                {{ formset.management_form}}
                 {% for form in formset %}
                 <div class="row form-row spacer">
                     <div class="col-10">
