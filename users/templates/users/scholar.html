@@ -210,48 +210,35 @@
 
       </form>
 
+              <form method="post">
+                    <input type='hidden' name='csrfmiddlewaretoken' value='IZ6IugjtKNXR3KF5gJDWTVxuxeiZPf2i' />
+                    <div class="panel panel-default">
+                      <div class="panel-heading">
+                        <h3 class="panel-title">RESEARCH QUESTIONS</h3>
+                          <p>Please write proper question in a sentence form</p>
+                      </div>
+                      <div class="panel-body">
 
-        <form method="post">
-        <input type='hidden' name='csrfmiddlewaretoken' value='IZ6IugjtKNXR3KF5gJDWTVxuxeiZPf2i' />
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">Research Questions</h3>
-              <p>Please specify specific research questions</p>
-          </div>
-          <div class="panel-body">
 
+            <section>
 
-<section>
+                <div class="content-section">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <fieldset class = "form-group">
 
-    <div class="content-section">
-        <form method="POST">
-            {% csrf_token %}
-            <fieldset class = "form-group">
-                {{ formset.management_form }}
-                {% for form in formset %}
-                <div class="row form-row spacer">
-                    <div class="col-10">
-                        <div class="input-group">
-                            {{form.name}}
-                            <div class="input-group-append">
-                                <button class="btn btn-success add-form-row">+</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
+                            {{ form3|crispy}}
 
-                <div class="row spacer">
-                    <div class="col-4 offset-4">
-                        <button type="submit" name="btnform1" class="btn btn-block btn-primary">Create</button>
-                    </div>
-                </div>
+                            <button type="submit" name="btnform1" class="btn btn-success">Save</button>
 
-            </fieldset>
+                      <a href="/snowballing"  class="btn btn-primary pull-right">Start Snowballing</a>
 
-        </form>
+                        </fieldset>
+
+                    </form>
 
     </div>
+
 
 </section>
 
@@ -261,6 +248,9 @@
         </div>
 
       </form>
+
+
+
     </div>
 
   </div>

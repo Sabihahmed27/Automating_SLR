@@ -9,11 +9,11 @@ from django.urls import reverse
 from habanero import Crossref
 from urllib.parse import urlparse
 from django.contrib.auth.decorators import login_required
-from .models import Document, Snowballing_model, ResearchPapers, Book
+from .models import Document, Snowballing_model, ResearchPapers, Book, Question
 from users.models import Articles, Papers
 from .forms import UserRegisterForm, JournalForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, \
     DocumentForm, \
-    AbstractForm, PICOC, BookFormset
+    AbstractForm, PICOC, BookFormset, QuestionForm
 import requests,json
 from django.http import JsonResponse
 import urllib
@@ -132,47 +132,31 @@ def savePicoc(request):
     username = get_object_or_404(User, username=request.user)
     print("username is ", username)
 
-    picoc = ResearchPapers.objects.all()
-    print(picoc)
+    picoc = ResearchPapers.objects.filter(user=request.user)
+    for p in picoc:
+        print("population",p.population)
+        print("intervention",p.intervention)
 
-    # for i in picoc:
-    #     print(i.comparison)
+    print("picoc is ", picoc)
 
 
 @login_required()
 def data(request):
     form = SimpleForm()
     form2 = PICOC()
-    formset = BookFormset(request.GET or None)
-
-    if request.method == 'POST' and 'btnform1' in request.POST:
-        formset = BookFormset(request.POST)
-        if formset.is_valid():
-            print("The length of formset is ",len(formset))
-            for form in formset:
-                print("length is ", len(formset))
-                # extract name from each form and save
-                name = form.cleaned_data.get('name')
-                print("name is ",name)
-                # save book instance
-                if name:
-                    Book(name=name).save()
-
-
-
-        return render(request, 'users/scholar.html', {'formset': formset, 'form2': form2, 'form': form})
+    form3 = QuestionForm()
 
     if request.method == 'POST' and 'btnform2' in request.POST:
         hello(request)
         form2 = PICOC(request.POST)
         if form2.is_valid():
-            picoc = form2.save(commit=False)
+            picoc = form2.save(commit=True)
             picoc.user = request.user
             picoc.save()
 
             savePicoc(request)
             messages.success(request, f'PICOC have been saved successfully')
-            return render(request, 'users/scholar.html', {'form2': form2, 'form': form, 'formset': formset})
+            return render(request, 'users/scholar.html', {'form2': form2, 'form': form, 'form3': form3})
 
     if request.method == 'POST' and 'btnform3' in request.POST:
         form = SimpleForm(request.POST)
@@ -225,7 +209,7 @@ def data(request):
 
                 x = cr.works(query=query, filter={'has_full_text': True})
                 if x['status'] == "error":
-                    return render(request, 'users/scholar.html', {'form': form})
+                    return render(request, 'users/scholar.html', {'form': form,'form2': form2, 'form3': form3})
 
                 crossref_titles = []
                 crossref_year = []
@@ -380,24 +364,38 @@ def data(request):
                                                               'core': core,
                                                               'form': form,
                                                               'form2': form2,
-                                                              'formset': formset
+                                                              'form3': form3
                                                               })
             except HTTPError:
                 messages.error(request, f'No response from Server')
-                return render(request, 'users/scholar.html', {'form': form, 'form2': form2, 'formset': formset})
+                return render(request, 'users/scholar.html', {'form': form, 'form2': form2, 'form3': form3})
 
 
         else:
-            # messages.error(request,f'Wrong Url')
-            return render(request, 'users/scholar.html', {'form': form, 'form2': form2, 'formset': formset})
+            return render(request, 'users/scholar.html', {'form': form, 'form2': form2, 'form3': form3})
+
+    if request.method == 'POST' and 'btnform1' in request.POST:
+            print("hello world")
+            form3 = QuestionForm(request.POST)
+            if form3.is_valid():
+                Question.objects.all().delete()
+                question = form3.save(commit=True)
+                question.user = request.user
+                question.save()
+
+                questionSave(request)
+                messages.success(request, f'PICOC have been saved successfully')
+
+            return render(request, 'users/scholar.html', {'form2': form2, 'form': form, 'form3': form3})
+
+
 
     else:
         form = SimpleForm()
         form2 = PICOC()
-        # formset = BookFormset()
-        formset = BookFormset(request.GET or None)
+        form3 = QuestionForm()
 
-        return render(request, 'users/scholar.html', {'form': form, 'form2': form2,'formset': formset})
+        return render(request, 'users/scholar.html', {'form': form, 'form2': form2,'form3': form3})
     # if request.method == 'POST':
     #     u_form = UserUpdateForm(request.POST, instance=request.user)
     #     p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
@@ -415,6 +413,14 @@ def data(request):
 
 def funct():
     return common_dois
+
+def questionSave(request):
+    print("inside question save")
+    q = Question.objects.filter(user=request.user)
+    for question in q:
+       print("question1", question.question1)
+       print("question2", question.question2)
+       print("question3", question.question3)
 
 def edited_search_coreAPI(query, parameter_values_list):
     url = 'https://core.ac.uk:443/api-v2/search/'
