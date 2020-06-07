@@ -38,17 +38,14 @@ class Snowballing_model(models.Model):
         return self.Title
 
 
-# class Question(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     question = models.CharField(max_length=255)
-#     isbn_number = models.CharField(max_length=13)
-#     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-#
-#     class Meta:
-#         db_table = 'question'
-#
-#     def __str__(self):
-#         return self.question
+class Question(models.Model):
+    id = models.AutoField(primary_key=True)
+    question1 = models.CharField(max_length=255)
+    question2 = models.CharField(max_length=255, null=True)
+    question3 = models.CharField(max_length=255, null=True)
+    isbn_number = models.CharField(max_length=13)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
 
 class Book(models.Model):
     id = models.AutoField(primary_key=True)

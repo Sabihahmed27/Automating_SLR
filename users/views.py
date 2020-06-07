@@ -9,11 +9,13 @@ from django.urls import reverse
 from habanero import Crossref
 from urllib.parse import urlparse
 from django.contrib.auth.decorators import login_required
-from .models import Document, Snowballing_model, ResearchPapers, Book
+from whoosh.lang.wordnet import Thesaurus
+
+from .models import Document, Snowballing_model, ResearchPapers, Book, Question
 from users.models import Articles, Papers
 from .forms import UserRegisterForm, JournalForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, \
     DocumentForm, \
-    AbstractForm, PICOC, BookFormset
+    AbstractForm, PICOC, BookFormset, QuestionForm
 import requests,json
 from django.http import JsonResponse
 import urllib
@@ -33,6 +35,8 @@ from whoosh import index,query as q,qparser
 #import whoosh
 from whoosh.fields import Schema , TEXT, ID
 from whoosh.analysis import StemmingAnalyzer
+from whoosh.lang.wordnet import Thesaurus
+from nltk.corpus import stopwords
 
 common_dois = []
 
@@ -81,6 +85,8 @@ def create_question_normal(request):
             # once all books are saved, redirect to book list view
             # return redirect('create_normal')
     return render(request, template_name, {
+        'form':form,
+        'form2':form2,
         'formset': formset,
         'heading': heading_message,
 
@@ -141,38 +147,21 @@ def savePicoc(request):
 def data(request):
     form = SimpleForm()
     form2 = PICOC()
-    formset = BookFormset(request.GET or None)
-
-    if request.method == 'POST' and 'btnform1' in request.POST:
-        formset = BookFormset(request.POST)
-        if formset.is_valid():
-            print("The length of formset is ",len(formset))
-            for form in formset:
-                print("length is ", len(formset))
-                # extract name from each form and save
-                name = form.cleaned_data.get('name')
-                print("name is ",name)
-                # save book instance
-                if name:
-                    Book(name=name).save()
-
-
-
-        return render(request, 'users/scholar.html', {'form': form,'form2': form2,'formset': formset})
+    form3 = QuestionForm()
 
     if request.method == 'POST' and 'btnform2' in request.POST:
         hello(request)
         form2 = PICOC(request.POST)
         if form2.is_valid():
             ResearchPapers.objects.all().delete()
+            # picoc = form2.save(commit=True)
             picoc = form2.save(commit=True)
             picoc.user = request.user
             picoc.save()
 
-
             savePicoc(request)
             messages.success(request, f'PICOC have been saved successfully')
-            return render(request, 'users/scholar.html', {'form2': form2, 'form': form, 'formset': formset})
+            return render(request, 'users/scholar.html', {'form2': form2, 'form': form, 'form3': form3})
 
     if request.method == 'POST' and 'btnform3' in request.POST:
         form = SimpleForm(request.POST)
@@ -225,7 +214,7 @@ def data(request):
 
                 x = cr.works(query=query, filter={'has_full_text': True})
                 if x['status'] == "error":
-                    return render(request, 'users/scholar.html', {'form': form})
+                    return render(request, 'users/scholar.html', {'form': form,'form2': form2, 'form3': form3})
 
                 crossref_titles = []
                 crossref_year = []
@@ -380,24 +369,38 @@ def data(request):
                                                               'core': core,
                                                               'form': form,
                                                               'form2': form2,
-                                                              'formset': formset
+                                                              'form3': form3
                                                               })
             except HTTPError:
                 messages.error(request, f'No response from Server')
-                return render(request, 'users/scholar.html', {'form': form, 'form2': form2, 'formset': formset})
+                return render(request, 'users/scholar.html', {'form': form, 'form2': form2, 'form3': form3})
 
 
         else:
-            # messages.error(request,f'Wrong Url')
-            return render(request, 'users/scholar.html', {'form': form, 'form2': form2, 'formset': formset})
+            return render(request, 'users/scholar.html', {'form': form, 'form2': form2, 'form3': form3})
+
+    if request.method == 'POST' and 'btnform1' in request.POST:
+            print("hello world")
+            form3 = QuestionForm(request.POST)
+            if form3.is_valid():
+                Question.objects.all().delete()
+                question = form3.save(commit=True)
+                question.user = request.user
+                question.save()
+
+                questionSave(request)
+                messages.success(request, f'Research Questions have been saved successfully')
+
+            return render(request, 'users/scholar.html', {'form2': form2, 'form': form, 'form3': form3})
+
+
 
     else:
         form = SimpleForm()
         form2 = PICOC()
-        # formset = BookFormset()
-        formset = BookFormset(request.GET or None)
+        form3 = QuestionForm()
 
-        return render(request, 'users/scholar.html', {'form': form, 'form2': form2,'formset': formset})
+        return render(request, 'users/scholar.html', {'form': form, 'form2': form2,'form3': form3})
     # if request.method == 'POST':
     #     u_form = UserUpdateForm(request.POST, instance=request.user)
     #     p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
@@ -415,6 +418,14 @@ def data(request):
 
 def funct():
     return common_dois
+
+def questionSave(request):
+    print("inside question save")
+    q = Question.objects.filter(user=request.user)
+    for question in q:
+       print("question1", question.question1)
+       print("question2", question.question2)
+       print("question3", question.question3)
 
 def edited_search_coreAPI(query, parameter_values_list):
     url = 'https://core.ac.uk:443/api-v2/search/'
@@ -521,7 +532,6 @@ def perform_snowballing(doi_list, starting_year, ending_year, authors, snowball_
         return
 
     else:
-        print(doi_list)
 
         for i in doi_list:
 
@@ -896,7 +906,7 @@ def create_index(doi_title_abstract):
 def perform_search(ix, input_query):
     with ix.searcher() as searcher:
 
-        query_parser = qparser.QueryParser("article_abstract", schema=ix.schema, termclass=q.Variations)
+        query_parser = qparser.QueryParser("article_abstract", schema=ix.schema, termclass= q.Variations)
 
         # input_query = input("\nEnter query: ")
 
@@ -1060,18 +1070,29 @@ def perform_search_fulltext(ix, input_query):
         query_user = query_parser.parse(final_query)
 
         results = searcher.search(query_user)
-
+        print(input_query)
         print("\nTotal Documents Matched: " + str(len(results)))
 
+        full_text_list = []
         return_map = {}
-        full_text_list= []
         for result in results:
             return_map[result['article_doi']] = fullTextData(result['article_doi'],result['article_title'],result.score)
             full_text_list.append(fullTextData("https://dx.doi.org/" +str( result['article_doi']), result['article_title'], result.score))
 
-            print(result.score)
+            # print(result.score)
+        for i in full_text_list:
+            print(i)
 
     return full_text_list
+    #     return_map = {}
+    #     for result in results:
+    #         return_map[result['article_doi']] = result['article_title']
+    #
+    #         print(result.score)
+    #
+    # return return_map
+
+
 
 
 
@@ -1079,26 +1100,52 @@ def fulltext(request):
     database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
     doi_fulltext = database2['fulltext']
 
-    ix = create_index_fulltext(doi_fulltext)
+    ix_fulltext = create_index_fulltext(doi_fulltext)
     full_text_dict = {}
     fulltext_list = []
 
-    fulltext_list = perform_search_fulltext(ix, "text mining methods to support the screening of papers")
+    # fulltext_list = perform_search_fulltext(ix_fulltext, """ Automation
+    #  development to writing and dissemination of the
+    # review""")
     fulltext_list.sort(key=lambda x: x.score, reverse=True)
     print("PICOC details in fulltext")
     picoc = ResearchPapers.objects.filter(user=request.user)
 
+    dict_map= {}
+    dict_list = []
     for p in picoc:
-        print("population:", p.population)
-        print("intervention:", p.intervention)
+        dict_list.append(perform_search_fulltext(ix_fulltext,p.population))
+        dict_list.append(perform_search_fulltext(ix_fulltext, p.intervention))
+        dict_list.append(perform_search_fulltext(ix_fulltext, p.comparison))
+        dict_list.append(perform_search_fulltext(ix_fulltext, p.outcome))
+        dict_list.append(perform_search_fulltext(ix_fulltext, p.context))
+
+
+    researchQuestions = Question.objects.filter(user=request.user)
+    for r in researchQuestions:
+        dict_list.append(perform_search_fulltext(ix_fulltext, r.question1))
+        dict_list.append(perform_search_fulltext(ix_fulltext, r.question2))
+        dict_list.append(perform_search_fulltext(ix_fulltext, r.question3))
+
 
     # sorted_fulltext_list = sorted(fulltext_list, key=lambda x: x.score, reverse=False)
+    # data_table_list = []
+    for i in dict_list:
+        for j in i:
+            print(j.doi + " " + j.title)
+            # data_table_list.append((j))
 
-    return render(request, 'users/fulltext.html', {'fulltext_list' : fulltext_list})
+
+
+    return render(request, 'users/fulltext.html', {'fulltext_list' : dict_list})
 
 def quality_assessment(request):
 
-    return render(request, 'users/qualityAssessment.html', {})
+    quality = Question.objects.filter(user=request.user)
+    print("quality are", quality)
+    for i in quality:
+        print("q1", i.question2)
+    return render(request, 'users/qualityAssessment.html', {'quality':quality})
 
 
 
@@ -1201,9 +1248,9 @@ def upload_journal(request):
 
 def get_bib_tex(request,key):
     research_paper = Papers.objects.get(id=key)
-
+    print(research_paper.pdf.url)
     references = os.popen('pdf-extract extract --references --titles --set reference_flex:0.5 ".' +research_paper.pdf.url+'"').read()
-
+    print(references)
     pdf = objectify.fromstring(references)
     print("\n\n\t\t===TITLE===\n")
 

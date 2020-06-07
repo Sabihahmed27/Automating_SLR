@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from upload_validator import FileTypeValidator
-from .models import Profile, Document, ResearchPapers, Articles,Papers
+from .models import Profile, Document, ResearchPapers, Articles, Papers, Question
 import datetime
 from django.forms import formset_factory
 
@@ -118,6 +118,18 @@ class PICOC(forms.ModelForm):
     class Meta:
         model = ResearchPapers
         fields = ['population','intervention','comparison','outcome','context']
+
+
+
+class QuestionForm(forms.ModelForm):
+    alphanumeric = RegexValidator(r'^[0-9a-zA-Z_ .?"-:!()]+$', 'Only alphanumeric characters are allowed.')
+    question1 = forms.CharField(max_length=300,help_text="Please specify Research Question",validators=[alphanumeric],required=True)
+    question2 = forms.CharField(max_length=300,help_text="Please specify Research Question",validators=[alphanumeric],required=True)
+    question3 = forms.CharField(max_length=300,help_text="Please specify Research Question",validators=[alphanumeric],required=True)
+
+    class Meta:
+        model = Question
+        fields = ['question1','question2','question3']
 
 
 

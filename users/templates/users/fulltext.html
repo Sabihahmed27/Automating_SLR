@@ -43,6 +43,9 @@
         <li class="active">
     <a href="/fulltext">Full-Text Screening</a>
   </li>
+      <li >
+    <a href="/quality-assessment">Quality Assessment</a>
+  </li>
 
 
 </ul>
@@ -70,8 +73,8 @@
 <!--                    {{ form|crispy }}-->
 
 <!--                <p><input type="submit" class = "btn btn-primary" value="submit"></p>-->
-
-             <table id="fulltext_datatable" style="width:100%">
+            <h3>Population Results</h3>
+             <table id="population" style="width:100%">
 
                   <thead>
                     <tr>
@@ -80,7 +83,7 @@
                     </tr>
                     </thead>
                 <tbody>
-                  {% for i in fulltext_list %}
+                  {% for i in fulltext_list.0 %}
                     <tr >
                        <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
                         <td > {{ i.score }}</td>
@@ -92,7 +95,160 @@
                     </tbody>
 
                 </table>
+                <h3>Intervention Results</h3>
+             <table id="intervention" style="width:100%">
 
+                  <thead>
+                    <tr>
+                        <th>Research Paper Title</th>
+                        <th>Scores</th>
+                    </tr>
+                    </thead>
+                <tbody>
+                  {% for i in fulltext_list.1 %}
+                    <tr >
+                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
+                        <td > {{ i.score }}</td>
+                    </tr>
+
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+                <h3>Comparison Results</h3>
+                <table id="comparison" style="width:100%">
+
+                  <thead>
+                    <tr>
+                        <th>Research Paper Title</th>
+                        <th>Scores</th>
+                    </tr>
+                    </thead>
+                <tbody>
+                  {% for i in fulltext_list.2 %}
+                    <tr >
+                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
+                        <td > {{ i.score }}</td>
+                    </tr>
+
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+                <h3>Outcome Results</h3>
+                <table id="outcome" style="width:100%">
+
+                  <thead>
+                    <tr>
+                        <th>Research Paper Title</th>
+                        <th>Scores</th>
+                    </tr>
+                    </thead>
+                <tbody>
+                  {% for i in fulltext_list.3 %}
+                    <tr >
+                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
+                        <td > {{ i.score }}</td>
+                    </tr>
+
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+                <h3>Context Results</h3>
+                <table id="context" style="width:100%">
+
+                  <thead>
+                    <tr>
+                        <th>Research Paper Title</th>
+                        <th>Scores</th>
+                    </tr>
+                    </thead>
+                <tbody>
+                  {% for i in fulltext_list.4 %}
+                    <tr >
+                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
+                        <td > {{ i.score }}</td>
+                    </tr>
+
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+                <h3>Research Question 1 Results</h3>
+                <table id="rq1" style="width:100%">
+
+                  <thead>
+                    <tr>
+                        <th>Research Paper Title</th>
+                        <th>Scores</th>
+                    </tr>
+                    </thead>
+                <tbody>
+                  {% for i in fulltext_list.5 %}
+                    <tr >
+                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
+                        <td > {{ i.score }}</td>
+                    </tr>
+
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+                <h3>Research Question 2 Results</h3>
+                <table id="rq2" style="width:100%">
+
+                  <thead>
+                    <tr>
+                        <th>Research Paper Title</th>
+                        <th>Scores</th>
+                    </tr>
+                    </thead>
+                <tbody>
+                  {% for i in fulltext_list.6 %}
+                    <tr >
+                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
+                        <td > {{ i.score }}</td>
+                    </tr>
+
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+                <h3>Research Question 3 Results</h3>
+                <table id="rq3" style="width:100%">
+
+                  <thead>
+                    <tr>
+                        <th>Research Paper Title</th>
+                        <th>Scores</th>
+                    </tr>
+                    </thead>
+                <tbody>
+                  {% for i in fulltext_list.7 %}
+                    <tr >
+                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
+                        <td > {{ i.score }}</td>
+                    </tr>
+
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
             </fieldset>
 
 
@@ -131,7 +287,14 @@
 
     <script>
         $(document).ready(function () {
-            $('#fulltext_datatable').DataTable();
+            $('#population').DataTable();
+            $('#intervention').DataTable();
+            $('#comparison').DataTable();
+            $('#outcome').DataTable();
+            $('#rq1').DataTable();
+            $('#rq2').DataTable();
+            $('#rq3').DataTable();
+
         });
     </script>
 <!--    <script src="/static/js/mustache.min.js"></script>-->
