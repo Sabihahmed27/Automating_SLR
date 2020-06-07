@@ -81,8 +81,6 @@ def create_question_normal(request):
             # once all books are saved, redirect to book list view
             # return redirect('create_normal')
     return render(request, template_name, {
-        'form':form,
-        'form2':form2,
         'formset': formset,
         'heading': heading_message,
 
