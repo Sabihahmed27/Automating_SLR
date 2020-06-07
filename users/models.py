@@ -38,17 +38,17 @@ class Snowballing_model(models.Model):
         return self.Title
 
 
-class Question(models.Model):
-    id = models.AutoField(primary_key=True)
-    question = models.CharField(max_length=255)
-    isbn_number = models.CharField(max_length=13)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-
-    class Meta:
-        db_table = 'question'
-
-    def __str__(self):
-        return self.question
+# class Question(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     question = models.CharField(max_length=255)
+#     isbn_number = models.CharField(max_length=13)
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+#
+#     class Meta:
+#         db_table = 'question'
+#
+#     def __str__(self):
+#         return self.question
 
 class Book(models.Model):
     id = models.AutoField(primary_key=True)
@@ -84,6 +84,8 @@ class Papers(models.Model):
     pdf = models.FileField(upload_to='documents/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    start_year = models.CharField(blank=True,max_length=100)
+    end_year = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return self.title
@@ -95,7 +97,6 @@ class Papers(models.Model):
     def filename(self):
         # return self.pdf.url
         return os.path.basename(self.pdf.url)
-
 
 
 

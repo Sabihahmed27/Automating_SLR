@@ -25,7 +25,7 @@ class BookForm(forms.Form):
             'placeholder': 'Enter Research Question here'
         })
     )
-BookFormset = formset_factory(BookForm, extra=3)
+BookFormset = formset_factory(BookForm, extra=1)
 
 
 class QuestionForm(forms.Form):
@@ -59,15 +59,6 @@ class ProfileUpdateForm(forms.ModelForm):
 #     comment = forms.CharField(widget=forms.Textarea)
 #     fields = ['Query Data']
 
-class JournalForm(forms.ModelForm):
-    pdf =  forms.FileField(label='', help_text="Formats accepted: PDF", required=True,validators=[FileTypeValidator(allowed_types=['application/pdf'])])
-
-    class Meta:
-        model = Papers
-        fields = ('title', 'author','pdf')
-
-
-
 class DocumentForm(forms.ModelForm):
     class Meta:
         model = Document
@@ -88,6 +79,17 @@ class AbstractForm(forms.ModelForm):
     class Meta:
         model = ResearchPapers
         fields = ['Keyword']
+
+
+
+class JournalForm(forms.ModelForm):
+    start_year = forms.IntegerField(min_value=1960, label="Start Year", max_value=current_year(),help_text="Year format: YYYY", required=True,validators=[MinValueValidator(1960), max_value_current_year])
+    end_year = forms.IntegerField(min_value=1960, label="End Year", max_value=current_year(),help_text="Year format: YYYY", required=True,validators=[MinValueValidator(1960), max_value_current_year])
+    pdf = forms.FileField(label='', help_text="Formats accepted: PDF", required=True,validators=[FileTypeValidator(allowed_types=['application/pdf'])])
+
+    class Meta:
+        model = Papers
+        fields = ('title', 'author','start_year','end_year','pdf')
 
 
 # ^[0-9a-zA-Z]*$  ^[a-zA-Z0-9 .!?"-\(\)]+$ ^[a-zA-Z0-9\n _ .?"-:!()]$

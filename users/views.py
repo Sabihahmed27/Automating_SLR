@@ -158,15 +158,17 @@ def data(request):
 
 
 
-        return render(request, 'users/scholar.html', {'formset': formset, 'form2': form2, 'form': form})
+        return render(request, 'users/scholar.html', {'form': form,'form2': form2,'formset': formset})
 
     if request.method == 'POST' and 'btnform2' in request.POST:
         hello(request)
         form2 = PICOC(request.POST)
         if form2.is_valid():
-            picoc = form2.save(commit=False)
+            ResearchPapers.objects.all().delete()
+            picoc = form2.save(commit=True)
             picoc.user = request.user
             picoc.save()
+
 
             savePicoc(request)
             messages.success(request, f'PICOC have been saved successfully')
@@ -510,18 +512,22 @@ final_result['citations']={}
 #         return object_list
 
 def perform_snowballing(doi_list, starting_year, ending_year, authors, snowball_type, iteration):
-    database = SqliteDict('./SLR_database.sqlite', autocommit=True)
+    database = SqliteDict('./SLR_database_updated.sqlite', autocommit=True)
 
     database_snowballing = database['snowballing']
+    print(database['snowballing']['10.2903/sp.efsa.2018.en-1427'])
     if iteration > 2:
 
         return
 
     else:
+        print(doi_list)
 
         for i in doi_list:
 
             if database_snowballing.__contains__(i):
+
+                print("doi found in db" + str(database['snowballing'][i]))
 
 
                 type_articles = database_snowballing[i][snowball_type]
@@ -578,7 +584,7 @@ def Merge(dict1, dict2):
 
 def snowballing(request):
 
-    database = SqliteDict('./SLR_database.sqlite', autocommit=True)
+    database = SqliteDict('./SLR_database_updated.sqlite', autocommit=True)
 
     database_snowballing = database['snowballing']
 
@@ -668,17 +674,18 @@ def snowballing_one(request,key):
 
     print("paper doi: " + doi)
 
-    starting_year = 2000
+    starting_year = int(research_paper.start_year)
+    print(starting_year)
 
-    ending_year = 2019
-    authors = ['Barbara']
+    ending_year = int(research_paper.end_year)
+    authors = research_paper.author.split(' ')
 
     # doi_list_initial = ['10.2903/sp.efsa.2018.EN-1427', '10.5277/e-Inf180104', '10.1145/2745802.2745818',
     #                     '10.1145/2601248.2601268', '10.1016/j.infsof.2010.03.006', '10.1186/s13643-018-0740-7']
 
     examined_articles = []
 
-    database = SqliteDict('./SLR_database.sqlite', autocommit=True)
+    database = SqliteDict('./SLR_database_updated.sqlite', autocommit=True)
     # print("hello" + str(database['snowballing'][doi.lower()]))
     perform_snowballing([doi], starting_year, ending_year, authors, 'citations', 0)
 
@@ -872,7 +879,7 @@ def create_index(doi_title_abstract):
         article_title=ID(stored=True),
         article_abstract=TEXT(analyzer=StemmingAnalyzer(), stored=True)
     )
-    database = SqliteDict('./SLR_database.sqlite', autocommit=True)
+    database = SqliteDict('./SLR_database_updated.sqlite', autocommit=True)
     database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
 
     ix = index.create_in("C:\\Users\\sahme\\PycharmProjects\\Automating_SLR\\django_project\\index_dir", schema)
@@ -988,7 +995,7 @@ def create_index_fulltext(doi_title_abstract):
     ix = index.create_in("C:\\Users\\sahme\\PycharmProjects\\Automating_SLR\\django_project\\indexdir_fulltext", schema)
 
     writer = ix.writer()
-    database = SqliteDict('./SLR_database.sqlite', autocommit=True)
+    database = SqliteDict('./SLR_database_updated.sqlite', autocommit=True)
     database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
 
     for i in doi_title_abstract:
@@ -1078,6 +1085,12 @@ def fulltext(request):
 
     fulltext_list = perform_search_fulltext(ix, "text mining methods to support the screening of papers")
     fulltext_list.sort(key=lambda x: x.score, reverse=True)
+    print("PICOC details in fulltext")
+    picoc = ResearchPapers.objects.filter(user=request.user)
+
+    for p in picoc:
+        print("population:", p.population)
+        print("intervention:", p.intervention)
 
     # sorted_fulltext_list = sorted(fulltext_list, key=lambda x: x.score, reverse=False)
 
@@ -1148,8 +1161,8 @@ def journal_deleteOne(request,key):
 
 
 def journal_history(request):
+    print("hello world")
     journals = Papers.objects.filter(user=request.user).order_by('-uploaded_at')
-    print(journals)
     #
     # for j in journals:
     #     print(j.id)
@@ -1164,6 +1177,7 @@ def journal_list(request):
 
     username = get_object_or_404(User, username=request.user)
     journal = Papers.objects.filter(user=username).latest('uploaded_at')
+    print(journal)
 
     return render(request, 'users/journal_list.html',{
         'journal': journal
