@@ -670,10 +670,11 @@ def snowballing_one(request,key):
 
     print("paper doi: " + doi)
 
-    starting_year = 2000
+    starting_year = research_paper.start_year
+    print(starting_year)
 
-    ending_year = 2019
-    authors = ['Barbara']
+    ending_year = research_paper.end_year
+    authors = research_paper.author.split(' ')
 
     # doi_list_initial = ['10.2903/sp.efsa.2018.EN-1427', '10.5277/e-Inf180104', '10.1145/2745802.2745818',
     #                     '10.1145/2601248.2601268', '10.1016/j.infsof.2010.03.006', '10.1186/s13643-018-0740-7']
@@ -1148,8 +1149,8 @@ def journal_deleteOne(request,key):
 
 
 def journal_history(request):
+    print("hello world")
     journals = Papers.objects.filter(user=request.user).order_by('-uploaded_at')
-    print(journals)
     #
     # for j in journals:
     #     print(j.id)
@@ -1164,6 +1165,7 @@ def journal_list(request):
 
     username = get_object_or_404(User, username=request.user)
     journal = Papers.objects.filter(user=username).latest('uploaded_at')
+    print(journal)
 
     return render(request, 'users/journal_list.html',{
         'journal': journal
