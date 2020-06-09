@@ -4,9 +4,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from upload_validator import FileTypeValidator
-from .models import Profile, Document, ResearchPapers, Articles, Papers, Question
+from .models import Profile, Document, ResearchPapers, Articles, Papers, Question, ResearchQuestion, \
+    QualityAssessmentQuestions
 import datetime
-from django.forms import formset_factory
+from django.forms import formset_factory,modelformset_factory
 
 
 class UserRegisterForm(UserCreationForm):
@@ -25,8 +26,42 @@ class BookForm(forms.Form):
             'placeholder': 'Enter Research Question here'
         })
     )
+
+
+class QuestionForm(forms.Form):
+    question = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'required': 'True',
+            'class': 'form-control',
+            'placeholder': 'Enter Research Question here'
+        })
+    )
+
 BookFormset = formset_factory(BookForm, extra=1)
 
+QualityModelFormset = modelformset_factory(
+    QualityAssessmentQuestions,
+    fields=('quality_question',),
+    extra=1,
+    widgets={'quality_question': forms.TextInput(attrs={
+        'required': 'True',
+        'class': 'form-control',
+        'placeholder': 'Enter your Quality Assessment question here'
+    })
+    }
+)
+
+ResearchFormset = formset_factory(QuestionForm)
+ResearchQuestionModelFormset = modelformset_factory(
+    ResearchQuestion,
+    fields=('question', ),
+    extra=1,
+    widgets={'question': forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your question here'
+        })
+    }
+)
 
 class QuestionForm(forms.Form):
     question = forms.CharField(

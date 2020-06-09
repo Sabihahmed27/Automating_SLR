@@ -11,11 +11,12 @@ from urllib.parse import urlparse
 from django.contrib.auth.decorators import login_required
 from whoosh.lang.wordnet import Thesaurus
 
-from .models import Document, Snowballing_model, ResearchPapers, Book, Question
+from .models import Document, Snowballing_model, ResearchPapers, Book, Question, ResearchQuestion, \
+    QualityAssessmentQuestions
 from users.models import Articles, Papers
 from .forms import UserRegisterForm, JournalForm, UserUpdateForm, ProfileUpdateForm, SimpleForm, QueryForm, \
     DocumentForm, \
-    AbstractForm, PICOC, BookFormset, QuestionForm
+    AbstractForm, PICOC, BookFormset, QuestionForm, ResearchQuestionModelFormset, ResearchFormset,QualityModelFormset
 import requests,json
 from django.http import JsonResponse
 import urllib
@@ -145,29 +146,27 @@ def savePicoc(request):
 
 @login_required()
 def data(request):
-    form = SimpleForm()
+    form4 = SimpleForm()
     form2 = PICOC()
     form3 = QuestionForm()
+    formset = ResearchFormset(request.GET or None)
 
     if request.method == 'POST' and 'btnform2' in request.POST:
         hello(request)
         form2 = PICOC(request.POST)
         if form2.is_valid():
-            ResearchPapers.objects.all().delete()
-            # picoc = form2.save(commit=True)
             picoc = form2.save(commit=True)
             picoc.user = request.user
             picoc.save()
 
             savePicoc(request)
             messages.success(request, f'PICOC have been saved successfully')
-            return render(request, 'users/scholar.html', {'form2': form2, 'form': form, 'form3': form3})
+            return render(request, 'users/scholar.html', {'form2': form2, 'form4': form4, 'form3': form3,'formset': formset})
 
     if request.method == 'POST' and 'btnform3' in request.POST:
         form = SimpleForm(request.POST)
         if form.is_valid():
             # query = input('Enter the query to be searched: ')
-            print("hello world")
             query = form.cleaned_data.get("Title")
             startYear = form.cleaned_data.get("StartYear")
             endYear = form.cleaned_data.get("EndYear")
@@ -214,7 +213,7 @@ def data(request):
 
                 x = cr.works(query=query, filter={'has_full_text': True})
                 if x['status'] == "error":
-                    return render(request, 'users/scholar.html', {'form': form,'form2': form2, 'form3': form3})
+                    return render(request, 'users/scholar.html', {'form4': form4, 'form2': form2, 'form3': form3,'formset': formset})
 
                 crossref_titles = []
                 crossref_year = []
@@ -237,10 +236,10 @@ def data(request):
                 core_title = []
                 core_url = []
                 core_year = []
-                if content.__contains__('data'):
+                if content._contains_('data'):
                     if content['data'] is not None:
                         for i in content['data']:
-                            if i['_source'].__contains__('doi'):
+                            if i['source'].contains_('doi'):
                                 if i['_source']['doi'] is not None:
                                     # print(str(i['_source']['title']) + " "+str(i['_source']['datePublished']))
                                     core_doi_list.append(i['_source']['doi'])
@@ -367,55 +366,61 @@ def data(request):
                                                               'core_heading': core_heading,
                                                               'crossref_heading': crossref_heading,
                                                               'core': core,
-                                                              'form': form,
+                                                              'form4': form4,
                                                               'form2': form2,
-                                                              'form3': form3
+                                                              'form3': form3,
+                                                              'formset': formset
                                                               })
             except HTTPError:
                 messages.error(request, f'No response from Server')
-                return render(request, 'users/scholar.html', {'form': form, 'form2': form2, 'form3': form3})
+                return render(request, 'users/scholar.html', {'form4': form4, 'form2': form2, 'form3': form3,'formset': formset})
 
 
         else:
-            return render(request, 'users/scholar.html', {'form': form, 'form2': form2, 'form3': form3})
+            return render(request, 'users/scholar.html', {'form4': form4, 'form2': form2, 'form3': form3,'formset': formset})
+
+    if request.method == 'POST' and 'btnform4' in request.POST:
+        print("formset")
+        formset = ResearchQuestionModelFormset(request.POST)
+        if formset.is_valid():
+            ResearchQuestion.objects.all().delete()
+            for x in formset:
+                # only save if name is present
+                if x.cleaned_data.get('question'):
+                    question = x.save(commit=True)
+                    question.user = request.user
+                    question.save()
+
+
+            q = ResearchQuestion.objects.all()
+            for question in q:
+                print("all question", question)
+            messages.success(request, f'Research Questions have been saved successfully')
+            return render(request, 'users/scholar.html', {'form4':form4,'form2':form2, 'form3': form3, 'formset': formset})
 
     if request.method == 'POST' and 'btnform1' in request.POST:
-            print("hello world")
-            form3 = QuestionForm(request.POST)
-            if form3.is_valid():
-                Question.objects.all().delete()
-                question = form3.save(commit=True)
-                question.user = request.user
-                question.save()
+        print("hello world")
+        form3 = QuestionForm(request.POST)
+        if form3.is_valid():
+            Question.objects.all().delete()
+            question = form3.save(commit=True)
+            question.user = request.user
+            question.save()
 
-                questionSave(request)
-                messages.success(request, f'Research Questions have been saved successfully')
+            questionSave(request)
+            messages.success(request, f'PICOC have been saved successfully')
 
-            return render(request, 'users/scholar.html', {'form2': form2, 'form': form, 'form3': form3})
+        return render(request, 'users/scholar.html', {'form2': form2, 'form4': form4, 'form3': form3,'formset': formset})
 
 
 
     else:
-        form = SimpleForm()
+        form4 = SimpleForm()
         form2 = PICOC()
         form3 = QuestionForm()
+        formset = ResearchFormset(None)
 
-        return render(request, 'users/scholar.html', {'form': form, 'form2': form2,'form3': form3})
-    # if request.method == 'POST':
-    #     u_form = UserUpdateForm(request.POST, instance=request.user)
-    #     p_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
-    #
-    #     if u_form.is_valid() and p_form.is_valid():
-    #         u_form.save()
-    #         p_form.save()
-    #         messages.success(request, f'Your Url has been generated')
-    #         #return redirect('register')
-    #
-    # else:
-    #     u_form = UserUpdateForm(instance=request.user)
-    #     p_form = ProfileUpdateForm(instance=request.user.profile)
-    #
-
+        return render(request, 'users/scholar.html', {'form4': form4, 'form2': form2, 'form3': form3, 'formset': formset})
 def funct():
     return common_dois
 
@@ -1022,55 +1027,66 @@ class fullTextData:
         self.title = title
         self.score = score
 
-def perform_search_fulltext(ix, input_query):
+def perform_search_fulltext(ix, input_query, add_synonyms = True):
+    if add_synonyms:
+
+        f = open("wn_s.pl")
+        update_query = []
+        t = Thesaurus.from_file(f)
+
+        for i in input_query.split(" "):
+
+            if not i in stopwords.words('english'):
+
+                syn = t.synonyms(i)
+
+                if len(syn) > 0:
+
+                    update_query.append(" OR ".join(syn) + " OR " + i)
+
+                else:
+                    update_query.append(i)
+
+            else:
+                update_query.append(i)
+
+        update_query = " ".join(update_query)
+
+        input_query = update_query
+
     with ix.searcher() as searcher:
 
         query_parser = qparser.QueryParser("article_fulltext", schema=ix.schema, termclass=q.Variations)
 
-        # input_query = input("\nEnter query: ")
-
         query_user = query_parser.parse(input_query)
-
-        # actual_query = input_query
 
         corrected = searcher.correct_query(query_user, input_query)
 
         if corrected.query != query_user:
 
-            # choice = input("\nDid you mean " + corrected.string + "? ")
-
             choice = 'y'
 
             if choice == 'y':
 
-                actual_query = corrected.string
+                actual_query = corrected.query
 
             else:
 
-                actual_query = corrected.string
+                actual_query = corrected.query
 
-            print(corrected.string)
+            print(corrected.query)
 
         else:
             print("\nNo need to correct the query\n\n ")
 
-            actual_query = input_query
+            actual_query = query_user
 
-        splitted_query = actual_query.split(" ")
+        final_query = actual_query
 
-        final_query = ""
+        print('\n' + str(final_query) + '\n')
 
-        for i in splitted_query:
-            final_query += "*" + i + "* OR "
+        results = searcher.search(final_query)
 
-        # actual_query = "*" + actual_query + "*"
-
-        # print('\n' + final_query + '\n')
-
-        query_user = query_parser.parse(final_query)
-
-        results = searcher.search(query_user)
-        print(input_query)
         print("\nTotal Documents Matched: " + str(len(results)))
 
         full_text_list = []
@@ -1121,11 +1137,9 @@ def fulltext(request):
         dict_list.append(perform_search_fulltext(ix_fulltext, p.context))
 
 
-    researchQuestions = Question.objects.filter(user=request.user)
+    researchQuestions = ResearchQuestion.objects.filter(user=request.user)
     for r in researchQuestions:
-        dict_list.append(perform_search_fulltext(ix_fulltext, r.question1))
-        dict_list.append(perform_search_fulltext(ix_fulltext, r.question2))
-        dict_list.append(perform_search_fulltext(ix_fulltext, r.question3))
+        dict_list.append(perform_search_fulltext(ix_fulltext, r.question))
 
 
     # sorted_fulltext_list = sorted(fulltext_list, key=lambda x: x.score, reverse=False)
@@ -1139,12 +1153,47 @@ def fulltext(request):
 
     return render(request, 'users/fulltext.html', {'fulltext_list' : dict_list})
 
+def questions(request):
+    questions = ResearchQuestion.objects.filter(user=request.user)
+    print("questions are", questions)
+
+    queryset = ResearchQuestion.objects.filter(user=request.user).values()
+    print("query set in list", list(queryset))
+    return JsonResponse({"questions": list(queryset)})
+
+def quality_assessment_questions(request):
+    print("hello world")
+    template_name = 'users/qualityAssessmentQuestions.html'
+    if request.method == 'GET':
+        formset = QualityModelFormset(queryset=QualityAssessmentQuestions.objects.none())
+    elif request.method == 'POST':
+        formset = QualityModelFormset(request.POST)
+        if formset.is_valid():
+            QualityAssessmentQuestions.objects.all().delete()
+            for x in formset:
+                # only save if name is present
+                if x.cleaned_data.get('quality_question'):
+                    question = x.save(commit=True)
+                    question.user = request.user
+                    question.save()
+
+
+            q = QualityAssessmentQuestions.objects.all()
+            for i in q:
+                print(i.quality_question)
+
+
+    return render(request, template_name, {
+        'formset': formset
+    })
+
 def quality_assessment(request):
 
     quality = Question.objects.filter(user=request.user)
     print("quality are", quality)
     for i in quality:
         print("q1", i.question2)
+
     return render(request, 'users/qualityAssessment.html', {'quality':quality})
 
 
@@ -1340,3 +1389,12 @@ def search_snowballing(request):
     else:
         return render(request, 'users/search_snowballing.html')
 
+
+def quality_question(request):
+    questions = QualityAssessmentQuestions.objects.filter(user=request.user)
+    print("questions are", questions)
+
+    queryset = QualityAssessmentQuestions.objects.filter(user=request.user).values()
+    print("query set in list", list(queryset))
+
+    return JsonResponse({"quality_question": list(queryset)})

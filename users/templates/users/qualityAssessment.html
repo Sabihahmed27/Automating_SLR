@@ -48,156 +48,356 @@
         <li >
     <a href="/fulltext">Full-Text Screening</a>
   </li>
+        <li >
+    <a href="/quality-assessment-questions">Quality Assessment Questions</a>
+  </li>
   <li class="active">
-    <a href="/quality-assessment">Quality Assessment</a>
+    <a href="/qualityAssessment">Quality Assessment</a>
   </li>
 
 
 
 </ul>
-<input type="hidden" id="review-id" value="6085">
-
-  <div class="row">
-    <div class="col-sm-11 col-md-12 col-lg-13">
-<div>
-      <div>
+    <div id="container" ></div>
+    <div style="padding-top: 50px;" id="scoresdiv"></div>
 
 
-    <h3 id="1" style="padding: 30px;">
-       Section 1
-    </h3>
+<!--<input type="hidden" id="review-id" value="6085">-->
 
-    <ul class="list-group" >
-        <li class="list-group-item" id="1-1">First item</li>
-        <li class="list-group-item" id="1-2">Second item</li>
-        <li class="list-group-item" id="1-3">Third item</li>
-      </ul>
+<!--  <div class="row">-->
+<!--    <div class="col-sm-11 col-md-12 col-lg-13">-->
+<!--<div>-->
+<!--      <div>-->
 
 
-</div>
-<div>
-    <h3 id="2" style="padding: 30px;">
-        Section 2
-    </h3>
-    <ul class="list-group">
-        <li class="list-group-item" id="2-1">First item</li>
-        <li class="list-group-item" id="2-2">Second item</li>
-        <li class="list-group-item" id="2-3">Third item</li>
-      </ul>
+<!--    <h3 id="1" style="padding: 30px;">-->
+<!--       Section 1-->
+<!--    </h3>-->
+
+<!--    <ul class="list-group" >-->
+<!--        <li class="list-group-item" id="1-1">First item</li>-->
+<!--        <li class="list-group-item" id="1-2">Second item</li>-->
+<!--        <li class="list-group-item" id="1-3">Third item</li>-->
+<!--      </ul>-->
 
 
-
-
-</div>
-<div>
-    <h3 id="3" style="padding: 30px;">
-        Section 3
-    </h3>
-    <ul class="list-group">
-        <li class="list-group-item" id="3-1">First item</li>
-        <li class="list-group-item" id="3-2">Second item</li>
-        <li class="list-group-item" id="3-3">Third item</li>
-      </ul>
-</div>
-<div>
-<div>
-    <input type="button" id="btn"  class="btn btn-success offset-4" style="margin-top: 15px"  value="Submit Response">
-</div>
+<!--</div>-->
+<!--<div>-->
+<!--    <h3 id="2" style="padding: 30px;">-->
+<!--        Section 2-->
+<!--    </h3>-->
+<!--    <ul class="list-group">-->
+<!--        <li class="list-group-item" id="2-1">First item</li>-->
+<!--        <li class="list-group-item" id="2-2">Second item</li>-->
+<!--        <li class="list-group-item" id="2-3">Third item</li>-->
+<!--      </ul>-->
 
 
 
-<div style="padding-top: 50px;" id="scoresdiv">
 
-
-</div>
-<script>
- $(document).ready(()=>{
-
-            var sections = 3;
-            var ques = 3;
-
-            sectionArr = ['Is machine learning helpful in systematic reviews?', 'Is Machine learning for qualitative and quantitative results efficient?','Are the results satisfied using Machine Learning'];
-
-            quesArr = [
-                ['Is the Purpose of the Data analysis clear?',' Are the data collection methods adequately detailed','Are the research aims clearly specified'],
-                ['Is the Purpose of the Data analysis clear?',' Are the data collection methods adequately detailed','Are the research aims clearly specified'],
-                ['Is the Purpose of the Data analysis clear?',' Are the data collection methods adequately detailed','Are the research aims clearly specified'],
-                ['Is the Purpose of the Data analysis clear?',' Are the data collection methods adequately detailed','Are the research aims clearly specified']
-            ]
-
-
-            for(var i =0;i < sections;i++){
-
-                $(`#${(i+1)}`).html(`${sectionArr[i]}`);
-
-                for(var j =0;j<ques;j++){
-                    $(`#${(i+1)}-${(j+1)}`).html(`
-                    ${quesArr[i][j]}
-                    <div class="abc${(i+1)}-${(j+1)}" style="padding-top:40px;">
-                    <label class="radio-inline" style="width:33%"><input type="radio" name="optradio${(i+1)}-${(j+1)}" checked value="Yes">&nbspYes</label>
-                    <label class="radio-inline" style="width:33%"><input type="radio" name="optradio${(i+1)}-${(j+1)}" value="No">&nbspNo</label>
-                    <label class="radio-inline" style="width:33%"><input type="radio" name="optradio${(i+1)}-${(j+1)}" value="Maybe">&nbspMaybe</label></div>
-                    `);
-                }
-            }
+<!--</div>-->
+<!--<div>-->
+<!--    <h3 id="3" style="padding: 30px;">-->
+<!--        Section 3-->
+<!--    </h3>-->
+<!--    <ul class="list-group">-->
+<!--        <li class="list-group-item" id="3-1">First item</li>-->
+<!--        <li class="list-group-item" id="3-2">Second item</li>-->
+<!--        <li class="list-group-item" id="3-3">Third item</li>-->
+<!--      </ul>-->
+<!--</div>-->
+<!--<div>-->
+<!--<div>-->
+<!--    <input type="button" id="btn"  class="btn btn-success offset-4" style="margin-top: 15px"  value="Submit Response">-->
+<!--</div>-->
 
 
 
-            $('#btn').click(function(){
-
-                assessment = []
-                Scores= [];
-                for (var i=0;i<4;i++){
-                    sectionAss = []
-                    sectionScore = 0.0;
-                    for(var j =0;j<3;j++){
-                        sectionAss.push($(`input[name=optradio${(i+1)}-${(j+1)}]:checked`).val());
-                        if($(`input[name=optradio${(i+1)}-${(j+1)}]:checked`).val() == 'Yes')sectionScore+=1;
-                        else if ($(`input[name=optradio${(i+1)}-${(j+1)}]:checked`).val() == 'No')sectionScore+=0.5;
-                    }
-                    assessment.push(sectionAss);
-                    Scores.push(sectionScore);
-                }
-
-                console.log(Scores);
+<!--<div style="padding-top: 50px;" id="scoresdiv">-->
 
 
+<!--</div>-->
+<!--    </div>-->
 
-                var divContent = ``;
+<!--  </div>-->
 
-                for (var i=0;i<3;i++){
-                    divContent += `
-                        <h5>${sectionArr[i]}</h5>
-                        <p style="padding-bottom:30px">${((Scores[i]/3)*100).toFixed(2)}% Accuracy</p>
-                    `
-                }
-
-
-                $('#scoresdiv').html(`
-                            <h2>
-                    Quality Assessment Report
-                </h2>
-
-                <div id="scoresdiv">
-                    ${divContent}
-                </div>
-                `)
-
-
-            });
-
-        });
- </script>
-    </div>
-
-  </div>
-
-    </div>
-      </div>
+<!--    </div>-->
+<!--      </div>-->
   </div>
     </main>
 </div>
 
+<script>
+            function displayHtml(sectionArr, quesArr){
+            var allContent = ``;
+            for(var i=0;i < sectionArr.length; i++){
+                allContent +=
+                `<div>
+                    <h3 id="${(i+1)}" style="padding-top: 30px;padding-bottom: 30px;">
+                        Q${(i+1)}-${sectionArr[i]}
+                    </h3>`;
+                for(var j =0;j < quesArr.length ;j++){
+                    allContent +=
+                        `
+                        ${(j+1)}-${quesArr[j]}
+                        <div id="abc${(i+1)}-${(j+1)}" style="color:red;padding-top: 30px"></div>
+                    <div class="abc${(i+1)}-${(j+1)}" style="padding-top:40px;padding-bottom:40px;">
+                    <label class="radio-inline" style="width:33%"><input type="radio" name="optradio${(i+1)}-${(j+1)}" value="Yes">&nbspYes</label>
+                    <label class="radio-inline" style="width:33%"><input type="radio" name="optradio${(i+1)}-${(j+1)}" value="No">&nbspNo</label>
+                    <label class="radio-inline" style="width:33%"><input type="radio" name="optradio${(i+1)}-${(j+1)}" value="Maybe">&nbspMaybe</label></div>`;
+                }
+                allContent +=  `</div>`;
+            }
+            allContent +=
+            `<div>
+                <input type="button" id="btn" value="Submit Response">
+            </div>`
+
+            $("#container").html(allContent);
+
+        }
+
+        function validateRadioButtons(sectionArr,quesArr){
+            var notAns = [];
+            for(var i = 0; i < sectionArr.length; i++){
+                for(var j = 0; j < quesArr.length; j++){
+                    $(`#abc${(i+1)}-${(j+1)}`).html(``);
+                    if (!$(`input[name=optradio${(i+1)}-${(j+1)}]:checked`).val()){
+
+                        notAns.push(`${(i+1)}-${(j+1)}`);
+                    }
+                }
+            }
+            return notAns;
+
+        }
+ $(document).ready(()=>{
+
+
+     var sectionArr,quesArr;
+                       $.ajax({
+                     url: '/ajax/quality_questions/',
+                     type: 'GET',
+                     async:false,
+                     dataType: 'json',
+                 }).done(function (data) {
+
+                      if (data.quality_question) {
+                        // alert("Questions are retrieved successfully");
+                        console.log("questions are ", data.quality_question);
+                        var q = data.quality_question[0].quality_question;
+                        console.log("q is ", q);
+                        for(var i = 0; i< data.quality_question.length;i++) {
+                            console.log("all Questions are ", data.quality_question[i].quality_question);
+
+                        }
+
+                        quesArr= data.quality_question;
+                        // sectionArr = initialize_result[1];
+                        // quesArr = initialize_result[0];
+                        // console.log("SectionArr: " + sectionArr);
+                        // console.log("QuestionArr: "+quesArr)
+
+                      }
+
+                  }).fail(function () {
+                        console.log("Data not present")
+                 });
+                 $.ajax({
+                     url: '/ajax/questions/',
+                     type: 'GET',
+                     async:false,
+                     dataType: 'json',
+                 }).done(function (data) {
+
+                      if (data.questions) {
+                        // alert("Questions are retrieved successfully");
+                        console.log("questions are ", data.questions);
+                        var q = data.questions[0].question;
+                        console.log("q is ", q);
+
+                        for(var i = 0; i< data.questions.length;i++) {
+                            console.log("all names are ", data.questions[i].question);
+                        }
+                        var initialize_result = initialize(data.questions,quesArr);
+                        sectionArr = initialize_result[1];
+                        quesArr = initialize_result[0];
+                        console.log("SectionArr: " + sectionArr);
+                        console.log("QuestionArr: "+quesArr)
+
+                      }
+
+                  }).fail(function () {
+                        console.log("Data not present")
+                 });
+
+
+                var sections = 4;
+            var ques = 3;
+
+            // sectionArr = ['Research Question 1', 'Research Question 2','Section 3','Section 4'];
+            //
+            // quesArr =
+            //     ['Quality assessmeent quesion 1','Quality assessmeent Question 2','Quality assessmeent Question 3'];
+
+
+            displayHtml(sectionArr,quesArr);
+
+
+            $('#btn').click(function(){
+                var unAnswered = validateRadioButtons(sectionArr,quesArr);
+                if (unAnswered.length != 0){
+
+                    console.log(`#abc${unAnswered[0]}`);
+                    for (var i =0 ; i< unAnswered.length;i++){
+                        $(`#abc${unAnswered[i]}`).html(`Please Select An Option To Proceed!`);
+                    }
+                    $('html, body').animate({
+                        scrollTop: $(`#abc${unAnswered[0]}`).offset().top
+                    }, 2000);
+                }
+
+                else {
+
+                    assessment = [];
+                    Scores= [];
+                    for (var i=0;i<sectionArr.length;i++){
+                        sectionAss = []
+                        sectionScore = 0.0;
+                        for(var j =0;j<quesArr.length;j++){
+                            sectionAss.push($(`input[name=optradio${(i+1)}-${(j+1)}]:checked`).val());
+                            if($(`input[name=optradio${(i+1)}-${(j+1)}]:checked`).val() == 'Yes')sectionScore+=1;
+                            else if ($(`input[name=optradio${(i+1)}-${(j+1)}]:checked`).val() == 'Maybe')sectionScore+=0.5;
+                        }
+                        assessment.push(sectionAss);
+                        Scores.push(sectionScore);
+                    }
+
+                    //console.log(Scores);
+
+
+
+                    var divContent = ``;
+
+                    for (var i=0;i<sectionArr.length;i++){
+                        divContent += `
+                            <h5>${sectionArr[i]}</h5>
+                            <p style="padding-bottom:30px">${((Scores[i]/quesArr.length)*100).toFixed(2)}% Accuracy</p>
+                        `
+                    }
+
+
+                    $('#scoresdiv').html(`
+                                <h2>
+                        Quality Assessment Report
+                    </h2>
+
+                    <div id="scoresdiv">
+                        ${divContent}
+                    </div>
+                    `)
+
+                }
+
+
+            });
+
+
+     // console.log("hello world");
+     //
+     function initialize(result,questions_array) {
+         var questions = [];
+         //console.log("result is ", result);
+
+         for(var question = 0; question < result.length; question++) {
+             questions.push(result[question].question);
+         }
+         var temp_ques = [];
+         for(var j= 0; j< questions_array.length; j++) {
+             temp_ques.push(questions_array[j].quality_question);
+
+         }
+         console.log("Questions are: " + temp_ques);
+         console.log("the array is ", questions);
+
+
+         // var sections = 3;
+         // var ques = 3;
+
+         sectionArr = questions;
+         quesArr =  temp_ques;
+         // quesArr = ['Is the Purpose of the Data analysis clear?', ' Are the data collection methods adequately detailed', 'Are the research aims clearly specified']
+         //     ['Is the Purpose of the Data analysis clear?', ' Are the data collection methods adequately detailed', 'Are the research aims clearly specified'],
+         //     ['Is the Purpose of the Data analysis clear?', ' Are the data collection methods adequately detailed', 'Are the research aims clearly specified'],
+         //     ['Is the Purpose of the Data analysis clear?', ' Are the data collection methods adequately detailed', 'Are the research aims clearly specified']
+         // ]
+            console.log("sectionArr.length is ", sectionArr.length);
+
+         // for (var i = 0; i < sectionArr.length; i++) {
+         //
+         //     $(`#${(i + 1)}`).html(`${sectionArr[i]}`);
+         //
+         //     for (var j = 0; j < quesArr.length; j++) {
+         //         $(`#${(i + 1)}-${(j + 1)}`).html(`
+         //            ${quesArr[i][j]}
+         //            <div class="abc${(i + 1)}-${(j + 1)}" style="padding-top:40px;">
+         //            <label class="radio-inline" style="width:33%"><input type="radio" name="optradio${(i + 1)}-${(j + 1)}" checked value="Yes">&nbspYes</label>
+         //            <label class="radio-inline" style="width:33%"><input type="radio" name="optradio${(i + 1)}-${(j + 1)}" value="No">&nbspNo</label>
+         //            <label class="radio-inline" style="width:33%"><input type="radio" name="optradio${(i + 1)}-${(j + 1)}" value="Maybe">&nbspMaybe</label></div>
+         //            `);
+         //     }
+         // }
+         return [quesArr,sectionArr]
+
+     }
+     //
+     //
+     //
+     //        $('#btn').click(function(){
+     //
+     //            assessment = []
+     //            Scores= [];
+     //            for (var i=0;i<4;i++){
+     //                sectionAss = []
+     //                sectionScore = 0.0;
+     //                for(var j =0;j<3;j++){
+     //                    sectionAss.push($(`input[name=optradio${(i+1)}-${(j+1)}]:checked`).val());
+     //                    if($(`input[name=optradio${(i+1)}-${(j+1)}]:checked`).val() == 'Yes')sectionScore+=1;
+     //                    else if ($(`input[name=optradio${(i+1)}-${(j+1)}]:checked`).val() == 'No')sectionScore+=0.5;
+     //                }
+     //                assessment.push(sectionAss);
+     //                Scores.push(sectionScore);
+     //            }
+     //
+     //            console.log(Scores);
+     //
+     //
+     //
+     //            var divContent = ``;
+     //
+     //            for (var i=0;i<3;i++){
+     //                divContent += `
+     //                    <h5>${sectionArr[i]}</h5>
+     //                    <p style="padding-bottom:30px">${((Scores[i]/3)*100).toFixed(2)}% Accuracy</p>
+     //                `
+     //            }
+     //
+     //
+     //            $('#scoresdiv').html(`
+     //                        <h2>
+     //                Quality Assessment Report
+     //            </h2>
+     //
+     //            <div id="scoresdiv">
+     //                ${divContent}
+     //            </div>
+     //            `)
+     //
+     //
+     //        });
+
+        });
+ </script>
 {% endblock content %}
 
 </html>

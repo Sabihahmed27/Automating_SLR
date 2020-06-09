@@ -78,14 +78,14 @@
 
   </li>
     <li >
-    <a href="/quality-assessment-questions">Quality Assessment Questions</a>
-  </li>
-    <li >
     <a href="/fulltext">Full-Text Screening</a>
   </li>
 
     </li>
-        <li>
+    <li class="active">
+    <a href="/quality-assessment-questions">Quality Assessment Questions</a>
+  </li>
+        <li >
     <a href="/quality-assessment">Quality Assessment</a>
   </li>
 </ul>
@@ -93,178 +93,12 @@
 
   <div class="row">
     <div class="col-sm-11 col-md-12 col-lg-13">
-      <form method="post">
-        <input type='hidden' name='csrfmiddlewaretoken' value='IZ6IugjtKNXR3KF5gJDWTVxuxeiZPf2i' />
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">Review details</h3>
-          </div>
-          <div class="panel-body">
-
-
-<section>
-
-    <div class="content-section">
-        <form method="POST">
-            {% csrf_token %}
-            <fieldset class = "form-group" >
-                <legend class="border-bottom mb-4">Data Retrieval </legend>
-                {{ form4|crispy }}
-
-                <p><input type="submit" name="btnform3" class="btn btn-primary" value="submit"></p>
-
-
-
-          <a href="/snowballing" id="snowballing-btn2" class="btn btn-primary pull-right">Start Snowballing</a>
-
-
-
-                <table id="database_table" class="table" style="width:100%">
-                    <thead>
-                    <tr>
-                        <th>Year</th>
-                        <th>Title</th>
-                        <th>Article</th>
-
-
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for i,j,k in core %}
-                    <tr>
-                        <td >{{j}} </td>
-
-                         <td>{{i}}</td>
-
-                    <td>
-                        <a href="{{k}}" class="btn btn-primary btn-sm" target="_blank">
-                            Open Article
-                        </a>
-                    </td>
-                    </tr>
-
-                    {% endfor %}
-
-                    {% for x,y,z in crossRef %}
-                    <tr>
-                        <td >{{y}} </td>
-
-                        <td>{{x}}</td>
-
-                        <td>
-                        <a href="{{z}}" class="btn btn-primary btn-sm" target="_blank">
-                            Open Article
-                        </a>
-                    </td>
-                    </tr>
-
-                    {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </fieldset>
-
-
-        </form>
-
-    </div>
-
-
-</section>
-
-          </div>
-
-
-        </div>
-
-      </form>
-      <form method="post">
-        <input type='hidden' name='csrfmiddlewaretoken' value='IZ6IugjtKNXR3KF5gJDWTVxuxeiZPf2i' />
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">PICOC</h3>
-              <p>Separate the terms used in the PICOC using commas for building better search string.</p>
-              <p>Any section of PICOC can be left as blank if it doesn't apply to your research.</p>
-          </div>
-          <div class="panel-body">
-
-
-<section>
-
-    <div class="content-section">
-        <form method="POST">
-            {% csrf_token %}
-            <fieldset class = "form-group">
-
-                {{ form2|crispy}}
-
-                <button type="submit" name="btnform2" class="btn btn-success">Save</button>
-
-          <a href="/snowballing"  class="btn btn-primary pull-right">Start Snowballing</a>
-
-            </fieldset>
-
-        </form>
-
-    </div>
-
-
-</section>
-
-          </div>
-
-
-        </div>
-
-      </form>
-
-<!--              <form method="post">-->
-<!--                    <input type='hidden' name='csrfmiddlewaretoken' value='IZ6IugjtKNXR3KF5gJDWTVxuxeiZPf2i' />-->
-<!--                    <div class="panel panel-default">-->
-<!--                      <div class="panel-heading">-->
-<!--                        <h3 class="panel-title">RESEARCH QUESTIONS</h3>-->
-<!--                          <p>Please write proper question in a sentence form</p>-->
-<!--                      </div>-->
-<!--                      <div class="panel-body">-->
-
-
-<!--            <section>-->
-
-<!--                <div class="content-section">-->
-<!--                    <form method="POST">-->
-<!--                        {% csrf_token %}-->
-<!--                        <fieldset class = "form-group">-->
-
-<!--                            {{ form3|crispy}}-->
-
-<!--                            <button type="submit" name="btnform1" class="btn btn-success">Save</button>-->
-
-<!--                      <a href="/snowballing"  class="btn btn-primary pull-right">Start Snowballing</a>-->
-
-<!--                        </fieldset>-->
-
-<!--                    </form>-->
-
-<!--    </div>-->
-
-
-<!--</section>-->
-
-<!--          </div>-->
-
-
-<!--        </div>-->
-
-<!--      </form>-->
-
 
          <form method="post">
                     <input type='hidden' name='csrfmiddlewaretoken' value='IZ6IugjtKNXR3KF5gJDWTVxuxeiZPf2i' />
                     <div class="panel panel-default">
                       <div class="panel-heading">
-                        <h3 class="panel-title">RESEARCH QUESTIONS</h3>
+                        <h3 class="panel-title">Quality Assessment Questions</h3>
                           <p>Please write proper question in a sentence form</p>
                       </div>
                       <div class="panel-body">
@@ -276,14 +110,14 @@
                     <form class="form-horizontal" method="POST" action="">
                             {% csrf_token %}
                         {{ formset.management_form }}
-                        {% for form1 in formset %}
+                        {% for form in formset %}
                         <div class="row form-row spacer">
                             <div class="col-2">
-                                <label>{{form1.question.label}}</label>
+                                <label>{{form.quality_question.label}}</label>
                             </div>
                             <div class="col-10">
                                 <div class="input-group">
-                                    {{form1.question}}
+                                    {{form.quality_question}}
                                     <div class="input-group-append">
                                         <button class="btn btn-success add-form-row">+</button>
                                     </div>
@@ -293,7 +127,7 @@
                         {% endfor %}
                         <div class="row spacer">
                             <div class="col-4 offset-2">
-                                <button type="submit" name="btnform4" class="btn btn-block btn-primary">Create</button>
+                                <button type="submit" class="btn btn-block btn-primary">Create</button>
                             </div>
                         </div>
                         </form>
@@ -316,35 +150,6 @@
       </div>
     </main>
 {% endblock %}
-    <script>
-        $(document).ready(function () {
-            var table = $('#database_table').DataTable();
-
-            if(!table.data().any()){
-                $('#snowballing-btn2').click(function(){
-                    return false;
-                }) ;
-                $('#snowballing-btn1').click(function(){
-                    return false;
-                }) ;
-                $('#abstract-btn').click(function(){
-                    return false;
-                }) ;
-            }
-
-
-        });
-    </script>
-
-
-
-<!--    <script src="/static/js/mustache.min.js"></script>-->
-<!--  <script src="/static/js/jquery-1.11.3.min.js"></script>-->
-<!--  <script src="/static/js/bootstrap.min.js"></script>-->
-<!--  <script src="/static/js/jquery.tablesorter.min.js"></script>-->
-<!--  <script src="/static/js/selectize.min.js"></script>-->
-<!--  <script src="/static/js/expanding.js"></script>-->
-<!--  <script src="/static/js/parsifal.js?v=2"></script>-->
 
 {% block custom_js %}
 <script type="text/javascript">
