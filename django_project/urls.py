@@ -44,6 +44,7 @@ urlpatterns = [
     path('search_snowballing/',user_views.search_snowballing,name='search_snowballing'),
     path('scholar/', user_views.data, name='scholar'),
     path('ajax/questions/', user_views.questions, name='qualityAssessment'),
+    path('ajax/fulltext/', user_views.fulltext_ajax, name='fulltext_ajax'),
     path('ajax/quality_questions/', user_views.quality_question, name='qualityAssessment'),
     path('quality-assessment/',user_views.quality_assessment,name="quality_assessment"),
     path('quality-assessment-questions/',user_views.quality_assessment_questions,name="quality_assessment_questions"),

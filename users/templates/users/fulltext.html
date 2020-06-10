@@ -186,72 +186,73 @@
                     </tbody>
 
                 </table>
-                <h3>Research Question 1 Results</h3>
-                <table id="rq1" style="width:100%">
+                <div id="researchQuesDiv" class="container"></div>
+<!--                <h3>Research Question 1 Results</h3>-->
+<!--                <table id="rq1" style="width:100%">-->
 
-                  <thead>
-                    <tr>
-                        <th>Research Paper Title</th>
-                        <th>Scores</th>
-                    </tr>
-                    </thead>
-                <tbody>
-                  {% for i in fulltext_list.5 %}
-                    <tr >
-                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
-                        <td > {{ i.score }}</td>
-                    </tr>
-
-
-                    {% endfor %}
-
-                    </tbody>
-
-                </table>
-                <h3>Research Question 2 Results</h3>
-                <table id="rq2" style="width:100%">
-
-                  <thead>
-                    <tr>
-                        <th>Research Paper Title</th>
-                        <th>Scores</th>
-                    </tr>
-                    </thead>
-                <tbody>
-                  {% for i in fulltext_list.6 %}
-                    <tr >
-                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
-                        <td > {{ i.score }}</td>
-                    </tr>
+<!--                  <thead>-->
+<!--                    <tr>-->
+<!--                        <th>Research Paper Title</th>-->
+<!--                        <th>Scores</th>-->
+<!--                    </tr>-->
+<!--                    </thead>-->
+<!--                <tbody>-->
+<!--                  {% for i in fulltext_list.5 %}-->
+<!--                    <tr >-->
+<!--                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>-->
+<!--                        <td > {{ i.score }}</td>-->
+<!--                    </tr>-->
 
 
-                    {% endfor %}
+<!--                    {% endfor %}-->
 
-                    </tbody>
+<!--                    </tbody>-->
 
-                </table>
-                <h3>Research Question 3 Results</h3>
-                <table id="rq3" style="width:100%">
+<!--                </table>-->
+<!--                <h3>Research Question 2 Results</h3>-->
+<!--                <table id="rq2" style="width:100%">-->
 
-                  <thead>
-                    <tr>
-                        <th>Research Paper Title</th>
-                        <th>Scores</th>
-                    </tr>
-                    </thead>
-                <tbody>
-                  {% for i in fulltext_list.7 %}
-                    <tr >
-                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
-                        <td > {{ i.score }}</td>
-                    </tr>
+<!--                  <thead>-->
+<!--                    <tr>-->
+<!--                        <th>Research Paper Title</th>-->
+<!--                        <th>Scores</th>-->
+<!--                    </tr>-->
+<!--                    </thead>-->
+<!--                <tbody>-->
+<!--                  {% for i in fulltext_list.6 %}-->
+<!--                    <tr >-->
+<!--                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>-->
+<!--                        <td > {{ i.score }}</td>-->
+<!--                    </tr>-->
 
 
-                    {% endfor %}
+<!--                    {% endfor %}-->
 
-                    </tbody>
+<!--                    </tbody>-->
 
-                </table>
+<!--                </table>-->
+<!--                <h3>Research Question 3 Results</h3>-->
+<!--                <table id="rq3" style="width:100%">-->
+
+<!--                  <thead>-->
+<!--                    <tr>-->
+<!--                        <th>Research Paper Title</th>-->
+<!--                        <th>Scores</th>-->
+<!--                    </tr>-->
+<!--                    </thead>-->
+<!--                <tbody>-->
+<!--                  {% for i in fulltext_list.7 %}-->
+<!--                    <tr >-->
+<!--                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>-->
+<!--                        <td > {{ i.score }}</td>-->
+<!--                    </tr>-->
+
+
+<!--                    {% endfor %}-->
+
+<!--                    </tbody>-->
+
+<!--                </table>-->
             </fieldset>
 
 
@@ -298,6 +299,52 @@
             $('#rq1').DataTable();
             $('#rq2').DataTable();
             $('#rq3').DataTable();
+            $.ajax({
+                     url: '/ajax/fulltext/',
+                     type: 'GET',
+                     dataType: 'json',
+                 }).done(function (data) {
+
+                      if (data.full_text_list) {
+                        // alert("Questions are retrieved successfully");
+                          console.log("List retireved");
+                        // console.log("List is  ", data.fulltext_list);
+                        var temp_html = ``;
+
+                //         for(var j=0;j<data.research_questions_length;j++){
+                //             temp_html+=`<h3>Research Question ${j+5} Results</h3>
+                // <table id="rq${j+5}" style="width:100%">
+                //
+                //   <thead>
+                //     <tr>
+                //         <th>Research Paper Title</th>
+                //         <th>Scores</th>
+                //     </tr>
+                //     </thead>
+                // <tbody>`
+                //   + {% for i in fulltext_list.j+5 %}
+                //     `<tr >
+                //        <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
+                //         <td > {{ i.score }}</td>
+                //     </tr>
+                //
+                //
+                //     {% endfor %}
+                //
+                //     </tbody>
+                //
+                // </table>`
+                //         }
+                //
+                //         $('#researchQuesDiv').html(temp_html);
+
+
+                      }
+
+                  }).fail(function () {
+                        console.log("Data not present")
+                 });
+            // var list_results = {{ fulltext_list}};
 
         });
     </script>

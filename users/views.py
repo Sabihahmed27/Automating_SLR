@@ -155,6 +155,7 @@ def data(request):
         hello(request)
         form2 = PICOC(request.POST)
         if form2.is_valid():
+            ResearchPapers.objects.all().delete()
             picoc = form2.save(commit=True)
             picoc.user = request.user
             picoc.save()
@@ -201,7 +202,7 @@ def data(request):
                 if len(author.replace(" ", "")) == 0:
                     temp_messages = 'Invalid Input! Please provide a valid Author name'
                     # messages.error(request, f'Wrong Url')
-                    return render(request, 'users/scholar.html', {'form': form, 'temp_messages': temp_messages})
+                    return render(request, 'users/scholar.html', {'form2': form2, 'form4': form4, 'form3': form3,'formset': formset, 'temp_messages': temp_messages})
 
                 if len(query.replace(" ", "")) == 0:
                     temp_messages = 'Invalid Input! Please provide a valid Title'
@@ -236,10 +237,10 @@ def data(request):
                 core_title = []
                 core_url = []
                 core_year = []
-                if content._contains_('data'):
+                if content.__contains__('data'):
                     if content['data'] is not None:
                         for i in content['data']:
-                            if i['source'].contains_('doi'):
+                            if i['_source'].__contains__('doi'):
                                 if i['_source']['doi'] is not None:
                                     # print(str(i['_source']['title']) + " "+str(i['_source']['datePublished']))
                                     core_doi_list.append(i['_source']['doi'])
@@ -1107,8 +1108,40 @@ def perform_search_fulltext(ix, input_query, add_synonyms = True):
     #         print(result.score)
     #
     # return return_map
+def fulltext_ajax(request):
+    database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
+    doi_fulltext = database2['fulltext']
+
+    ix_fulltext = create_index_fulltext(doi_fulltext)
+    full_text_dict = {}
+    fulltext_list = []
+
+    # fulltext_list = perform_search_fulltext(ix_fulltext, """ Automation
+    #  development to writing and dissemination of the
+    # review""")
+    fulltext_list.sort(key=lambda x: x.score, reverse=True)
+    print("PICOC details in fulltext")
+    picoc = ResearchPapers.objects.filter(user=request.user).values()
+
+    dict_map= {}
+    dict_list = []
+    dict_list.append(perform_search_fulltext(ix_fulltext, picoc[0]['population']))
+    dict_list.append(perform_search_fulltext(ix_fulltext,picoc[0]['intervention']))
+    dict_list.append(perform_search_fulltext(ix_fulltext, picoc[0]['comparison']))
+    dict_list.append(perform_search_fulltext(ix_fulltext, picoc[0]['outcome']))
+    dict_list.append(perform_search_fulltext(ix_fulltext, picoc[0]['context']))
 
 
+    researchQuestions = ResearchQuestion.objects.filter(user=request.user)
+    for r in researchQuestions:
+        dict_list.append(perform_search_fulltext(ix_fulltext, r.question))
+
+    researchQuestions = ResearchQuestion.objects.filter(user=request.user)
+    # for r in researchQuestions:
+    #     dict_list.append(perform_search_fulltext(ix_fulltext, r.question))
+    print("Research Questions length" + str(len(researchQuestions)))
+    print(type(json.dumps(dict_list)))
+    return JsonResponse({"full_text_list": dict_list},safe=False)
 
 
 
@@ -1125,30 +1158,25 @@ def fulltext(request):
     # review""")
     fulltext_list.sort(key=lambda x: x.score, reverse=True)
     print("PICOC details in fulltext")
-    picoc = ResearchPapers.objects.filter(user=request.user)
+    picoc = ResearchPapers.objects.filter(user=request.user).values()
 
     dict_map= {}
     dict_list = []
-    for p in picoc:
-        dict_list.append(perform_search_fulltext(ix_fulltext,p.population))
-        dict_list.append(perform_search_fulltext(ix_fulltext, p.intervention))
-        dict_list.append(perform_search_fulltext(ix_fulltext, p.comparison))
-        dict_list.append(perform_search_fulltext(ix_fulltext, p.outcome))
-        dict_list.append(perform_search_fulltext(ix_fulltext, p.context))
+    dict_list.append(perform_search_fulltext(ix_fulltext, picoc[0]['population']))
+    dict_list.append(perform_search_fulltext(ix_fulltext,picoc[0]['intervention']))
+    dict_list.append(perform_search_fulltext(ix_fulltext, picoc[0]['comparison']))
+    dict_list.append(perform_search_fulltext(ix_fulltext, picoc[0]['outcome']))
+    dict_list.append(perform_search_fulltext(ix_fulltext, picoc[0]['context']))
 
 
     researchQuestions = ResearchQuestion.objects.filter(user=request.user)
     for r in researchQuestions:
         dict_list.append(perform_search_fulltext(ix_fulltext, r.question))
 
-
-    # sorted_fulltext_list = sorted(fulltext_list, key=lambda x: x.score, reverse=False)
-    # data_table_list = []
     for i in dict_list:
         for j in i:
             print(j.doi + " " + j.title)
             # data_table_list.append((j))
-
 
 
     return render(request, 'users/fulltext.html', {'fulltext_list' : dict_list})
