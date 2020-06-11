@@ -895,15 +895,22 @@ def create_index(doi_title_abstract):
         article_title=ID(stored=True),
         article_abstract=TEXT(analyzer=StemmingAnalyzer(), stored=True)
     )
-    database = SqliteDict('./SLR_database_updated.sqlite', autocommit=True)
     database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
 
     ix = index.create_in("C:\\Users\\sahme\\PycharmProjects\\Automating_SLR\\django_project\\index_dir", schema)
 
     writer = ix.writer()
+    print("DOI_TITLE_ABSTRACT")
+    print(doi_title_abstract)
 
+    not_found_abstracts = []
+    print("Found DOIs")
     for i in doi_title_abstract:
-        writer.add_document(article_doi=u"" + i, article_title=u"" + database['snowballing'][i]['title'], article_abstract=u"" + database2['abstract'][i])
+        if i.replace('https://dx.doi.org/','') in database2['abstract']:
+            print(i.replace('https://dx.doi.org/',''))
+            writer.add_document(article_doi=u"" + i.replace('https://dx.doi.org/',''), article_title=u"" + doi_title_abstract[i], article_abstract=u"" + database2['abstract'][i.replace('https://dx.doi.org/','')])
+        else:
+            not_found_abstracts.append(i)
 
     writer.commit()
 
@@ -953,7 +960,7 @@ def perform_search(ix, input_query):
         # print('\n' + final_query + '\n')
 
         query_user = query_parser.parse(final_query)
-
+        print(query_user)
         results = searcher.search(query_user)
 
         print("\nTotal Documents Matched: " + str(len(results)))
@@ -969,10 +976,11 @@ def perform_search(ix, input_query):
 def abstract(request):
 
     res_dict = request.session['result_dict']
-    database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
+    print("DOI list from snowballing")
+    for i in res_dict:
+        print("DOI link: "+ i + " Article:"+ res_dict[i])
 
-    list_abstracts = database2['abstract']
-    index = create_index(list_abstracts)
+    index = create_index(res_dict)
 
     word = request.session.get("Keyword")
     map_result = perform_search(index, word)
@@ -990,10 +998,8 @@ def abstract(request):
     #             #messages.error(request,f'Wrong Url')
     #             return render(request, 'users/abstract.html', {'form': form})
 
-    del request.session['list']
-    del request.session['author']
-    del request.session['StartYear']
-    del request.session['EndYear']
+
+    request.session['abstract_result'] = map_result
 
 
 
@@ -1109,6 +1115,10 @@ def perform_search_fulltext(ix, input_query, add_synonyms = True):
     #
     # return return_map
 def fulltext_ajax(request):
+    abstract_result_dict = request.session['abstract_result']
+    print("Results from abstract screening")
+    for i in abstract_result_dict:
+        print("DOI: " + i + " Article: "+abstract_result_dict[i])
     database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
     doi_fulltext = database2['fulltext']
 
@@ -1141,7 +1151,7 @@ def fulltext_ajax(request):
     #     dict_list.append(perform_search_fulltext(ix_fulltext, r.question))
     print("Research Questions length" + str(len(researchQuestions)))
     print(type(json.dumps(dict_list)))
-    return JsonResponse({"full_text_list": dict_list},safe=False)
+    return JsonResponse({"full_text_list": dict_list})
 
 
 
@@ -1177,6 +1187,11 @@ def fulltext(request):
         for j in i:
             print(j.doi + " " + j.title)
             # data_table_list.append((j))
+    del request.session['abstract_result']
+    del request.session['list']
+    del request.session['author']
+    del request.session['StartYear']
+    del request.session['EndYear']
 
 
     return render(request, 'users/fulltext.html', {'fulltext_list' : dict_list})
@@ -1326,12 +1341,22 @@ def upload_journal(request):
 def get_bib_tex(request,key):
     research_paper = Papers.objects.get(id=key)
     print(research_paper.pdf.url)
-    references = os.popen('pdf-extract extract --references --titles --set reference_flex:0.5 ".' +research_paper.pdf.url+'"').read()
-    print(references)
-    pdf = objectify.fromstring(references)
-    print("\n\n\t\t===TITLE===\n")
+    try:
 
-    print(pdf.title)
+        references = os.popen('pdf-extract extract --references --titles --set reference_flex:0.5 ".' +research_paper.pdf.url+'"').read()
+        print(references)
+        pdf = objectify.fromstring(references)
+        print("\n\n\t\t===TITLE===\n")
+
+        print(pdf.title)
+
+    except Exception as e:
+        temp_messages = 'Unable to read! Please try uploading another one!'
+        return render(request, 'users/journal_history.html', {
+            'temp_messages': temp_messages
+        })
+
+
 
     count = 0
 
