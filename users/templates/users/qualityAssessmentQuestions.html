@@ -71,14 +71,14 @@
      {% endif%}
   </li>
   <li>
-   <a href="/snowballing" id="snowballing-btn1">Snowballing</a>
+   <a href="/snowballing"  class="disable"  id="snowballing-btn1">Snowballing</a>
   </li>
     <li>
-    <a href="/abstract" id="abstract-btn">Abstract Screening</a>
+    <a href="/abstract"  class="disable" id="abstract-btn">Abstract Screening</a>
 
   </li>
     <li >
-    <a href="/fulltext">Full-Text Screening</a>
+    <a href="/fulltext"  class="disable">Full-Text Screening</a>
   </li>
 
     </li>
@@ -93,6 +93,36 @@
 
   <div class="row">
     <div class="col-sm-11 col-md-12 col-lg-13">
+
+        <div>
+            <table id="data" class="table" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th>Sample Questions</th>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Is the purpose of the data analysis clear?</td>
+                          </tr>
+                    <tr>
+                        <td>Are the data collection methods adequately detailed?</td>
+                    </tr>
+                    <tr>
+                        <td>Was the study design to achieve these aims?</td>
+                    </tr>
+                    <tr>
+                        <td>Are the research aims clearly specified?</td>
+                    </tr>
+
+
+
+                    </tbody>
+
+                </table>
+
+        </div>
 
          <form method="post">
                     <input type='hidden' name='csrfmiddlewaretoken' value='IZ6IugjtKNXR3KF5gJDWTVxuxeiZPf2i' />
@@ -127,10 +157,11 @@
                         {% endfor %}
                         <div class="row spacer">
                             <div class="col-4 offset-2">
-                                <button type="submit" class="btn btn-block btn-primary">Create</button>
+                                <button type="submit" id="btnClick" data="0" class="btn btn-block btn-primary">Create</button>
                             </div>
                         </div>
                         </form>
+
 
     </div>
 
@@ -143,6 +174,35 @@
         </div>
 
       </form>
+
+        <div>
+                   <table id="database_table" class="table" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th>Questions List</th>
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for i in question_list %}
+                    <tr>
+                        <td >{{i.quality_question}} </td>
+
+                        <td>
+                             <a href="/quality-assessment-questions/{{i.id}}" class="btn btn-danger btn sm">
+                                 Delete </a>
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
 
     </div>
 
@@ -163,6 +223,7 @@ function updateElementIndex(el, prefix, ndx) {
 function cloneMore(selector, prefix) {
     var newElement = $(selector).clone(true);
     var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+    $("#btnClick").attr('data',total);
     newElement.find(':input:not([type=button]):not([type=submit]):not([type=reset])').each(function() {
         var name = $(this).attr('name')
         if(name) {
@@ -188,6 +249,52 @@ function cloneMore(selector, prefix) {
     .html('-');
     return false;
 }
+function validate(total) {
+    if(total == 0 ) {
+        return $(`#id_form-0-quality_question`).val().match(/^[0-9a-zA-Z\.\s\?!]+$/)?[]: [`#id_form-0-quality_question`]
+    }
+    var total_forms = total;
+    console.log("total forms are ", total_forms);
+    var isValid = true;
+    var inValidText = [];
+
+    for(var i = 0; i <= total_forms; i++) {
+       var text =  $(`#id_form-${i}-quality_question`).val();
+       console.log("text is ", text);
+        var status = text.match(/^[0-9a-zA-Z\.\s\?!]+$/);
+
+        if(!status) {
+            isValid = false;
+            inValidText.push(`#id_form-${i}-quality_question`);
+            console.log("invalid input", text);
+
+
+        }
+
+
+    }
+    return inValidText;
+    console.log("is valid ", isValid);
+
+}
+$("#btnClick").click(function(e) {
+    console.log("submit called");
+    var total = $(this).attr('data');
+
+    console.log("value is  ", total);
+    var inValidText = validate(total);
+    if(inValidText.length) {
+        for(var i = 0; i< inValidText.length; i++) {
+
+            window.alert($(inValidText[i]).val() + "is not a valid Input");
+        }
+        e.preventDefault();
+    }
+
+
+
+
+});
 function deleteForm(prefix, btn) {
     var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
     if (total > 1){

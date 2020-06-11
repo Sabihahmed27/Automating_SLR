@@ -44,10 +44,10 @@
     <a href="/fulltext">Full-Text Screening</a>
   </li>
     <li >
-    <a href="/quality-assessment-questions">Quality Assessment Questions</a>
+    <a href="/quality-assessment-questions" id="quality_question">Quality Assessment Questions</a>
   </li>
       <li >
-    <a href="/quality-assessment">Quality Assessment</a>
+    <a href="/quality-assessment" id="quality_assessment">Quality Assessment</a>
   </li>
 
 
@@ -60,7 +60,7 @@
         <input type='hidden' name='csrfmiddlewaretoken' value='IZ6IugjtKNXR3KF5gJDWTVxuxeiZPf2i' />
         <div class="panel panel-default">
           <div class="panel-heading">
-            <h3 class="panel-title">Review details</h3>
+            <h3 class="panel-title">Relevant Articles</h3>
           </div>
           <div class="panel-body">
 
@@ -76,117 +76,117 @@
 <!--                    {{ form|crispy }}-->
 
 <!--                <p><input type="submit" class = "btn btn-primary" value="submit"></p>-->
-            <h3>Population Results</h3>
-             <table id="population" style="width:100%">
+<!--            <h3>Population Results</h3>-->
+<!--             <table id="population" style="width:100%">-->
 
-                  <thead>
-                    <tr>
-                        <th>Research Paper Title</th>
-                        <th>Scores</th>
-                    </tr>
-                    </thead>
-                <tbody>
-                  {% for i in fulltext_list.0 %}
-                    <tr >
-                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
-                        <td > {{ i.score }}</td>
-                    </tr>
-
-
-                    {% endfor %}
-
-                    </tbody>
-
-                </table>
-                <h3>Intervention Results</h3>
-             <table id="intervention" style="width:100%">
-
-                  <thead>
-                    <tr>
-                        <th>Research Paper Title</th>
-                        <th>Scores</th>
-                    </tr>
-                    </thead>
-                <tbody>
-                  {% for i in fulltext_list.1 %}
-                    <tr >
-                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
-                        <td > {{ i.score }}</td>
-                    </tr>
+<!--                  <thead>-->
+<!--                    <tr>-->
+<!--                        <th>Research Paper Title</th>-->
+<!--                        <th>Scores</th>-->
+<!--                    </tr>-->
+<!--                    </thead>-->
+<!--                <tbody>-->
+<!--                  {% for i in fulltext_list.0 %}-->
+<!--                    <tr >-->
+<!--                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>-->
+<!--                        <td > {{ i.score }}</td>-->
+<!--                    </tr>-->
 
 
-                    {% endfor %}
+<!--                    {% endfor %}-->
 
-                    </tbody>
+<!--                    </tbody>-->
 
-                </table>
-                <h3>Comparison Results</h3>
-                <table id="comparison" style="width:100%">
+<!--                </table>-->
+<!--                <h3>Intervention Results</h3>-->
+<!--             <table id="intervention" style="width:100%">-->
 
-                  <thead>
-                    <tr>
-                        <th>Research Paper Title</th>
-                        <th>Scores</th>
-                    </tr>
-                    </thead>
-                <tbody>
-                  {% for i in fulltext_list.2 %}
-                    <tr >
-                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
-                        <td > {{ i.score }}</td>
-                    </tr>
-
-
-                    {% endfor %}
-
-                    </tbody>
-
-                </table>
-                <h3>Outcome Results</h3>
-                <table id="outcome" style="width:100%">
-
-                  <thead>
-                    <tr>
-                        <th>Research Paper Title</th>
-                        <th>Scores</th>
-                    </tr>
-                    </thead>
-                <tbody>
-                  {% for i in fulltext_list.3 %}
-                    <tr >
-                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
-                        <td > {{ i.score }}</td>
-                    </tr>
+<!--                  <thead>-->
+<!--                    <tr>-->
+<!--                        <th>Research Paper Title</th>-->
+<!--                        <th>Scores</th>-->
+<!--                    </tr>-->
+<!--                    </thead>-->
+<!--                <tbody>-->
+<!--                  {% for i in fulltext_list.1 %}-->
+<!--                    <tr >-->
+<!--                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>-->
+<!--                        <td > {{ i.score }}</td>-->
+<!--                    </tr>-->
 
 
-                    {% endfor %}
+<!--                    {% endfor %}-->
 
-                    </tbody>
+<!--                    </tbody>-->
 
-                </table>
-                <h3>Context Results</h3>
-                <table id="context" style="width:100%">
+<!--                </table>-->
+<!--                <h3>Comparison Results</h3>-->
+<!--                <table id="comparison" style="width:100%">-->
 
-                  <thead>
-                    <tr>
-                        <th>Research Paper Title</th>
-                        <th>Scores</th>
-                    </tr>
-                    </thead>
-                <tbody>
-                  {% for i in fulltext_list.4 %}
-                    <tr >
-                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
-                        <td > {{ i.score }}</td>
-                    </tr>
+<!--                  <thead>-->
+<!--                    <tr>-->
+<!--                        <th>Research Paper Title</th>-->
+<!--                        <th>Scores</th>-->
+<!--                    </tr>-->
+<!--                    </thead>-->
+<!--                <tbody>-->
+<!--                  {% for i in fulltext_list.2 %}-->
+<!--                    <tr >-->
+<!--                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>-->
+<!--                        <td > {{ i.score }}</td>-->
+<!--                    </tr>-->
 
 
-                    {% endfor %}
+<!--                    {% endfor %}-->
 
-                    </tbody>
+<!--                    </tbody>-->
 
-                </table>
-                <div id="researchQuesDiv" class="container"></div>
+<!--                </table>-->
+<!--                <h3>Outcome Results</h3>-->
+<!--                <table id="outcome" style="width:100%">-->
+
+<!--                  <thead>-->
+<!--                    <tr>-->
+<!--                        <th>Research Paper Title</th>-->
+<!--                        <th>Scores</th>-->
+<!--                    </tr>-->
+<!--                    </thead>-->
+<!--                <tbody>-->
+<!--                  {% for i in fulltext_list.3 %}-->
+<!--                    <tr >-->
+<!--                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>-->
+<!--                        <td > {{ i.score }}</td>-->
+<!--                    </tr>-->
+
+
+<!--                    {% endfor %}-->
+
+<!--                    </tbody>-->
+
+<!--                </table>-->
+<!--                <h3>Context Results</h3>-->
+<!--                <table id="context" style="width:100%">-->
+
+<!--                  <thead>-->
+<!--                    <tr>-->
+<!--                        <th>Research Paper Title</th>-->
+<!--                        <th>Scores</th>-->
+<!--                    </tr>-->
+<!--                    </thead>-->
+<!--                <tbody>-->
+<!--                  {% for i in fulltext_list.4 %}-->
+<!--                    <tr >-->
+<!--                       <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>-->
+<!--                        <td > {{ i.score }}</td>-->
+<!--                    </tr>-->
+
+
+<!--                    {% endfor %}-->
+
+<!--                    </tbody>-->
+
+<!--                </table>-->
+                <div id="multipleDatatables" class="container"></div>
 <!--                <h3>Research Question 1 Results</h3>-->
 <!--                <table id="rq1" style="width:100%">-->
 
@@ -291,62 +291,83 @@
 
     <script>
         $(document).ready(function () {
-            $('#population').DataTable();
-            $('#intervention').DataTable();
-            $('#comparison').DataTable();
-            $('#outcome').DataTable();
-            $('#context').DataTable();
-            $('#rq1').DataTable();
-            $('#rq2').DataTable();
-            $('#rq3').DataTable();
             $.ajax({
-                     url: '/ajax/fulltext/',
-                     type: 'GET',
-                     dataType: 'json',
-                 }).done(function (data) {
+                url: '/ajax/fulltext/',
+                type: 'GET',
+                dataType: 'json',
+            }).done(function(data) {
+                console.log("data is ", data.full_text_map['population']);
 
-                      if (data.full_text_list) {
-                        // alert("Questions are retrieved successfully");
-                          console.log("List retireved");
-                        // console.log("List is  ", data.fulltext_list);
-                        var temp_html = ``;
+                var count = 0;
+                var totalDatatablesContent = "";
+                for(var i of Object.keys(data.full_text_map)) {
+                    var dataTableHtml = `
+        <h3 id="heading${count}" style="padding-bottom: 20px;padding-top: 50px;"></h3>
+            <table id="dataTable${count}" class="display" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>Article Link</th>
+                    <th>Title</th>
+                    <th>Score</th>
 
-                //         for(var j=0;j<data.research_questions_length;j++){
-                //             temp_html+=`<h3>Research Question ${j+5} Results</h3>
-                // <table id="rq${j+5}" style="width:100%">
-                //
-                //   <thead>
-                //     <tr>
-                //         <th>Research Paper Title</th>
-                //         <th>Scores</th>
-                //     </tr>
-                //     </thead>
-                // <tbody>`
-                //   + {% for i in fulltext_list.j+5 %}
-                //     `<tr >
-                //        <td ><a href= {{i.doi}} target="_blank"> {{ i.title }} </a></td>
-                //         <td > {{ i.score }}</td>
-                //     </tr>
-                //
-                //
-                //     {% endfor %}
-                //
-                //     </tbody>
-                //
-                // </table>`
-                //         }
-                //
-                //         $('#researchQuesDiv').html(temp_html);
+                </tr>
+            </thead>
+            <tfoot>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>`;
+
+                    totalDatatablesContent += dataTableHtml;
 
 
-                      }
-
-                  }).fail(function () {
-                        console.log("Data not present")
-                 });
+                    $("#multipleDatatables").html(totalDatatablesContent);
+                    count += 1;
+                }
+                var count = 0;
+                for(var i of Object.keys(data.full_text_map)) {
+                    $(`#heading${count}`).html(`${(count+1)} - ${i.charAt(0).toUpperCase() + i.slice(1)}` );
+                    var dat = data.full_text_map[i];
+                    console.log("i is ", i);
+                    console.log("data is ", data.full_text_map[i]);
+                    generateDatatable(`dataTable${count}`, dat);
+                    count += 1;
+                }
+            }).fail(function () {
+                console.log("Data not present")
+            });
+        });
             // var list_results = {{ fulltext_list}};
 
-        });
+
+
+    </script>
+    <script>
+        function generateDatatable(dataTableName, data){
+
+    $(`#${dataTableName}`).dataTable( {
+        dom: 'Bfrtip',
+        buttons: [
+        'copy', 'csv', 'excel', 'pdf','print'
+        ],
+        data: data,
+         order: [[ 2, 'desc' ]],
+        columns: [
+             {
+                "render": function (data, type, row, meta ) {
+                    return '<a  href='+row[0]+'>'+row[0]+' </a>';
+                }
+
+            },
+             {title: "Title"},
+            { title: "Score" }
+        ]
+    });
+
+}
     </script>
 <!--    <script src="/static/js/mustache.min.js"></script>-->
 <!--  <script src="/static/js/jquery-1.11.3.min.js"></script>-->

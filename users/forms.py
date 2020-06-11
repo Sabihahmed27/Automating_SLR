@@ -39,7 +39,7 @@ class QuestionForm(forms.Form):
 
 BookFormset = formset_factory(BookForm, extra=1)
 
-alphanumeric = RegexValidator(r'^[0-9a-zA-Z_ .?"-:!()]+$', 'Only alphanumeric characters are allowed.')
+alphanumeric = RegexValidator(r'^[a-zA-Z0-9\.\s]+$', 'Only alphanumeric characters are allowed.')
 QualityModelFormset = modelformset_factory(
     QualityAssessmentQuestions,
     fields=('quality_question',),
@@ -58,6 +58,7 @@ ResearchQuestionModelFormset = modelformset_factory(
     fields=('question', ),
     extra=1,
     widgets={'question': forms.TextInput(attrs={
+            'required': 'True',
             'class': 'form-control',
             'placeholder': 'Enter your question here'
         })
@@ -65,12 +66,15 @@ ResearchQuestionModelFormset = modelformset_factory(
 )
 
 class QuestionForm(forms.Form):
-    question = forms.CharField(
+    alphanumeric = RegexValidator(r'^[a-zA-Z0-9\.\s]+$', 'Only alphanumeric characters are allowed.')
+    quality_question = forms.CharField(
         label='Question',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Enter your Question here here'
-        })
+        }),
+        validators=[alphanumeric]
+
     )
 QuestionFormset = formset_factory(QuestionForm, extra=1)
 
@@ -119,6 +123,9 @@ class AbstractForm(forms.ModelForm):
 
 
 class JournalForm(forms.ModelForm):
+    alphanumeric = RegexValidator(r'^[a-zA-Z0-9\.\s]+$', 'Only alphanumeric characters are allowed.')
+    title = forms.CharField(max_length=300,help_text="Enter Title",validators=[alphanumeric], required=True)
+    author = forms.CharField(max_length = 200, help_text="Enter Author name", validators=[alphanumeric], required=True)
     start_year = forms.IntegerField(min_value=1960, label="Start Year", max_value=current_year(),help_text="Year format: YYYY", required=True,validators=[MinValueValidator(1960), max_value_current_year])
     end_year = forms.IntegerField(min_value=1960, label="End Year", max_value=current_year(),help_text="Year format: YYYY", required=True,validators=[MinValueValidator(1960), max_value_current_year])
     pdf = forms.FileField(label='', help_text="Formats accepted: PDF", required=True,validators=[FileTypeValidator(allowed_types=['application/pdf'])])
@@ -133,12 +140,12 @@ class JournalForm(forms.ModelForm):
 
 # '^[0-9a-zA-Z_ .?"-:!()]+$'
 class SimpleForm(forms.ModelForm):
-    alphanumeric = RegexValidator(r'^[a-zA-Z]', 'Only alphanumeric characters are allowed.')
-    Title = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=True)
+    alphanumeric = RegexValidator(r'^[a-zA-Z0-9\.\s]+$', 'Only alphanumeric characters are allowed.')
+    Title = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric], required=True)
     StartYear = forms.IntegerField(min_value=1960, label="Start Year", max_value=current_year(), help_text="Year format: YYYY",required=True ,validators=[MinValueValidator(1960), max_value_current_year])
     EndYear = forms.IntegerField(min_value=1960, label="End Year",max_value=current_year(), help_text="Year format: YYYY", required=True,validators=[MinValueValidator(1960), max_value_current_year])
-    Author = forms.CharField(max_length = 200, help_text="Enter Author name",required=True)
-    Keyword = forms.CharField(max_length=300, help_text="(Keyword for Abstract Screening)", required=True)
+    Author = forms.CharField(max_length = 200, help_text="Enter Author name", validators=[alphanumeric], required=True)
+    Keyword = forms.CharField(max_length=300, help_text="(Keyword for Abstract Screening)",validators=[alphanumeric],required=True)
     class Meta:
         model = Articles
         fields = ['Title', 'Author','StartYear','EndYear','Keyword']
@@ -146,7 +153,7 @@ class SimpleForm(forms.ModelForm):
     #lastname = forms.CharField(max_length=100)
 
 class PICOC(forms.ModelForm):
-    alphanumeric = RegexValidator(r'^[0-9a-zA-Z_ .?"-:!()]+$', 'Only alphanumeric characters are allowed.')
+    alphanumeric = RegexValidator(r'^[a-zA-Z0-9\.\s]+$', 'Only alphanumeric characters are allowed.')
     population = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=True)
     intervention = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=True)
     comparison = forms.CharField(max_length=300,help_text="(Keyword AND keyword)",validators=[alphanumeric],required=True)
@@ -160,7 +167,7 @@ class PICOC(forms.ModelForm):
 
 
 class QuestionForm(forms.ModelForm):
-    alphanumeric = RegexValidator(r'^[0-9a-zA-Z_ .?"-:!()]+$', 'Only alphanumeric characters are allowed.')
+    alphanumeric = RegexValidator(r'^[0-9a-zA-Z_ .?"-:!()]+$',message='Only alphanumeric characters are allowed.')
     question1 = forms.CharField(max_length=300,help_text="Please specify Research Question",validators=[alphanumeric],required=True)
     question2 = forms.CharField(max_length=300,help_text="Please specify Research Question",validators=[alphanumeric],required=True)
     question3 = forms.CharField(max_length=300,help_text="Please specify Research Question",validators=[alphanumeric],required=True)
@@ -184,4 +191,3 @@ class SearchBar(forms.ModelForm):
     class Meta:
         model = Articles
         fields = ['search_string']
-

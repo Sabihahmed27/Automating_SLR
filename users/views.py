@@ -155,17 +155,21 @@ def data(request):
         hello(request)
         form2 = PICOC(request.POST)
         if form2.is_valid():
-            ResearchPapers.objects.all().delete()
             picoc = form2.save(commit=True)
             picoc.user = request.user
             picoc.save()
+            form2 = PICOC()
 
             savePicoc(request)
             messages.success(request, f'PICOC have been saved successfully')
             return render(request, 'users/scholar.html', {'form2': form2, 'form4': form4, 'form3': form3,'formset': formset})
+        else:
+            temp_messages = 'Invalid Input! Please provide a valid input'
+            return render(request, 'users/scholar.html', {'form2': form2, 'form4': form4, 'form3': form3,'formset': formset, 'temp_messages': temp_messages})
 
     if request.method == 'POST' and 'btnform3' in request.POST:
         form = SimpleForm(request.POST)
+
         if form.is_valid():
             # query = input('Enter the query to be searched: ')
             query = form.cleaned_data.get("Title")
@@ -202,19 +206,19 @@ def data(request):
                 if len(author.replace(" ", "")) == 0:
                     temp_messages = 'Invalid Input! Please provide a valid Author name'
                     # messages.error(request, f'Wrong Url')
-                    return render(request, 'users/scholar.html', {'form2': form2, 'form4': form4, 'form3': form3,'formset': formset, 'temp_messages': temp_messages})
+                    return render(request, 'users/scholar.html', {'form': form,'form2': form2,'formset': formset,'temp_messages': temp_messages})
 
                 if len(query.replace(" ", "")) == 0:
                     temp_messages = 'Invalid Input! Please provide a valid Title'
                     # messages.error(request, f'Wrong Url')
-                    return render(request, 'users/scholar.html', {'form': form, 'temp_messages': temp_messages})
+                    return render(request, 'users/scholar.html', {'form4': form4,'formset': formset,'form2':form2, 'temp_messages': temp_messages})
 
                 # if query.isa
                 #     return render(request, 'users/scholar.html', {'form': form})
 
                 x = cr.works(query=query, filter={'has_full_text': True})
                 if x['status'] == "error":
-                    return render(request, 'users/scholar.html', {'form4': form4, 'form2': form2, 'form3': form3,'formset': formset})
+                    return render(request, 'users/scholar.html', {'form4': form4, 'form2': form2,'formset': formset})
 
                 crossref_titles = []
                 crossref_year = []
@@ -369,16 +373,16 @@ def data(request):
                                                               'core': core,
                                                               'form4': form4,
                                                               'form2': form2,
-                                                              'form3': form3,
                                                               'formset': formset
                                                               })
             except HTTPError:
                 messages.error(request, f'No response from Server')
-                return render(request, 'users/scholar.html', {'form4': form4, 'form2': form2, 'form3': form3,'formset': formset})
+                return render(request, 'users/scholar.html', {'form4': form4, 'form2': form2,'formset': formset})
 
 
         else:
-            return render(request, 'users/scholar.html', {'form4': form4, 'form2': form2, 'form3': form3,'formset': formset})
+            temp_messages = 'Invalid Input! Please provide a valid input'
+            return render(request, 'users/scholar.html', {'form4': form4, 'form2': form2,'formset': formset,'temp_messages':temp_messages })
 
     if request.method == 'POST' and 'btnform4' in request.POST:
         print("formset")
@@ -391,13 +395,14 @@ def data(request):
                     question = x.save(commit=True)
                     question.user = request.user
                     question.save()
+                    formset = ResearchQuestionModelFormset(queryset=ResearchQuestion.objects.none())
 
 
             q = ResearchQuestion.objects.all()
             for question in q:
                 print("all question", question)
             messages.success(request, f'Research Questions have been saved successfully')
-            return render(request, 'users/scholar.html', {'form4':form4,'form2':form2, 'form3': form3, 'formset': formset})
+            return render(request, 'users/scholar.html', {'form4':form4,'form2':form2, 'formset': formset})
 
     if request.method == 'POST' and 'btnform1' in request.POST:
         print("hello world")
@@ -407,11 +412,10 @@ def data(request):
             question = form3.save(commit=True)
             question.user = request.user
             question.save()
-
             questionSave(request)
             messages.success(request, f'PICOC have been saved successfully')
 
-        return render(request, 'users/scholar.html', {'form2': form2, 'form4': form4, 'form3': form3,'formset': formset})
+        return render(request, 'users/scholar.html', {'form2': form2, 'form4': form4,'formset': formset})
 
 
 
@@ -419,9 +423,10 @@ def data(request):
         form4 = SimpleForm()
         form2 = PICOC()
         form3 = QuestionForm()
-        formset = ResearchFormset(None)
+        formset = ResearchQuestionModelFormset(queryset=ResearchQuestion.objects.none())
 
-        return render(request, 'users/scholar.html', {'form4': form4, 'form2': form2, 'form3': form3, 'formset': formset})
+        return render(request, 'users/scholar.html', {'form4': form4, 'form2': form2,'formset': formset})
+
 def funct():
     return common_dois
 
@@ -895,15 +900,22 @@ def create_index(doi_title_abstract):
         article_title=ID(stored=True),
         article_abstract=TEXT(analyzer=StemmingAnalyzer(), stored=True)
     )
-    database = SqliteDict('./SLR_database_updated.sqlite', autocommit=True)
     database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
 
-    ix = index.create_in("C:\\Users\\sahme\\PycharmProjects\\Automating_SLR\\django_project\\index_dir", schema)
+    ix = index.create_in("E:\\FYP\Automating_SLR\\django_project\\indexdir_abstract", schema)
 
     writer = ix.writer()
+    print("DOI_TITLE_ABSTRACT")
+    print(doi_title_abstract)
 
+    not_found_abstracts = []
+    print("Found DOIs")
     for i in doi_title_abstract:
-        writer.add_document(article_doi=u"" + i, article_title=u"" + database['snowballing'][i]['title'], article_abstract=u"" + database2['abstract'][i])
+        if i.replace('https://dx.doi.org/','') in database2['abstract']:
+            print(i.replace('https://dx.doi.org/',''))
+            writer.add_document(article_doi=u"" + i.replace('https://dx.doi.org/',''), article_title=u"" + doi_title_abstract[i], article_abstract=u"" + database2['abstract'][i.replace('https://dx.doi.org/','')])
+        else:
+            not_found_abstracts.append(i)
 
     writer.commit()
 
@@ -953,7 +965,7 @@ def perform_search(ix, input_query):
         # print('\n' + final_query + '\n')
 
         query_user = query_parser.parse(final_query)
-
+        print(query_user)
         results = searcher.search(query_user)
 
         print("\nTotal Documents Matched: " + str(len(results)))
@@ -969,10 +981,11 @@ def perform_search(ix, input_query):
 def abstract(request):
 
     res_dict = request.session['result_dict']
-    database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
+    print("DOI list from snowballing")
+    for i in res_dict:
+        print("DOI link: "+ i + " Article:"+ res_dict[i])
 
-    list_abstracts = database2['abstract']
-    index = create_index(list_abstracts)
+    index = create_index(res_dict)
 
     word = request.session.get("Keyword")
     map_result = perform_search(index, word)
@@ -990,10 +1003,9 @@ def abstract(request):
     #             #messages.error(request,f'Wrong Url')
     #             return render(request, 'users/abstract.html', {'form': form})
 
-    del request.session['list']
-    del request.session['author']
-    del request.session['StartYear']
-    del request.session['EndYear']
+
+    request.session['abstract_result'] = map_result
+
 
 
 
@@ -1008,25 +1020,34 @@ def create_index_fulltext(doi_title_abstract):
         article_fulltext=TEXT(analyzer=StemmingAnalyzer(), stored=True)
     )
 
-    ix = index.create_in("C:\\Users\\sahme\\PycharmProjects\\Automating_SLR\\django_project\\indexdir_fulltext", schema)
+    ix = index.create_in("E:\\FYP\Automating_SLR\\django_project\\indexdir_fulltext", schema)
 
     writer = ix.writer()
     database = SqliteDict('./SLR_database_updated.sqlite', autocommit=True)
     database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
 
     for i in doi_title_abstract:
-        writer.add_document(article_doi=u"" + i, article_title=u"" + database['snowballing'][i]['title'],
-                            article_fulltext=u"" + database2['fulltext'][i])
+        if i in database2['fulltext']:
+            writer.add_document(article_doi=u"" + i, article_title=u"" + doi_title_abstract[i],
+                                article_fulltext=u"" + database2['fulltext'][i])
 
     writer.commit()
 
     return ix
 
-class fullTextData:
-    def __init__(self, doi, title, score):
+def default(o):
+    if hasattr(o, 'to_json'):
+        return o.to_json()
+    raise TypeError(f'Object of type {o.__class__.__name__} is not JSON serializable')
+
+class fullTextData(object):
+    def __init__(self,doi,title,score):
         self.doi = doi
         self.title = title
         self.score = score
+
+    def to_json(self):
+        return {'doi': self.doi, 'title': self.title, 'score': self.score}
 
 def perform_search_fulltext(ix, input_query, add_synonyms = True):
     if add_synonyms:
@@ -1091,8 +1112,11 @@ def perform_search_fulltext(ix, input_query, add_synonyms = True):
         print("\nTotal Documents Matched: " + str(len(results)))
 
         full_text_list = []
+        full_text_dict = {}
+        temp_list = []
         return_map = {}
         for result in results:
+            temp_list.append(["https://dx.doi.org/" +str( result['article_doi']), result['article_title'], result.score])
             return_map[result['article_doi']] = fullTextData(result['article_doi'],result['article_title'],result.score)
             full_text_list.append(fullTextData("https://dx.doi.org/" +str( result['article_doi']), result['article_title'], result.score))
 
@@ -1100,7 +1124,7 @@ def perform_search_fulltext(ix, input_query, add_synonyms = True):
         for i in full_text_list:
             print(i)
 
-    return full_text_list
+    return temp_list
     #     return_map = {}
     #     for result in results:
     #         return_map[result['article_doi']] = result['article_title']
@@ -1109,10 +1133,16 @@ def perform_search_fulltext(ix, input_query, add_synonyms = True):
     #
     # return return_map
 def fulltext_ajax(request):
-    database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
-    doi_fulltext = database2['fulltext']
+    abstract_result_dict = request.session['abstract_result']
+    print("Results from abstract screening")
+    for i in abstract_result_dict:
+        print("DOI: " + i + " Article: " + abstract_result_dict[i])
 
-    ix_fulltext = create_index_fulltext(doi_fulltext)
+
+    # database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
+    # doi_fulltext = database2['fulltext']
+
+    ix_fulltext = create_index_fulltext(abstract_result_dict)
     full_text_dict = {}
     fulltext_list = []
 
@@ -1123,63 +1153,30 @@ def fulltext_ajax(request):
     print("PICOC details in fulltext")
     picoc = ResearchPapers.objects.filter(user=request.user).values()
 
-    dict_map= {}
+    for i in picoc:
+        print("i is ", i)
+
+    dict_map = {}
     dict_list = []
-    dict_list.append(perform_search_fulltext(ix_fulltext, picoc[0]['population']))
-    dict_list.append(perform_search_fulltext(ix_fulltext,picoc[0]['intervention']))
-    dict_list.append(perform_search_fulltext(ix_fulltext, picoc[0]['comparison']))
-    dict_list.append(perform_search_fulltext(ix_fulltext, picoc[0]['outcome']))
-    dict_list.append(perform_search_fulltext(ix_fulltext, picoc[0]['context']))
+    dict_map['population'] = perform_search_fulltext(ix_fulltext, picoc[0]['population'])
+    dict_map['intervention'] = perform_search_fulltext(ix_fulltext, picoc[0]['intervention'])
+    dict_map['comparison'] = perform_search_fulltext(ix_fulltext, picoc[0]['comparison'])
+    dict_map['outcome'] = perform_search_fulltext(ix_fulltext, picoc[0]['outcome'])
+    dict_map['context'] = perform_search_fulltext(ix_fulltext, picoc[0]['context'])
 
-
+    print("type of ", str(type(dict_list)))
     researchQuestions = ResearchQuestion.objects.filter(user=request.user)
     for r in researchQuestions:
-        dict_list.append(perform_search_fulltext(ix_fulltext, r.question))
+        dict_map[r.question] = perform_search_fulltext(ix_fulltext, r.question)
+        print("r.question is ", r.question)
 
-    researchQuestions = ResearchQuestion.objects.filter(user=request.user)
-    # for r in researchQuestions:
-    #     dict_list.append(perform_search_fulltext(ix_fulltext, r.question))
-    print("Research Questions length" + str(len(researchQuestions)))
-    print(type(json.dumps(dict_list)))
-    return JsonResponse({"full_text_list": dict_list},safe=False)
+    return JsonResponse({"full_text_map":dict_map})
 
 
 
 def fulltext(request):
-    database2 = SqliteDict('./screening_db.sqlite', autocommit=True)
-    doi_fulltext = database2['fulltext']
 
-    ix_fulltext = create_index_fulltext(doi_fulltext)
-    full_text_dict = {}
-    fulltext_list = []
-
-    # fulltext_list = perform_search_fulltext(ix_fulltext, """ Automation
-    #  development to writing and dissemination of the
-    # review""")
-    fulltext_list.sort(key=lambda x: x.score, reverse=True)
-    print("PICOC details in fulltext")
-    picoc = ResearchPapers.objects.filter(user=request.user).values()
-
-    dict_map= {}
-    dict_list = []
-    dict_list.append(perform_search_fulltext(ix_fulltext, picoc[0]['population']))
-    dict_list.append(perform_search_fulltext(ix_fulltext,picoc[0]['intervention']))
-    dict_list.append(perform_search_fulltext(ix_fulltext, picoc[0]['comparison']))
-    dict_list.append(perform_search_fulltext(ix_fulltext, picoc[0]['outcome']))
-    dict_list.append(perform_search_fulltext(ix_fulltext, picoc[0]['context']))
-
-
-    researchQuestions = ResearchQuestion.objects.filter(user=request.user)
-    for r in researchQuestions:
-        dict_list.append(perform_search_fulltext(ix_fulltext, r.question))
-
-    for i in dict_list:
-        for j in i:
-            print(j.doi + " " + j.title)
-            # data_table_list.append((j))
-
-
-    return render(request, 'users/fulltext.html', {'fulltext_list' : dict_list})
+    return render(request, 'users/fulltext.html')
 
 def questions(request):
     questions = ResearchQuestion.objects.filter(user=request.user)
@@ -1187,32 +1184,43 @@ def questions(request):
 
     queryset = ResearchQuestion.objects.filter(user=request.user).values()
     print("query set in list", list(queryset))
+    l = list(queryset)
+    for i in l:
+        print("i is questions ", i)
+    print("type is ", type(list(queryset)))
     return JsonResponse({"questions": list(queryset)})
 
 def quality_assessment_questions(request):
     print("hello world")
     template_name = 'users/qualityAssessmentQuestions.html'
     if request.method == 'GET':
+        question_list = QualityAssessmentQuestions.objects.filter(user=request.user)
+        print("question list are ", question_list)
         formset = QualityModelFormset(queryset=QualityAssessmentQuestions.objects.none())
     elif request.method == 'POST':
         formset = QualityModelFormset(request.POST)
         if formset.is_valid():
-            QualityAssessmentQuestions.objects.all().delete()
             for x in formset:
                 # only save if name is present
                 if x.cleaned_data.get('quality_question'):
                     question = x.save(commit=True)
                     question.user = request.user
                     question.save()
+                    formset = QualityModelFormset(queryset=QualityAssessmentQuestions.objects.none())
+                    question_list = QualityAssessmentQuestions.objects.filter(user=request.user)
 
 
             q = QualityAssessmentQuestions.objects.all()
             for i in q:
                 print(i.quality_question)
+        else:
+            print("error!!")
+            question_list = QualityAssessmentQuestions.objects.filter(user=request.user)
+            return render(request, template_name, {'formset': formset, 'question_list': question_list})
 
 
     return render(request, template_name, {
-        'formset': formset
+        'formset': formset, 'question_list':question_list
     })
 
 def quality_assessment(request):
@@ -1281,19 +1289,15 @@ def testing(request,username):
 def journal_deleteOne(request,key):
     instance = Papers.objects.get(id=key)
     instance.delete()
-    return render(request, 'users/journal_history.html')
+
+    journals = Papers.objects.filter(user=request.user).order_by('-uploaded_at')
+
+    return render(request, 'users/journal_history.html', {'journals': journals})
 
 
 def journal_history(request):
     print("hello world")
     journals = Papers.objects.filter(user=request.user).order_by('-uploaded_at')
-    #
-    # for j in journals:
-    #     print(j.id)
-    #
-    #
-    # id = Papers.objects.filter(title='systematic literature review').values('id')[0]['id']
-    # print(id)
 
     return render(request, 'users/journal_history.html', {'journals': journals})
 
@@ -1424,5 +1428,19 @@ def quality_question(request):
 
     queryset = QualityAssessmentQuestions.objects.filter(user=request.user).values()
     print("query set in list", list(queryset))
+    l = list(queryset)
+    print("type is ", type(l))
 
     return JsonResponse({"quality_question": list(queryset)})
+
+
+def delete_quality_assessment_questions(request, key):
+    instance = QualityAssessmentQuestions.objects.get(id=key)
+    print("the key is ", instance)
+    instance.delete()
+    formset = QualityModelFormset(queryset=QualityAssessmentQuestions.objects.none())
+    question_list = QualityAssessmentQuestions.objects.filter(user=request.user)
+    redirect('qualityAssessmentQuestion.html', {'formset':formset, 'question_list': question_list})
+
+    return render(request, 'users/qualityAssessmentQuestions.html', {'formset': formset, 'question_list': question_list})
+

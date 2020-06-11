@@ -46,7 +46,7 @@
     <a href="/abstract" class="disable">Abstract Screening</a>
   </li>
         <li >
-    <a href="/fulltext">Full-Text Screening</a>
+    <a href="/fulltext"  class="disable">Full-Text Screening</a>
   </li>
         <li >
     <a href="/quality-assessment-questions">Quality Assessment Questions</a>
@@ -133,24 +133,27 @@
             for(var i=0;i < sectionArr.length; i++){
                 allContent +=
                 `<div>
-                    <h3 id="${(i+1)}" style="padding-top: 30px;padding-bottom: 30px;">
-                        Q${(i+1)}-${sectionArr[i]}
+                    <h3 id="${(i+1)}" style="padding-top: 30px;padding-bottom: 10px; padding-left: 20px">
+                        Q${(i+1)} - ${sectionArr[i].charAt(0).toUpperCase() + sectionArr[i].slice(1)}
                     </h3>`;
                 for(var j =0;j < quesArr.length ;j++){
                     allContent +=
-                        `
-                        ${(j+1)}-${quesArr[j]}
-                        <div id="abc${(i+1)}-${(j+1)}" style="color:red;padding-top: 30px"></div>
-                    <div class="abc${(i+1)}-${(j+1)}" style="padding-top:40px;padding-bottom:40px;">
+                        `<div class="list-group-item">
+                        <h5 style="padding-left:40px; padding-top: 20px;">
+                        ${(j+1)} - ${quesArr[j]}
+                        </h5>
+                        <div id="abc${(i+1)}-${(j+1)}" style="color:red;padding-top: 30px; padding-left:40px;"></div>
+                    <div class="abc${(i+1)}-${(j+1)}" style="padding-top:40px;padding-bottom:40px;padding-left:40px;">
                     <label class="radio-inline" style="width:33%"><input type="radio" name="optradio${(i+1)}-${(j+1)}" value="Yes">&nbspYes</label>
                     <label class="radio-inline" style="width:33%"><input type="radio" name="optradio${(i+1)}-${(j+1)}" value="No">&nbspNo</label>
-                    <label class="radio-inline" style="width:33%"><input type="radio" name="optradio${(i+1)}-${(j+1)}" value="Maybe">&nbspMaybe</label></div>`;
+                    <label class="radio-inline" style="width:33%"><input type="radio" name="optradio${(i+1)}-${(j+1)}" value="Maybe">&nbspMaybe</label></div>
+                    </div>`
                 }
                 allContent +=  `</div>`;
             }
             allContent +=
             `<div>
-                <input type="button" id="btn" value="Submit Response">
+                <input type="button" class="btn btn-success offset-5 mt-4" id="btn" value="Submit Response">
             </div>`
 
             $("#container").html(allContent);
@@ -280,15 +283,16 @@
                     var divContent = ``;
 
                     for (var i=0;i<sectionArr.length;i++){
-                        divContent += `
-                            <h5>${sectionArr[i]}</h5>
-                            <p style="padding-bottom:30px">${((Scores[i]/quesArr.length)*100).toFixed(2)}% Accuracy</p>
-                        `
+                        divContent +=
+                            `<div class="list-group-item">
+                            <h5 style="padding: 30px;" >${sectionArr[i].charAt(0).toUpperCase() + sectionArr[i].slice(1)}</h5>
+                            <p style="padding: 30px;" >${((Scores[i]/quesArr.length)*100).toFixed(2)}% Accuracy</p>
+                        </div>`
                     }
 
 
                     $('#scoresdiv').html(`
-                                <h2>
+                                <h2 id="report-heading" style="padding-left: 40px">
                         Quality Assessment Report
                     </h2>
 
@@ -296,9 +300,11 @@
                         ${divContent}
                     </div>
                     `)
+                     $('html, body').animate({
+                        scrollTop: $(`#report-heading`).offset().top
+                    }, 2000);
 
                 }
-
 
             });
 
