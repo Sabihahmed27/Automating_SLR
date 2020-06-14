@@ -1,33 +1,32 @@
 {% extends "blog/base.html" %}
-{% load crispy_forms_tags %}
 {% block content %}
-
-<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Question Form</title>
-
-    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-<!--      <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>-->
-<!--  <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>-->
-
-    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <style type="text/css">
+        .spacer{
+            margin-top:25px;
+        }
+    </style>
 </head>
-<body>
-<form class="form-horizontal" method="POST">
-{% csrf_token %}
+
+{% if heading %}
+<h3>{{heading}}</h3>
+{% endif %}
+<form class="form-horizontal" method="POST" action="">
+    {% csrf_token %}
 {{ formset.management_form }}
-{% for form in formset %}
+{% for form1 in formset %}
 <div class="row form-row spacer">
     <div class="col-2">
-        <label>{{form.name.label}}</label>
+        <label>{{form1.name.label}}</label>
     </div>
     <div class="col-4">
         <div class="input-group">
-            {{form.name1}}
+            {{form1.name}}
             <div class="input-group-append">
                 <button class="btn btn-success add-form-row">+</button>
             </div>
@@ -35,15 +34,20 @@
     </div>
 </div>
 {% endfor %}
-
 <div class="row spacer">
     <div class="col-4 offset-2">
         <button type="submit" class="btn btn-block btn-primary">Create</button>
     </div>
 </div>
 </form>
+{% endblock %}
 
-<script type='text/javascript'>
+{% block custom_js %}
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+<script type="text/javascript">
 function updateElementIndex(el, prefix, ndx) {
     var id_regex = new RegExp('(' + prefix + '-\\d+)');
     var replacement = prefix + '-' + ndx;
@@ -54,15 +58,13 @@ function updateElementIndex(el, prefix, ndx) {
 function cloneMore(selector, prefix) {
     var newElement = $(selector).clone(true);
     var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
-    console.log("total is ", total);
-    var original_name  = $("#id_name1").val();
-    console.log("original_name is ", original_name);
     newElement.find(':input:not([type=button]):not([type=submit]):not([type=reset])').each(function() {
-        var name1 = $(this).attr('name');
-        console.log("name1 is ", name1);
-        var name = $(this).attr('name').replace('-' + (total-1) + '-', '-' + total + '-');
-        var id = 'id_' + name;
-        $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+        var name = $(this).attr('name')
+        if(name) {
+            name = name.replace('-' + (total-1) + '-', '-' + total + '-');
+            var id = 'id_' + name;
+            $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+        }
     });
     newElement.find('label').each(function() {
         var forValue = $(this).attr('for');
@@ -78,7 +80,7 @@ function cloneMore(selector, prefix) {
     conditionRow.find('.btn.add-form-row')
     .removeClass('btn-success').addClass('btn-danger')
     .removeClass('add-form-row').addClass('remove-form-row')
-    .html('<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>');
+    .html('-');
     return false;
 }
 function deleteForm(prefix, btn) {
@@ -96,8 +98,6 @@ function deleteForm(prefix, btn) {
     return false;
 }
 $(document).on('click', '.add-form-row', function(e){
-    var original_name  = $("#id_name1").val();
-    console.log("original_name is ", original_name);
     e.preventDefault();
     cloneMore('.form-row:last', 'form');
     return false;
@@ -107,11 +107,6 @@ $(document).on('click', '.remove-form-row', function(e){
     deleteForm('form', $(this));
     return false;
 });
+
 </script>
-
-
-
-
-</body>
-{% endblock content %}
-</html>
+{% endblock %}

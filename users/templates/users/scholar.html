@@ -94,100 +94,13 @@
 
   <div class="row">
     <div class="col-sm-11 col-md-12 col-lg-13">
-      <form method="post">
-        <input type='hidden' name='csrfmiddlewaretoken' value='IZ6IugjtKNXR3KF5gJDWTVxuxeiZPf2i' />
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title">Review details</h3>
-          </div>
-          <div class="panel-body">
 
-
-<section>
-
-    <div class="content-section">
-        <form method="POST">
-            {% csrf_token %}
-            <fieldset class = "form-group" >
-                <legend class="border-bottom mb-4">Data Retrieval </legend>
-                {{ form4|crispy }}
-
-                <p><input type="submit" name="btnform3" class="btn btn-primary" value="submit"></p>
-
-
-
-          <a href="/snowballing" id="snowballing-btn2" class="btn btn-primary pull-right">Start Snowballing</a>
-
-
-
-                <table id="database_table" class="table" style="width:100%">
-                    <thead>
-                    <tr>
-                        <th>Year</th>
-                        <th>Title</th>
-                        <th>Article</th>
-
-
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for i,j,k in core %}
-                    <tr>
-                        <td >{{j}} </td>
-
-                         <td>{{i}}</td>
-
-                    <td>
-                        <a href="{{k}}" class="btn btn-primary btn-sm" target="_blank">
-                            Open Article
-                        </a>
-                    </td>
-                    </tr>
-
-                    {% endfor %}
-
-                    {% for x,y,z in crossRef %}
-                    <tr>
-                        <td >{{y}} </td>
-
-                        <td>{{x}}</td>
-
-                        <td>
-                        <a href="{{z}}" class="btn btn-primary btn-sm" target="_blank">
-                            Open Article
-                        </a>
-                    </td>
-                    </tr>
-
-                    {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </fieldset>
-
-
-        </form>
-
-    </div>
-
-
-</section>
-
-          </div>
-
-
-        </div>
-
-      </form>
       <form method="post">
         <input type='hidden' name='csrfmiddlewaretoken' value='IZ6IugjtKNXR3KF5gJDWTVxuxeiZPf2i' />
         <div class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title">PICOC</h3>
-              <p>Separate the terms used in the PICOC using commas for building better search string.</p>
-              <p>Any section of PICOC can be left as blank if it doesn't apply to your research.</p>
+              <p>Separate the terms used in the PICOC using spaces for building better search string.</p>
           </div>
           <div class="panel-body">
 
@@ -294,10 +207,98 @@
                         {% endfor %}
                         <div class="row spacer">
                             <div class="col-4 offset-2">
-                                <button type="submit" name="btnform4" class="btn btn-block btn-primary">Create</button>
+                                <button type="submit" id="btnClick" name="btnform4" data="0" class="btn btn-block btn-primary">Create</button>
                             </div>
                         </div>
                         </form>
+
+    </div>
+
+
+</section>
+
+          </div>
+
+
+        </div>
+
+      </form>
+
+        <form method="post">
+        <input type='hidden' name='csrfmiddlewaretoken' value='IZ6IugjtKNXR3KF5gJDWTVxuxeiZPf2i' />
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">Review details</h3>
+          </div>
+          <div class="panel-body">
+
+
+<section>
+
+    <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class = "form-group" >
+                <legend class="border-bottom mb-4">Data Retrieval </legend>
+                {{ form4|crispy }}
+
+                <p><input type="submit" name="btnform3" class="btn btn-primary" value="submit"></p>
+
+
+
+          <a href="/snowballing" id="snowballing-btn2" class="btn btn-primary pull-right">Start Snowballing</a>
+
+
+
+                <table id="database_table" class="table" style="width:100%">
+                    <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Title</th>
+                        <th>Article</th>
+
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for i,j,k in core %}
+                    <tr>
+                        <td >{{j}} </td>
+
+                         <td>{{i}}</td>
+
+                    <td>
+                        <a href="{{k}}" class="btn btn-primary btn-sm" target="_blank">
+                            Open Article
+                        </a>
+                    </td>
+                    </tr>
+
+                    {% endfor %}
+
+                    {% for x,y,z in crossRef %}
+                    <tr>
+                        <td >{{y}} </td>
+
+                        <td>{{x}}</td>
+
+                        <td>
+                        <a href="{{z}}" class="btn btn-primary btn-sm" target="_blank">
+                            Open Article
+                        </a>
+                    </td>
+                    </tr>
+
+                    {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </fieldset>
+
+
+        </form>
 
     </div>
 
@@ -319,6 +320,7 @@
 {% endblock %}
     <script>
         $(document).ready(function () {
+             var value = 1;
             var table = $('#database_table').DataTable();
 
             if(!table.data().any()){
@@ -359,6 +361,7 @@ function updateElementIndex(el, prefix, ndx) {
 function cloneMore(selector, prefix) {
     var newElement = $(selector).clone(true);
     var total = $('#id_' + prefix + '-TOTAL_FORMS').val();
+    $("#btnClick").attr('data',total);
     newElement.find(':input:not([type=button]):not([type=submit]):not([type=reset])').each(function() {
         var name = $(this).attr('name')
         if(name) {
@@ -384,6 +387,51 @@ function cloneMore(selector, prefix) {
     .html('-');
     return false;
 }
+ function validate(total) {
+    if(total == 0 ) {
+        return $(`#id_form-0-question`).val().match(/^[0-9a-zA-Z\.\s\?!]+$/)?[]: [`#id_form-0-question`]
+    }
+    var total_forms = total;
+    console.log("total forms are ", total_forms);
+    var isValid = true;
+    var inValidText = [];
+
+    for(var i = 0; i <= total_forms; i++) {
+       var text =  $(`#id_form-${i}-question`).val();
+       console.log("text is ", text);
+        var status = text.match(/^[0-9a-zA-Z\.\s\?!]+$/);
+
+        if(!status) {
+            isValid = false;
+            inValidText.push(`#id_form-${i}-question`);
+            console.log("invalid input", text);
+
+
+        }
+
+
+    }
+    return inValidText;
+    console.log("is valid ", isValid);
+
+}
+$("#btnClick").click(function(e) {
+    console.log("submit called");
+    var total = $(this).attr('data');
+
+    console.log("value is  ", total);
+    var inValidText = validate(total);
+    if(inValidText.length) {
+        for(var i = 0; i< inValidText.length; i++) {
+            window.alert($(inValidText[i]).val() + "is not a valid Input");
+        }
+        e.preventDefault();
+    }
+
+
+
+
+});
 function deleteForm(prefix, btn) {
     var total = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
     if (total > 1){

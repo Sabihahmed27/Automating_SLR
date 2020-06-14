@@ -82,12 +82,20 @@
 
         {% if messages %}
            {% for message in messages %}
+            {% if message.tags == 'success'%}
+                <div class="alert alert-success">
+                    {{ message }}
+                </div>
+            {% endif %}
+            {% if message.tags == 'error'%}
+                <div class="alert alert-danger">
+                    {{ message }}
+                </div>
+            {% endif %}
 
-            <div class="alert alert-success">
-                {{ message }}
-            </div>
            {% endfor %}
         {% endif %}
+
 
         {% if temp_messages %}
 
